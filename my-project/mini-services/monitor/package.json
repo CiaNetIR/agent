@@ -1,0 +1,7 @@
+{
+  "name": "api-monitor",
+  "private": true,
+  "scripts": {
+    "dev": "bash supervisor.sh"
+  }
+}

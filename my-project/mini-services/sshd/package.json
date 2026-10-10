@@ -1,0 +1,10 @@
+{
+  "name": "cianet-userspace-sshd",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bash supervisor.sh",
+    "start": "bash supervisor.sh",
+    "ctl": "bash sshd_ctl.sh"
+  }
+}

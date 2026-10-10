@@ -1,0 +1,19 @@
+{
+  "name": "vpnstar-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Z agent core — scraper scheduler, WooCommerce sync, daily AI report, site support chat, image generation, real-time invoices (:3004)",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts",
+    "postinstall": "prisma generate --schema ./prisma-schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.11.1",
+    "z-ai-web-dev-sdk": "^0.0.18"
+  },
+  "devDependencies": {
+    "prisma": "^6.11.1"
+  }
+}

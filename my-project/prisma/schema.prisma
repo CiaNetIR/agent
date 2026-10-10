@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Additional Telegram accounts managed from the panel («اکانت‌ها» tab).
+// Each row = one isolated watcher instance under ~/tg-tools/instances/<id>/.
+model TgAccount {
+  id        String   @id @default(cuid())
+  label     String
+  topic     String   @default("")
+  phone     String   @default("")
+  session   String   @default("")
+  persona   String   @default("")
+  footer    String   @default("")
+  thinking  Boolean  @default(true)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ===================== Agent system («ایجنت» — mini-services/agent :3004) =====================
+
+// key/value settings for the whole agent service (panel «ایجنت» tab)
+model AgentSetting {
+  key   String @id
+  value String
+}
+
+// every scheduled or manual job execution (scraper / woo_sync / report / image / invoice)
+model AgentJobRun {
+  id         String    @id @default(cuid())
+  job        String
+  status     String    // ok | error | skipped
+  summary    String    @default("")
+  detail     String    @default("") // JSON payload (counts, files, errors…)
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+}
+
+// scraper outputs — TXT (telegram), CSV (woocommerce), JSON (db) all land here
+model AgentScrapeOutput {
+  id        String   @id @default(cuid())
+  runId     String
+  kind      String // txt | csv | json
+  content   String   @default("")
+  rows      Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// SKU ↔ WooCommerce product id map (upsert tracking for price/stock sync)
+model WooProductMap {
+  sku        String   @id
+  wooId      Int
+  name       String   @default("")
+  price      String   @default("")
+  stock      Int      @default(0)
+  lastSyncAt DateTime @updatedAt
+}
+
+// daily sales/accounting AI report
+model AgentReport {
+  id        String   @id @default(cuid())
+  forDate   String // YYYY-MM-DD (Asia/Tehran)
+  content   String
+  sentTg    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// invoices — manual or created real-time from WooCommerce order webhooks
+model AgentInvoice {
+  id        String   @id @default(cuid())
+  number    String   @unique
+  orderId   String?  @unique
+  customer  String   @default("")
+  itemsJson String   @default("[]")
+  total     String   @default("0")
+  currency  String   @default("IRT")
+  status    String   @default("issued")
+  htmlPath  String   @default("")
+  sentTg    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// generated images (quota = count per dayDate)
+model AgentImage {
+  id        String   @id @default(cuid())
+  prompt    String
+  path      String // public URL path, e.g. /agent-images/img-....png
+  size      String   @default("1024x1024")
+  dayDate   String // YYYY-MM-DD (Asia/Tehran)
+  createdAt DateTime @default(now())
+}
+
+// website support-agent chat sessions (public widget)
+model SupportSession {
+  id        String   @id @default(cuid())
+  siteKey   String   @default("")
+  userAgent String   @default("")
+  createdAt DateTime @default(now())
+  lastAt    DateTime @updatedAt
+}
+
+model SupportMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String // user | assistant
+  content   String
+  createdAt DateTime @default(now())
+}
+
+// owner's personal chat with the agent (panel «چت» tab)
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String // user | assistant
+  content   String
+  filesJson String   @default("[]") // [{kind:image|file, name, mime, size, path, i}]
+  meta      String   @default("") // JSON {thinking, model, sources?, imageGen?}
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,7 @@
+{
+  "name": "vnc",
+  "private": true,
+  "scripts": {
+    "dev": "bash vnc_ctl.sh start"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "tunnel",
+  "private": true,
+  "scripts": {
+    "dev": "bash tunnel_ctl.sh start"
+  }
+}

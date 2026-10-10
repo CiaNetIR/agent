@@ -1,0 +1,15 @@
+{
+  "name": "vpnstar-terminal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "VPN STAR owner web terminal — socket.io + node-pty on :3001 (node runtime: bun pty is broken)",
+  "scripts": {
+    "dev": "node --watch index.mjs",
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "node-pty": "^1.1.0",
+    "socket.io": "^4.8.4"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "vpnstar-backups",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hourly full-server backup to GitHub — rsync mirror + eslint/tsc/next-build health checks + commit & verified push (:3010)",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts",
+    "once": "bun run-backup.ts --once"
+  }
+}

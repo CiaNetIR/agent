@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>دسکتاپ سرور — noVNC</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: #09090b; color: #e4e4e7;
+    font-family: "Vazirmatn", "Segoe UI", Tahoma, system-ui, sans-serif;
+    display: flex; flex-direction: column;
+  }
+  header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; background: #18181b; border-bottom: 1px solid #27272a;
+    font-size: 14px; font-weight: 700; z-index: 5; flex: none;
+  }
+  header .dot { width: 9px; height: 9px; border-radius: 50%; background: #52525b; flex: none; }
+  header .dot.on { background: #22c55e; box-shadow: 0 0 8px #22c55e88; }
+  header .dot.err { background: #ef4444; }
+  header .sp { flex: 1; }
+  header button {
+    background: #27272a; color: #e4e4e7; border: 1px solid #3f3f46; border-radius: 8px;
+    padding: 6px 14px; font-size: 12px; font-family: inherit; cursor: pointer;
+  }
+  header button:hover { background: #3f3f46; }
+  main { flex: 1; min-height: 0; position: relative; }
+  #gate {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(1200px 600px at 50% -10%, #1c2530 0%, #09090b 60%);
+  }
+  .card {
+    width: min(92vw, 380px); background: #131316; border: 1px solid #27272a;
+    border-radius: 16px; padding: 28px; text-align: center;
+  }
+  .card h1 { font-size: 18px; margin-bottom: 6px; }
+  .card p  { font-size: 12px; color: #a1a1aa; line-height: 1.9; margin-bottom: 18px; }
+  .card input {
+    width: 100%; padding: 11px 14px; background: #09090b; color: #e4e4e7;
+    border: 1px solid #3f3f46; border-radius: 10px; font-size: 14px; text-align: center;
+    direction: ltr; font-family: inherit; outline: none; margin-bottom: 12px;
+  }
+  .card input:focus { border-color: #71717a; }
+  .card button {
+    width: 100%; padding: 11px; background: #e4e4e7; color: #09090b; font-weight: 700;
+    border: none; border-radius: 10px; font-size: 14px; cursor: pointer; font-family: inherit;
+  }
+  .card button:hover { background: #fff; }
+  .card button:disabled { opacity: .5; cursor: wait; }
+  #status { margin-top: 14px; font-size: 12px; color: #a1a1aa; min-height: 18px; }
+  #status.err { color: #f87171; }
+  #screen { width: 100%; height: 100%; }
+  #screen-wrap { position: absolute; inset: 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <span class="dot" id="dot"></span>
+  <span>دسکتاپ گرافیکی سرور — XFCE</span>
+  <span class="sp"></span>
+  <button id="fs" title="تمام‌صفحه">⛶ تمام‌صفحه</button>
+  <button id="ctrl" title="کلیدهای کنترل (Ctrl+Alt+Del و ...)">⌨ کلیدها</button>
+</header>
+<main>
+  <div id="screen-wrap" hidden><div id="screen"></div></div>
+  <div id="gate">
+    <div class="card">
+      <h1>🖥️ دسکتاپ سرور</h1>
+      <p>برای ورود به محیط گرافیکی، رمز VNC سرور را وارد کنید.<br>این رمز در فایل <span dir="ltr">.secrets/vnc.env</span> سرور نگه‌داری می‌شود.</p>
+      <input id="pw" type="password" placeholder="رمز VNC" autocomplete="current-password" autofocus>
+      <button id="go">اتصال به دسکتاپ</button>
+      <div id="status"></div>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+// rfb.bundle.js is a self-contained bundle (no nested imports) — we append
+// the gateway query (XTransformPort) so the request is routed to this very
+// service through the reverse proxy, both directly and via the preview URL.
+const RFB = (await import('./rfb.bundle.js' + location.search)).default;
+
+const $ = (id) => document.getElementById(id);
+const gate = $('gate'), wrap = $('screen-wrap'), statusEl = $('status'), dot = $('dot');
+let rfb = null;
+
+function wsUrl() {
+  // keep the gateway query (XTransformPort) on the websocket path too —
+  // websockify accepts any path, the gateway needs the port hint
+  const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  return proto + location.host + '/' + location.search;
+}
+
+function setStatus(text, err) {
+  statusEl.textContent = text;
+  statusEl.className = err ? 'err' : '';
+}
+
+function connect() {
+  const pw = $('pw').value;
+  if (!pw) { setStatus('رمز را وارد کنید', true); return; }
+  $('go').disabled = true;
+  setStatus('در حال اتصال…');
+  try { if (rfb) rfb.disconnect(); } catch {}
+  try {
+    rfb = new RFB($('screen'), wsUrl(), { credentials: { password: pw } });
+  } catch (e) {
+    setStatus('اتصال ممکن نشد: ' + e.message, true);
+    $('go').disabled = false;
+    return;
+  }
+  rfb.scaleViewport = true;
+  rfb.background = '#09090b';
+  rfb.addEventListener('connect', () => {
+    gate.hidden = true; wrap.hidden = false;
+    dot.className = 'dot on';
+    try { rfb.focus(); } catch {}
+  });
+  rfb.addEventListener('disconnect', (e) => {
+    dot.className = 'dot err';
+    gate.hidden = false; wrap.hidden = true;
+    $('go').disabled = false;
+    setStatus(e.detail.clean ? 'اتصال بسته شد' : 'اتصال قطع شد — دوباره تلاش کنید', true);
+  });
+  rfb.addEventListener('credentialsrequired', () => {
+    rfb.sendCredentials({ password: $('pw').value });
+  });
+  rfb.addEventListener('securityfailure', (e) => {
+    setStatus('رمز اشتباه است' + (e.detail.reason ? ': ' + e.detail.reason : ''), true);
+    $('go').disabled = false;
+  });
+}
+
+$('go').addEventListener('click', connect);
+$('pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') connect(); });
+$('fs').addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen().catch(() => {});
+});
+$('ctrl').addEventListener('click', () => { if (rfb) rfb.sendCtrlAltDel(); });
+
+// keyboard focus for the remote session
+document.addEventListener('click', () => { if (rfb && !gate.hidden === false) try { rfb.focus(); } catch {} });
+</script>
+</body>
+</html>

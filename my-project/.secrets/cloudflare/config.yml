@@ -1,0 +1,6 @@
+tunnel: eff5d805-d8f0-403b-a78a-75e7586d9643
+credentials-file: /home/z/my-project/.secrets/cloudflare/credentials.json
+ingress:
+  - hostname: panel.cianet.ir
+    service: http://localhost:81
+  - service: http_status:404
