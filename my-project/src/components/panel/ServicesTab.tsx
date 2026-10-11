@@ -16,10 +16,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import {
+  CloudUpload,
   Cpu,
   HardDrive,
   Loader2,
   MemoryStick,
+  Monitor,
   Pause,
   Play,
   RefreshCw,
@@ -28,7 +30,7 @@ import {
   Timer,
   Zap,
 } from 'lucide-react'
-import { panelFetch, formatUptime } from '@/lib/panel'
+import { panelFetch, formatUptime, tehranTime } from '@/lib/panel'
 import { useToast } from '@/hooks/use-toast'
 
 interface ServicesData {
@@ -46,6 +48,22 @@ interface ServicesData {
     alive: boolean
     pid: number | null
     portOk: boolean
+  }
+  backups: {
+    alive: boolean
+    pid: number | null
+    running: boolean
+    lastRunAt: string | null
+    lastOkAt: string | null
+    lastCommit: string | null
+    lastError: string | null
+    nextRunAt: string | null
+  }
+  vnc: {
+    alive: boolean
+    pid: number | null
+    webOk: boolean
+    desktopUp: boolean
   }
   system: {
     os: string
@@ -77,8 +95,12 @@ export default function ServicesTab() {
   const [data, setData] = useState<ServicesData | null>(null)
   const [loading, setLoading] = useState(true)
   const [actionBusy, setActionBusy] = useState<string | null>(null)
-  const [confirmRestart, setConfirmRestart] = useState<'watcher' | 'terminal' | null>(null)
+  const [confirmRestart, setConfirmRestart] = useState<'watcher' | 'terminal' | 'backups' | 'vnc' | null>(null)
   const mountedRef = useRef(true)
+  // ref mirror of actionBusy — the 20s silent-refresh interval must see the
+  // CURRENT busy action, not the stale first-render closure (was: always null
+  // → silent refreshes kept flashing «خاموش» badges mid-restart)
+  const busyRef = useRef<string | null>(null)
 
   const load = useCallback(
     async (silent = false) => {
@@ -104,7 +126,7 @@ export default function ServicesTab() {
     mountedRef.current = true
     void load()
     const t = setInterval(() => {
-      if (!actionBusy) void load(true)
+      if (!busyRef.current) void load(true)
     }, 20_000)
     return () => {
       mountedRef.current = false
@@ -113,6 +135,7 @@ export default function ServicesTab() {
   }, [])
 
   async function runAction(action: string, title: string) {
+    busyRef.current = action
     setActionBusy(action)
     try {
       const res = await panelFetch('/api/panel/services', {
@@ -131,6 +154,7 @@ export default function ServicesTab() {
     } catch {
       toast({ title: 'ارتباط برقرار نشد', variant: 'destructive' })
     } finally {
+      busyRef.current = null
       setActionBusy(null)
       setConfirmRestart(null)
       setTimeout(() => void load(true), 1500)
@@ -224,7 +248,7 @@ export default function ServicesTab() {
                   />
                 </div>
               </div>
-              <p className="text-[10px] leading-5 text-zinc-600">
+              <p className="text-[11px] leading-5 text-zinc-500">
                 این آمار مالِ محیط ابریِ دستیاره (کانتینر مدیریت‌شده — بدون روت)؛ خروجی
                 رم/دیسک ممکنه سطح هاست رو نشون بده.
               </p>
@@ -324,7 +348,7 @@ export default function ServicesTab() {
                   ری‌استارت
                 </Button>
               </div>
-              <p className="text-[10px] leading-5 text-zinc-600">
+              <p className="text-[11px] leading-5 text-zinc-500">
                 «مکث» امنه و پیام‌ها بعد از «ادامه» جبران می‌شن. ری‌استارت فقط وقتی لازمه
                 که وضعیت خراب باشه (چند ثانیه دستیار آفلاین میشه).
               </p>
@@ -343,9 +367,15 @@ export default function ServicesTab() {
           </CardTitle>
           {data?.terminal ? (
             data.terminal.alive ? (
-              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
-                فعال
-              </Badge>
+              data.terminal.portOk ? (
+                <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
+                  فعال
+                </Badge>
+              ) : (
+                <Badge className="bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/40">
+                  نیمه‌فعال
+                </Badge>
+              )
             ) : (
               <Badge className="bg-red-500/15 text-red-300 ring-1 ring-red-500/40"> از‌کار‌افتاده</Badge>
             )
@@ -371,9 +401,146 @@ export default function ServicesTab() {
               ری‌استارت
             </Button>
           </div>
-          <p className="text-[10px] leading-5 text-zinc-600">
+          <p className="text-[11px] leading-5 text-zinc-500">
             اگه ترمینال تبِ «ترمینال» وصل نمیشه یا به‌هم ریخته، یه ری‌استارت بزن — بعدش
             از اون تب دوباره «وصل شو».
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* ---------------- hourly GitHub backup service ---------------- */}
+      <Card className="border-zinc-800 bg-zinc-900/70">
+        <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
+          <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+            <CloudUpload className="h-4 w-4 text-emerald-400" /> بکاپ خودکار گیت‌هاب
+          </CardTitle>
+          {data?.backups ? (
+            data.backups.alive ? (
+              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">فعال</Badge>
+            ) : (
+              <Badge className="bg-red-500/15 text-red-300 ring-1 ring-red-500/40">از‌کار‌افتاده</Badge>
+            )
+          ) : null}
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {data?.backups ? (
+            <>
+              <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-3">
+                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                  <p className="text-[10px] text-zinc-500">آخرین بکاپ موفق</p>
+                  <p className="mt-0.5 text-xs font-bold text-zinc-200">
+                    {data.backups.lastOkAt ? tehranTime(data.backups.lastOkAt) : '—'}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                  <p className="text-[10px] text-zinc-500">اجرای بعدی</p>
+                  <p className="mt-0.5 text-xs font-bold text-zinc-200">
+                    {data.backups.nextRunAt ? tehranTime(data.backups.nextRunAt) : '—'}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                  <p className="text-[10px] text-zinc-500">کامیت آخر</p>
+                  <p className="mt-0.5 font-mono text-xs font-bold text-zinc-200" dir="ltr">
+                    {data.backups.lastCommit ? data.backups.lastCommit.slice(0, 7) : '—'}
+                  </p>
+                </div>
+              </div>
+              {data.backups.lastError ? (
+                <p className="rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2 text-[11px] leading-5 text-red-300">
+                  خطای آخرین اجرا: {data.backups.lastError}
+                </p>
+              ) : null}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void runAction('backup-now', 'شروع بکاپ')}
+                  disabled={actionBusy !== null || data.backups.running}
+                  className="h-8 border-emerald-800/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/50"
+                >
+                  {actionBusy === 'backup-now' || data.backups.running ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CloudUpload className="h-3.5 w-3.5" />
+                  )}
+                  همین حالا بکاپ بگیر
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setConfirmRestart('backups')}
+                  disabled={actionBusy !== null}
+                  className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                >
+                  {actionBusy === 'backups-restart' ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  )}
+                  ری‌استارت
+                </Button>
+              </div>
+              <p className="text-[11px] leading-5 text-zinc-500">
+                هر ۳۰ دقیقه، کل سرور (پروژه + شل‌اسکریپت‌ها + واتچر + فاکتورها + اسکرپر) با تست بیلد کامل
+                روی گیت‌هاب خصوصی ذخیره می‌شه — تاریخچهٔ کامل در BACKUP-LOG.md ریپو.
+              </p>
+            </>
+          ) : (
+            <p className="text-xs text-zinc-500">وضعیت دریافت نشد.</p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ---------------- VNC desktop service ---------------- */}
+      <Card className="border-zinc-800 bg-zinc-900/70">
+        <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
+          <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+            <Monitor className="h-4 w-4 text-emerald-400" /> دسکتاپ گرافیکی (noVNC)
+          </CardTitle>
+          {data?.vnc ? (
+            data.vnc.alive && data.vnc.desktopUp ? (
+              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">فعال</Badge>
+            ) : data.vnc.alive || data.vnc.desktopUp ? (
+              <Badge className="bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/40">نیمه‌فعال</Badge>
+            ) : (
+              <Badge className="bg-red-500/15 text-red-300 ring-1 ring-red-500/40">قطع</Badge>
+            )
+          ) : null}
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] text-zinc-500" dir="ltr">
+              port :6080 · pid {data?.vnc.pid ?? '—'}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                onClick={() => window.open('/?XTransformPort=6080', '_blank', 'noopener')}
+                disabled={actionBusy !== null}
+                className="h-8 bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-500"
+              >
+                <Monitor className="h-3.5 w-3.5" />
+                باز کردن دسکتاپ
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConfirmRestart('vnc')}
+                disabled={actionBusy !== null}
+                className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              >
+                {actionBusy === 'vnc-restart' ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-3.5 w-3.5" />
+                )}
+                ری‌استارت
+              </Button>
+            </div>
+          </div>
+          <p className="text-[11px] leading-5 text-zinc-500">
+            محیط گرافیکی XFCE سرور مستقیم توی مرورگر — با رمز VNC (فایل .secrets/vnc.env)
+            وارد شو.
           </p>
         </CardContent>
       </Card>
@@ -386,12 +553,22 @@ export default function ServicesTab() {
         <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm">
-              {confirmRestart === 'watcher' ? 'واتچر ری‌استارت بشه؟' : 'سرویس ترمینال ری‌استارت بشه؟'}
+              {confirmRestart === 'watcher'
+                ? 'واتچر ری‌استارت بشه؟'
+                : confirmRestart === 'terminal'
+                  ? 'سرویس ترمینال ری‌استارت بشه؟'
+                  : confirmRestart === 'backups'
+                    ? 'سرویس بکاپ‌گیری ری‌استارت بشه؟'
+                    : 'دسکتاپ گرافیکی ری‌استارت بشه؟'}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-xs leading-6">
               {confirmRestart === 'watcher'
                 ? 'دستیار چند ثانیه قطع میشه و دوباره بالا میاد (سشن و تنظیمات دست‌نخورده می‌مونه). ادامه بدم؟'
-                : 'اگه ترمینال باز داری بسته میشه؛ بعدش از تب ترمینال دوباره وصل شو. ادامه بدم؟'}
+                : confirmRestart === 'terminal'
+                  ? 'اگه ترمینال باز داری بسته میشه؛ بعدش از تب ترمینال دوباره وصل شو. ادامه بدم؟'
+                  : confirmRestart === 'backups'
+                    ? 'زمان‌بندی ۳۰ دقیقه‌ای از نو چیده میشه و اگه آخرین بکاپ قدیمی باشه بلافاصله یک دور اجرا میشه. ادامه بدم؟'
+                    : 'دسکتاپ چند ثانیه قطع میشه و دوباره بالا میاد. ادامه بدم؟'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -402,7 +579,9 @@ export default function ServicesTab() {
               onClick={(e) => {
                 e.preventDefault()
                 if (confirmRestart === 'watcher') void runAction('watcher-restart', 'ری‌استارت')
-                else void runAction('terminal-restart', 'ری‌استارت')
+                else if (confirmRestart === 'terminal') void runAction('terminal-restart', 'ری‌استارت')
+                else if (confirmRestart === 'backups') void runAction('backups-restart', 'ری‌استارت')
+                else void runAction('vnc-restart', 'ری‌استارت')
               }}
               className="bg-amber-500 text-xs font-bold text-zinc-950 hover:bg-amber-400"
             >

@@ -113,6 +113,21 @@ async function resolveProvider(): Promise<PanelProviderKind> {
 }
 
 export async function panelProviderInfo(): Promise<PanelProviderInfo> {
+  // Check DB for a default provider first
+  try {
+    const { PrismaClient } = await import('@prisma/client')
+    const db = new PrismaClient()
+    const defaultProvider = await db.llmProvider.findFirst({ where: { isDefault: true, enabled: true } })
+    await db.$disconnect()
+    if (defaultProvider) {
+      const kind = defaultProvider.kind as PanelProviderKind
+      let host = defaultProvider.baseUrl
+      try { host = new URL(defaultProvider.baseUrl).host } catch { /* keep raw */ }
+      return { kind, label: defaultProvider.name + (host ? ` (${host})` : ''), model: defaultProvider.model, error: '' }
+    }
+  } catch { /* DB not available — fall through */ }
+
+  // Fall back to env-based detection
   const env = llmEnv()
   const kind = await resolveProvider()
   if (kind === 'openai') {
@@ -144,34 +159,44 @@ export interface PanelChatMsg {
   content: string
 }
 
-/** direct Z.ai sandbox-SDK chat — shared by the legacy path and the
- *  multi-provider manager (kind === 'zai') */
-export async function zaiChat(
-  system: string,
-  messages: PanelChatMsg[],
-  opts: { thinking?: boolean; timeoutMs?: number } = {}
-): Promise<{ content: string; model: string }> {
-  const ms = opts.timeoutMs ?? 90_000
-  const client = await zai()
-  const completion = await Promise.race([
-    client.chat.completions.create({
-      model: 'glm-4-plus',
-      // per SDK skill: system prompts ride as the first 'assistant' message
-      messages: [{ role: 'assistant', content: system }, ...messages],
-      thinking: { type: opts.thinking !== false ? 'enabled' : 'disabled' },
-    }),
-    new Promise<never>((_, rej) => setTimeout(() => rej(new Error('مهلت پاسخ مدل تمام شد')), ms)),
-  ])
-  const content = String(completion.choices?.[0]?.message?.content || '').trim()
-  if (!content) throw new Error('پاسخ مدل خالی بود')
-  return { content, model: completion.model || 'glm-4-plus' }
-}
-
 export async function panelLlmChat(
   system: string,
   messages: PanelChatMsg[],
   opts: { thinking?: boolean; timeoutMs?: number } = {}
 ): Promise<{ content: string; model: string }> {
+  // 1. Check DB for default provider
+  try {
+    const { PrismaClient } = await import('@prisma/client')
+    const db = new PrismaClient()
+    const provider = await db.llmProvider.findFirst({ where: { isDefault: true, enabled: true } })
+    await db.$disconnect()
+    if (provider && provider.kind !== 'zai') {
+      const baseUrl = provider.baseUrl.replace(/\/+$/, '')
+      const apiKey = provider.apiKey
+      const model = provider.model
+      const ms = opts.timeoutMs ?? provider.timeoutMs ?? 90_000
+      if (!model) throw new Error('مدل تنظیم نشده — در تب «هوش مصنوعی» مدل را مشخص کنید')
+      let url = baseUrl
+      if (provider.kind === 'ollama' && !url.includes('/v1')) url += '/v1'
+      const res = await fetch(`${url}/chat/completions`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}), 'http-referer': 'https://cianet.local', 'x-title': 'CiaNet Panel' },
+        body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, ...messages], temperature: provider.temperature, max_tokens: provider.maxTokens }),
+        signal: AbortSignal.timeout(ms),
+      })
+      if (!res.ok) { const txt = await res.text().catch(() => ''); throw new Error(`سرویس مدل خطای HTTP ${res.status}: ${txt.slice(0, 200) || 'بدون متن'}`) }
+      const data = await res.json()
+      const content = String(data?.choices?.[0]?.message?.content || '').trim()
+      if (!content) throw new Error('پاسخ مدل خالی بود')
+      return { content, model: data?.model || model }
+    }
+    // If provider is zai, fall through to sandbox SDK
+  } catch (e) {
+    if (e instanceof Error && !e.message.includes('Cannot read') && !e.message.includes('prisma')) throw e
+    /* DB not available — fall through to env-based detection */
+  }
+
+  // 2. Fall back to env-based detection (legacy)
   const env = llmEnv()
   const kind = await resolveProvider()
   const ms = opts.timeoutMs ?? 90_000
@@ -208,10 +233,77 @@ export async function panelLlmChat(
   }
 
   if (kind === 'zai') {
-    return zaiChat(system, messages, opts)
+    const client = await zai()
+    const completion = await Promise.race([
+      client.chat.completions.create({
+        model: 'glm-4-plus',
+        // per SDK skill: system prompts ride as the first 'assistant' message
+        messages: [{ role: 'assistant', content: system }, ...messages],
+        thinking: { type: opts.thinking !== false ? 'enabled' : 'disabled' },
+      }),
+      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('مهلت پاسخ مدل تمام شد')), ms)),
+    ])
+    const content = String(completion.choices?.[0]?.message?.content || '').trim()
+    if (!content) throw new Error('پاسخ مدل خالی بود')
+    return { content, model: completion.model || 'glm-4-plus' }
   }
 
   throw new Error(
     'هیچ مدلی تنظیم نشده. فایل .secrets/llm.env را طبق راهنمای LLM-SETUP.md کامل کنید (سرویس ابری OpenAI-سازگار یا Ollama محلی).'
   )
+}
+
+/* ==================== Provider Management (DB-backed) ==================== */
+
+export interface TestConnectionParams { baseUrl: string; apiKey: string; model: string; kind: string; timeoutMs: number }
+export interface TestResult { ok: boolean; latencyMs: number; model?: string; error?: string }
+
+export async function testProviderConnection(params: TestConnectionParams): Promise<TestResult> {
+  const { baseUrl, apiKey, model, kind, timeoutMs } = params
+  const start = Date.now()
+  if (!baseUrl.trim()) return { ok: false, latencyMs: 0, error: 'Base URL خالی است' }
+  let url = baseUrl.replace(/\/+$/, '')
+  if (kind === 'ollama' && !url.includes('/v1')) url += '/v1'
+  try {
+    const res = await fetch(`${url}/chat/completions`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}), 'http-referer': 'https://cianet.local', 'x-title': 'CiaNet Panel Test' },
+      body: JSON.stringify({ model: model || 'gpt-3.5-turbo', messages: [{ role: 'user', content: 'ping' }], max_tokens: 5, temperature: 0 }),
+      signal: AbortSignal.timeout(timeoutMs || 30000),
+    })
+    const latencyMs = Date.now() - start
+    if (res.ok) { const data = await res.json().catch(() => ({})); return { ok: true, latencyMs, model: data?.model || model } }
+    const errorText = await res.text().catch(() => '')
+    let errorMsg = `HTTP ${res.status}`
+    if (res.status === 401) errorMsg = 'کلید API نامعتبر'
+    else if (res.status === 404) errorMsg = 'مدل پیدا نشد'
+    else if (res.status === 429) errorMsg = 'محدودیت درخواست'
+    else if (res.status >= 500) errorMsg = 'سرویس در دسترس نیست'
+    if (errorText) errorMsg += `: ${errorText.slice(0, 200)}`
+    return { ok: false, latencyMs, error: errorMsg }
+  } catch (e) {
+    const latencyMs = Date.now() - start
+    const err = e instanceof Error ? e.message : String(e)
+    if (err.includes('aborted') || err.includes('timeout')) return { ok: false, latencyMs, error: 'مهلت پاسخ تمام شد' }
+    if (err.includes('ECONNREFUSED')) return { ok: false, latencyMs, error: 'اتصال رد شد — سرویس روشن نیست' }
+    if (err.includes('ENOTFOUND')) return { ok: false, latencyMs, error: 'دامنه پیدا نشد' }
+    if (err.includes('fetch failed')) return { ok: false, latencyMs, error: 'اتصال برقرار نشد' }
+    return { ok: false, latencyMs, error: err.slice(0, 200) }
+  }
+}
+
+export async function discoverModels(baseUrl: string, apiKey: string, kind: string): Promise<string[]> {
+  let url = baseUrl.replace(/\/+$/, '')
+  if (kind === 'ollama' && !url.includes('/v1')) url += '/v1'
+  try {
+    const res = await fetch(`${url}/models`, { headers: { ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}) }, signal: AbortSignal.timeout(15000) })
+    if (!res.ok) throw new Error(`HTTP ${res.status}: دریافت لیست مدل‌ها ناموفق`)
+    const data = await res.json()
+    const models: string[] = (data?.data || data?.models || []).map((m: { id?: string; name?: string }) => m.id || m.name).filter(Boolean)
+    if (models.length === 0) throw new Error('هیچ مدلی یافت نشد — شناسه مدل را دستی وارد کنید')
+    return models
+  } catch (e) {
+    if (e instanceof Error && e.message.includes('HTTP')) throw e
+    throw new Error(e instanceof Error ? `شناسایی مدل‌ها ناموفق: ${e.message.slice(0, 160)}` : 'شناسایی مدل‌ها ناموفق بود')
+  }
 }

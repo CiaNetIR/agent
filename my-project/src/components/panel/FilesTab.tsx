@@ -27,6 +27,7 @@ import {
   FolderOpen,
   FileText,
   File as FileIcon,
+  Image as ImageIcon,
   FilePlus2,
   FolderPlus,
   Download,
@@ -35,6 +36,7 @@ import {
   Pencil,
   RefreshCw,
   Trash2,
+  TriangleAlert,
   Upload,
 } from 'lucide-react'
 import { panelFetch } from '@/lib/panel'
@@ -90,6 +92,7 @@ export default function FilesTab() {
   const [parent, setParent] = useState<string | null>(null)
   const [entries, setEntries] = useState<FileEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [err, setErr] = useState<string | null>(null)
   const [busyPath, setBusyPath] = useState<string | null>(null)
   const [uploading, setUploading] = useState<{ done: number; total: number } | null>(null)
 
@@ -137,13 +140,16 @@ export default function FilesTab() {
         const json = await res.json()
         if (!res.ok || !json.ok) {
           toast({ title: 'خطا', description: json.error || 'خواندن پوشه نشد', variant: 'destructive' })
+          setErr(json.error || 'خواندن پوشه نشد')
           return
         }
+        setErr(null)
         setCwd(json.path)
         setParent(json.parent)
         setEntries(json.entries || [])
       } catch {
         toast({ title: 'ارتباط برقرار نشد', variant: 'destructive' })
+        setErr('ارتباط برقرار نشد')
       } finally {
         if (showLoading) setLoading(false)
       }
@@ -201,6 +207,7 @@ export default function FilesTab() {
   }
 
   async function downloadFile(p: string, name: string) {
+    setBusyPath(p)
     try {
       const res = await panelFetch(
         `/api/panel/files?mode=download&path=${encodeURIComponent(p)}`
@@ -218,6 +225,8 @@ export default function FilesTab() {
       URL.revokeObjectURL(url)
     } catch {
       toast({ title: 'ارتباط برقرار نشد', variant: 'destructive' })
+    } finally {
+      setBusyPath(null)
     }
   }
 
@@ -416,6 +425,19 @@ export default function FilesTab() {
           <div className="flex h-40 items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
           </div>
+        ) : err ? (
+          <div className="flex h-40 flex-col items-center justify-center gap-2 text-center">
+            <TriangleAlert className="h-8 w-8 text-amber-400" />
+            <p className="text-xs text-amber-300">{err}</p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void loadDir(cwd)}
+              className="h-8 border-amber-800/60 bg-amber-950/40 text-amber-300 hover:bg-amber-950/60"
+            >
+              <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
+            </Button>
+          </div>
         ) : entries.length === 0 ? (
           <div className="flex h-40 flex-col items-center justify-center gap-2 text-center">
             <FolderOpen className="h-8 w-8 text-zinc-700" />
@@ -566,6 +588,13 @@ export default function FilesTab() {
             <p className="text-xs text-amber-300">
               این فایل متنی بزرگ‌تر از ۵۱۲ کیلوبایته — فقط دانلودش کن یا از ترمینال ویرایشش کن.
             </p>
+          ) : /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(viewer.data?.name || '') ? (
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <ImageIcon className="h-8 w-8 text-zinc-600" />
+              <p className="text-xs text-amber-300">
+                این تصویر بزرگ‌تر از ۲ مگابایته و پیش‌نمایش باز نمی‌شه — دانلودش کن.
+              </p>
+            </div>
           ) : (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
               <FileIcon className="h-8 w-8 text-zinc-600" />

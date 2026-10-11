@@ -7,7 +7,8 @@ import {
   readJsonSafe,
   verifyKey,
 } from '@/lib/panel-server'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, readFileSync, statfsSync } from 'fs'
+import os from 'os'
 import path from 'path'
 
 export const runtime = 'nodejs'
@@ -95,6 +96,24 @@ export async function GET(req: NextRequest) {
   const permanent = windowEnd > 4000000000
   const windowLeftSec = windowEnd ? Math.max(0, windowEnd - Date.now() / 1000) : 0
 
+  // live system resources — the sandbox is small, so keep the owner informed
+  const cpus = os.cpus()
+  const memTotal = os.totalmem()
+  const memUsed = memTotal - os.freemem()
+  let disk = { totalGb: 0, freeGb: 0, usedPct: 0 }
+  try {
+    const st = statfsSync('/')
+    const total = st.blocks * st.bsize
+    const free = st.bavail * st.bsize
+    disk = {
+      totalGb: +(total / 1024 ** 3).toFixed(1),
+      freeGb: +(free / 1024 ** 3).toFixed(1),
+      usedPct: total ? Math.round(((total - free) / total) * 100) : 0,
+    }
+  } catch {
+    /* keep zeros */
+  }
+
   return NextResponse.json({
     ok: true,
     watcher: {
@@ -112,6 +131,16 @@ export async function GET(req: NextRequest) {
       windowLeftSec,
     },
     today: { incoming: todayIncoming, replies: todayReplies },
+    system: {
+      cpuModel: (cpus[0]?.model || '').replace(/\s+/g, ' ').trim(),
+      cpuCores: cpus.length || os.availableParallelism?.() || 1,
+      load1: +os.loadavg()[0].toFixed(2),
+      memTotalGb: +(memTotal / 1024 ** 3).toFixed(1),
+      memUsedGb: +(memUsed / 1024 ** 3).toFixed(1),
+      memPct: memTotal ? Math.round((memUsed / memTotal) * 100) : 0,
+      disk,
+      uptimeH: +(os.uptime() / 3600).toFixed(1),
+    },
     blacklist,
     instructionsCount: instructions.length,
     events: recent.map((ev) => ({

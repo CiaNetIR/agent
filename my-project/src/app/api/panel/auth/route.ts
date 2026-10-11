@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isLocked, readPanelConfig, registerFail, registerSuccess, verifyKey } from '@/lib/panel-server'
+import { isLocked, readPanelConfig, remainingFails, verifyKey } from '@/lib/panel-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -18,14 +18,13 @@ export async function POST(req: NextRequest) {
   } catch {
     /* ignore */
   }
+  // verifyKey itself counts the attempt (fail → lockout counter, success → reset)
   if (verifyKey(body.key)) {
-    registerSuccess()
     const cfg = readPanelConfig()
     return NextResponse.json({ ok: true, termEnabled: cfg.termEnabled })
   }
-  const remaining = registerFail()
   return NextResponse.json(
-    { ok: false, remaining, locked: isLocked() > 0 },
+    { ok: false, remaining: remainingFails(), locked: isLocked() > 0 },
     { status: 401 }
   )
 }

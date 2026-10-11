@@ -116,9 +116,32 @@ model SupportMessage {
 // owner's personal chat with the agent (panel «چت» tab)
 model ChatMessage {
   id        String   @id @default(cuid())
-  role      String // user | assistant
+  role      String
   content   String
-  filesJson String   @default("[]") // [{kind:image|file, name, mime, size, path, i}]
-  meta      String   @default("") // JSON {thinking, model, sources?, imageGen?}
+  filesJson String   @default("[]")
+  meta      String   @default("")
   createdAt DateTime @default(now())
+}
+
+// LLM Provider Management (panel «هوش مصنوعی» tab)
+model LlmProvider {
+  id           String   @id @default(cuid())
+  name         String
+  kind         String   // zai | openai | ollama | lmstudio | vllm | localai | custom
+  baseUrl      String   @default("")
+  apiKey       String   @default("")
+  model        String   @default("")
+  enabled      Boolean  @default(true)
+  isDefault    Boolean  @default(false)
+  isFallback   Boolean  @default(false)
+  lastTestAt   DateTime?
+  lastTestOk   Boolean?
+  lastTestMs   Int?
+  lastTestErr  String   @default("")
+  modelsJson   String   @default("[]")
+  temperature  Float    @default(0.7)
+  maxTokens    Int      @default(4096)
+  timeoutMs    Int      @default(90000)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
