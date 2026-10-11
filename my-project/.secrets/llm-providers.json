@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "providers": [],
+  "defaults": {
+    "selection": {
+      "chat": "b46b6fe7-f1ea-43c8-82b3-0469c0947bae"
+    },
+    "fallbackOrder": [],
+    "settings": {
+      "retries": 0,
+      "streaming": true
+    }
+  }
+}
