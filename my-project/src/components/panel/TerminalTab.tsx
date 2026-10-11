@@ -278,7 +278,7 @@ export default function TerminalTab() {
         : 'bg-red-400'
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/70">
+    <Card className="border-[#2D3139] bg-[#181A1F]/70">
       <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
           <TerminalIcon className="h-4 w-4 text-emerald-400" /> شل محیط ابری (کاربر z — بدون روت)
@@ -286,14 +286,14 @@ export default function TerminalTab() {
         <div className="flex items-center gap-2">
           {activeSess ? (
             activeSess.status === 'connected' ? (
-              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">وصل</Badge>
+              <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">وصل</Badge>
             ) : activeSess.status === 'connecting' ? (
               <Badge className="bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/40">در حال اتصال…</Badge>
             ) : (
               <Badge className="bg-red-500/15 text-red-400 ring-1 ring-red-500/40">بسته</Badge>
             )
           ) : (
-            <Badge className="bg-zinc-800 text-zinc-400">بدون ترمینال</Badge>
+            <Badge className="bg-[#202329] text-zinc-400">بدون ترمینال</Badge>
           )}
           {activeConnected ? (
             <>
@@ -301,7 +301,7 @@ export default function TerminalTab() {
                 variant="outline"
                 size="sm"
                 onClick={clearScreen}
-                className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
               >
                 <Eraser className="h-3.5 w-3.5" /> پاک کردن
               </Button>
@@ -309,7 +309,7 @@ export default function TerminalTab() {
                 variant="outline"
                 size="sm"
                 onClick={disconnectActive}
-                className="h-8 border-red-900/60 bg-red-950/30 text-red-300 hover:bg-red-950/50"
+                className="h-8 border-[#5C2020]/60 bg-[#2C1517]/30 text-red-300 hover:bg-[#2C1517]/50"
               >
                 <Unplug className="h-3.5 w-3.5" /> قطع
               </Button>
@@ -320,7 +320,7 @@ export default function TerminalTab() {
             onClick={openSession}
             disabled={liveCount >= MAX_SESSIONS}
             title={liveCount >= MAX_SESSIONS ? `حداکثر ${fa(MAX_SESSIONS)} ترمینال هم‌زمان` : 'باز کردن یک ترمینال جدید'}
-            className="h-8 bg-emerald-600 font-bold text-white hover:bg-emerald-500"
+            className="h-8 bg-[#10B981] font-bold text-white hover:bg-[#34D399]"
           >
             <Zap className="h-3.5 w-3.5" /> ترمینال جدید
           </Button>
@@ -340,8 +340,8 @@ export default function TerminalTab() {
               key={s.id}
               className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-bold transition-colors ${
                 s.id === activeId
-                  ? 'border-emerald-600/50 bg-emerald-950/40 text-emerald-300'
-                  : 'border-zinc-800 bg-zinc-950 text-zinc-400 hover:bg-zinc-900'
+                  ? 'border-emerald-600/50 bg-[#0A2E1E]/40 text-emerald-300'
+                  : 'border-[#2D3139] bg-[#202329] text-zinc-400 hover:bg-[#181A1F]'
               }`}
             >
               <button
@@ -358,7 +358,7 @@ export default function TerminalTab() {
                 onClick={() => closeSess(s.id)}
                 title="بستن این ترمینال"
                 aria-label={`بستن ترمینال ${fa(idx + 1)}`}
-                className="rounded p-0.5 text-zinc-500 hover:bg-zinc-800 hover:text-red-300"
+                className="rounded p-0.5 text-zinc-500 hover:bg-[#202329] hover:text-red-300"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -368,7 +368,7 @@ export default function TerminalTab() {
             <button
               type="button"
               onClick={openSession}
-              className="flex items-center gap-1 rounded-lg border border-dashed border-zinc-700 px-2 py-1 text-[11px] font-bold text-zinc-400 transition-colors hover:border-emerald-700 hover:text-emerald-300"
+              className="flex items-center gap-1 rounded-lg border border-dashed border-[#3A3F47] px-2 py-1 text-[11px] font-bold text-zinc-400 transition-colors hover:border-emerald-700 hover:text-emerald-300"
             >
               <Plus className="h-3 w-3" /> جدید
             </button>
@@ -391,11 +391,11 @@ export default function TerminalTab() {
                 else boxRef.current.delete(s.id)
               }}
               dir="ltr"
-              className={`${s.id === activeId ? 'block' : 'hidden'} h-[420px] overflow-hidden rounded-lg border border-zinc-800 bg-[#09090b] p-2 md:h-[480px]`}
+              className={`${s.id === activeId ? 'block' : 'hidden'} h-[420px] overflow-hidden rounded-lg border border-[#2D3139] bg-[#09090b] p-2 md:h-[480px]`}
             />
           ))}
           {!activeConnected ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-zinc-950/85 text-center">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-[#202329]/85 text-center">
               <TerminalIcon className="h-8 w-8 text-zinc-600" />
               <p className="max-w-xs text-xs leading-6 text-zinc-400">
                 {activeSess?.status === 'connecting'
@@ -416,13 +416,13 @@ export default function TerminalTab() {
             onKeyDown={(e) => e.key === 'Enter' && sendQuick()}
             placeholder="fast command — e.g. ~/tg-tools/watcher/watcher_ctl.sh status"
             disabled={!activeConnected}
-            className="border-zinc-700 bg-zinc-950 text-left font-mono text-xs text-zinc-200 placeholder:text-zinc-600 focus-visible:ring-emerald-500/50"
+            className="border-[#3A3F47] bg-[#202329] text-left font-mono text-xs text-zinc-200 placeholder:text-zinc-600 focus-visible:ring-[#34D399]/50"
           />
           <Button
             variant="outline"
             onClick={sendQuick}
             disabled={!activeConnected || !quickCmd.trim()}
-            className="border-zinc-700 bg-zinc-950 text-zinc-200 hover:bg-zinc-800"
+            className="border-[#3A3F47] bg-[#202329] text-zinc-200 hover:bg-[#202329]"
           >
             اجرا
           </Button>

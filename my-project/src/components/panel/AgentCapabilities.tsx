@@ -96,15 +96,15 @@ function CapCard({
   status: string
 }) {
   return (
-    <Card className={`border-zinc-800 transition-colors ${on ? 'bg-zinc-900/70' : 'bg-zinc-950/70'}`}>
+    <Card className={`border-[#2D3139] transition-colors ${on ? 'bg-[#181A1F]/70' : 'bg-[#202329]/70'}`}>
       <CardContent className="space-y-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
             <span
               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${
                 on
-                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
-                  : 'border-zinc-800 bg-zinc-900 text-zinc-500'
+                  ? 'border-emerald-500/30 bg-[#34D399]/10 text-emerald-400'
+                  : 'border-[#2D3139] bg-[#181A1F] text-zinc-500'
               }`}
             >
               {icon}
@@ -234,7 +234,7 @@ export default function AgentCapabilities({
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-36 animate-pulse rounded-xl border border-zinc-800 bg-zinc-900/50" />
+          <div key={i} className="h-36 animate-pulse rounded-xl border border-[#2D3139] bg-[#181A1F]/50" />
         ))}
       </div>
     )
@@ -243,7 +243,7 @@ export default function AgentCapabilities({
   const caps = overview?.capabilities
   if (!caps) {
     return (
-      <Card className="border-dashed border-zinc-800 bg-zinc-900/40">
+      <Card className="border-dashed border-[#2D3139] bg-[#181A1F]/40">
         <CardContent className="flex flex-col items-center gap-2 p-6 text-center">
           <Bot className="h-7 w-7 text-zinc-600" />
           <p className="text-xs font-bold text-zinc-300">قابلیت‌ها خوانده نشد</p>
@@ -254,7 +254,7 @@ export default function AgentCapabilities({
             variant="outline"
             size="sm"
             onClick={onRefresh}
-            className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+            className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
           >
             <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
           </Button>
@@ -308,19 +308,19 @@ export default function AgentCapabilities({
 
   return (
     <div className="space-y-4">
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardContent className="flex flex-wrap items-center justify-between gap-2 p-4">
           <p className="text-xs leading-6 text-zinc-400">
             تک‌تک قابلیت‌های ایجنت از همین‌جا روشن و خاموش می‌شن — هر کلید فوراً اعمال می‌شه و وضعیت زندهٔ هر
             قابلیت هم پایینش نوشته شده.
           </p>
           <div className="flex items-center gap-2">
-            <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">رفرش خودکار: ۳۰ ثانیه</Badge>
+            <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">رفرش خودکار: ۳۰ ثانیه</Badge>
             <Button
               variant="outline"
               size="sm"
               onClick={onRefresh}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> رفرش
             </Button>
@@ -408,7 +408,7 @@ export default function AgentCapabilities({
 
       {/* confirm before killing the live auto-responder */}
       <AlertDialog open={confirmWatcherOff} onOpenChange={setConfirmWatcherOff}>
-        <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950 sm:max-w-md">
+        <AlertDialogContent dir="rtl" className="border-[#2D3139] bg-[#202329] sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm text-zinc-100">پاسخگوی تلگرام خاموش بشه؟</AlertDialogTitle>
             <AlertDialogDescription className="text-[11px] leading-6">
@@ -417,7 +417,7 @@ export default function AgentCapabilities({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-0">
-            <AlertDialogCancel className="h-8 border-zinc-700 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100">
+            <AlertDialogCancel className="h-8 border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-300 hover:bg-[#202329] hover:text-zinc-100">
               بی‌خیال
             </AlertDialogCancel>
             <AlertDialogAction

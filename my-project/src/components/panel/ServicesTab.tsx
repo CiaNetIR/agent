@@ -167,7 +167,7 @@ export default function ServicesTab() {
   return (
     <div className="space-y-4">
       {/* ---------------- system ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Server className="h-4 w-4 text-emerald-400" /> سیستم (محیط ابری)
@@ -176,7 +176,7 @@ export default function ServicesTab() {
             variant="outline"
             size="sm"
             onClick={() => void load()}
-            className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+            className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> رفرش
           </Button>
@@ -185,7 +185,7 @@ export default function ServicesTab() {
           {sys ? (
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                   <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                     <Timer className="h-3 w-3" /> آپتایم سرور
                   </p>
@@ -193,7 +193,7 @@ export default function ServicesTab() {
                     {formatUptime(sys.uptimeSec)}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                   <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                     <Zap className="h-3 w-3" /> آپتایم پنل
                   </p>
@@ -201,7 +201,7 @@ export default function ServicesTab() {
                     {formatUptime(sys.panelUptimeSec)}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                   <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                     <Cpu className="h-3 w-3" /> پردازنده
                   </p>
@@ -209,7 +209,7 @@ export default function ServicesTab() {
                     {sys.cpus} × CPU · load {sys.load?.[0] ?? '—'}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                   <p className="text-[10px] text-zinc-500">سیستم‌عامل</p>
                   <p className="mt-1 truncate text-xs font-bold text-zinc-200" title={sys.os}>
                     {sys.os}
@@ -217,7 +217,7 @@ export default function ServicesTab() {
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="space-y-2 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                   <p className="flex items-center justify-between text-[11px] text-zinc-400">
                     <span className="flex items-center gap-1.5">
                       <HardDrive className="h-3.5 w-3.5 text-emerald-400" /> دیسک
@@ -230,10 +230,10 @@ export default function ServicesTab() {
                   </p>
                   <Progress
                     value={sys.disk ? sys.disk.pct : 0}
-                    className="h-2 bg-zinc-800 [&>div]:bg-emerald-500"
+                    className="h-2 bg-[#202329] [&>div]:bg-emerald-500"
                   />
                 </div>
-                <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="space-y-2 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                   <p className="flex items-center justify-between text-[11px] text-zinc-400">
                     <span className="flex items-center gap-1.5">
                       <MemoryStick className="h-3.5 w-3.5 text-amber-400" /> حافظه
@@ -244,7 +244,7 @@ export default function ServicesTab() {
                   </p>
                   <Progress
                     value={sys.mem.pct}
-                    className={`h-2 bg-zinc-800 ${memBarClass(sys.mem.pct)}`}
+                    className={`h-2 bg-[#202329] ${memBarClass(sys.mem.pct)}`}
                   />
                 </div>
               </div>
@@ -264,7 +264,7 @@ export default function ServicesTab() {
       </Card>
 
       {/* ---------------- watcher ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Zap className="h-4 w-4 text-amber-400" /> دستیار تلگرام (واتچر)
@@ -273,7 +273,7 @@ export default function ServicesTab() {
             w.paused ? (
               <Badge className="bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/40">مکث</Badge>
             ) : w.running ? (
-              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
+              <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
                 روشن
               </Badge>
             ) : (
@@ -285,19 +285,19 @@ export default function ServicesTab() {
           {w ? (
             <>
               <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">PID</p>
                   <p className="mt-0.5 font-mono text-xs font-bold text-zinc-200" dir="ltr">
                     {w.pid ?? '—'}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">آپتایم</p>
                   <p className="mt-0.5 text-xs font-bold text-zinc-200">
                     {formatUptime(w.uptimeSec)}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">جواب‌های کل</p>
                   <p className="mt-0.5 font-mono text-xs font-bold text-zinc-200" dir="ltr">
                     {w.repliesTotal}
@@ -324,7 +324,7 @@ export default function ServicesTab() {
                   size="sm"
                   onClick={() => void runAction('watcher-resume', 'ادامه')}
                   disabled={!w.paused || actionBusy !== null}
-                  className="h-8 border-emerald-800/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/50"
+                  className="h-8 border-emerald-800/60 bg-[#0A2E1E]/30 text-emerald-300 hover:bg-[#0A2E1E]/50"
                 >
                   {actionBusy === 'watcher-resume' ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -338,7 +338,7 @@ export default function ServicesTab() {
                   size="sm"
                   onClick={() => setConfirmRestart('watcher')}
                   disabled={actionBusy !== null}
-                  className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                  className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
                 >
                   {actionBusy === 'watcher-restart' ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -360,7 +360,7 @@ export default function ServicesTab() {
       </Card>
 
       {/* ---------------- terminal service ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Terminal className="h-4 w-4 text-emerald-400" /> سرویس ترمینال
@@ -368,7 +368,7 @@ export default function ServicesTab() {
           {data?.terminal ? (
             data.terminal.alive ? (
               data.terminal.portOk ? (
-                <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
+                <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
                   فعال
                 </Badge>
               ) : (
@@ -391,7 +391,7 @@ export default function ServicesTab() {
               size="sm"
               onClick={() => setConfirmRestart('terminal')}
               disabled={actionBusy !== null}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               {actionBusy === 'terminal-restart' ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -409,14 +409,14 @@ export default function ServicesTab() {
       </Card>
 
       {/* ---------------- hourly GitHub backup service ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <CloudUpload className="h-4 w-4 text-emerald-400" /> بکاپ خودکار گیت‌هاب
           </CardTitle>
           {data?.backups ? (
             data.backups.alive ? (
-              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">فعال</Badge>
+              <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">فعال</Badge>
             ) : (
               <Badge className="bg-red-500/15 text-red-300 ring-1 ring-red-500/40">از‌کار‌افتاده</Badge>
             )
@@ -426,19 +426,19 @@ export default function ServicesTab() {
           {data?.backups ? (
             <>
               <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-3">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">آخرین بکاپ موفق</p>
                   <p className="mt-0.5 text-xs font-bold text-zinc-200">
                     {data.backups.lastOkAt ? tehranTime(data.backups.lastOkAt) : '—'}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">اجرای بعدی</p>
                   <p className="mt-0.5 text-xs font-bold text-zinc-200">
                     {data.backups.nextRunAt ? tehranTime(data.backups.nextRunAt) : '—'}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">کامیت آخر</p>
                   <p className="mt-0.5 font-mono text-xs font-bold text-zinc-200" dir="ltr">
                     {data.backups.lastCommit ? data.backups.lastCommit.slice(0, 7) : '—'}
@@ -446,7 +446,7 @@ export default function ServicesTab() {
                 </div>
               </div>
               {data.backups.lastError ? (
-                <p className="rounded-lg border border-red-900/50 bg-red-950/30 px-3 py-2 text-[11px] leading-5 text-red-300">
+                <p className="rounded-lg border border-[#5C2020]/50 bg-[#2C1517]/30 px-3 py-2 text-[11px] leading-5 text-red-300">
                   خطای آخرین اجرا: {data.backups.lastError}
                 </p>
               ) : null}
@@ -456,7 +456,7 @@ export default function ServicesTab() {
                   size="sm"
                   onClick={() => void runAction('backup-now', 'شروع بکاپ')}
                   disabled={actionBusy !== null || data.backups.running}
-                  className="h-8 border-emerald-800/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/50"
+                  className="h-8 border-emerald-800/60 bg-[#0A2E1E]/30 text-emerald-300 hover:bg-[#0A2E1E]/50"
                 >
                   {actionBusy === 'backup-now' || data.backups.running ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -470,7 +470,7 @@ export default function ServicesTab() {
                   size="sm"
                   onClick={() => setConfirmRestart('backups')}
                   disabled={actionBusy !== null}
-                  className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                  className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
                 >
                   {actionBusy === 'backups-restart' ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -492,14 +492,14 @@ export default function ServicesTab() {
       </Card>
 
       {/* ---------------- VNC desktop service ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Monitor className="h-4 w-4 text-emerald-400" /> دسکتاپ گرافیکی (noVNC)
           </CardTitle>
           {data?.vnc ? (
             data.vnc.alive && data.vnc.desktopUp ? (
-              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">فعال</Badge>
+              <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">فعال</Badge>
             ) : data.vnc.alive || data.vnc.desktopUp ? (
               <Badge className="bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/40">نیمه‌فعال</Badge>
             ) : (
@@ -517,7 +517,7 @@ export default function ServicesTab() {
                 size="sm"
                 onClick={() => window.open('/?XTransformPort=6080', '_blank', 'noopener')}
                 disabled={actionBusy !== null}
-                className="h-8 bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-500"
+                className="h-8 bg-[#10B981] text-xs font-bold text-white hover:bg-[#34D399]"
               >
                 <Monitor className="h-3.5 w-3.5" />
                 باز کردن دسکتاپ
@@ -527,7 +527,7 @@ export default function ServicesTab() {
                 size="sm"
                 onClick={() => setConfirmRestart('vnc')}
                 disabled={actionBusy !== null}
-                className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
               >
                 {actionBusy === 'vnc-restart' ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -550,7 +550,7 @@ export default function ServicesTab() {
         open={confirmRestart !== null}
         onOpenChange={(o) => !o && setConfirmRestart(null)}
       >
-        <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950">
+        <AlertDialogContent dir="rtl" className="border-[#2D3139] bg-[#202329]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm">
               {confirmRestart === 'watcher'
@@ -572,7 +572,7 @@ export default function ServicesTab() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-zinc-700 bg-zinc-900 text-xs text-zinc-200 hover:bg-zinc-800">
+            <AlertDialogCancel className="border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-200 hover:bg-[#202329]">
               بی‌خیال
             </AlertDialogCancel>
             <AlertDialogAction

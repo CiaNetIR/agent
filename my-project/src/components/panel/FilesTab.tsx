@@ -353,7 +353,7 @@ export default function FilesTab() {
   /* ---------------- render ---------------- */
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/70">
+    <Card className="border-[#2D3139] bg-[#181A1F]/70">
       <CardHeader className="space-y-3 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
@@ -364,7 +364,7 @@ export default function FilesTab() {
               variant="outline"
               size="sm"
               onClick={() => setNewItem({ open: true, mode: 'folder', name: '', busy: false })}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               <FolderPlus className="h-3.5 w-3.5" /> پوشه جدید
             </Button>
@@ -372,7 +372,7 @@ export default function FilesTab() {
               variant="outline"
               size="sm"
               onClick={() => setNewItem({ open: true, mode: 'file', name: '', busy: false })}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               <FilePlus2 className="h-3.5 w-3.5" /> فایل جدید
             </Button>
@@ -381,7 +381,7 @@ export default function FilesTab() {
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               disabled={!!uploading}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               <Upload className="h-3.5 w-3.5" />
               {uploading ? `${uploading.done}/${uploading.total}` : 'آپلود'}
@@ -390,14 +390,14 @@ export default function FilesTab() {
               variant="outline"
               size="sm"
               onClick={() => void loadDir(cwd)}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> رفرش
             </Button>
           </div>
         </div>
         {/* breadcrumb */}
-        <div className="flex items-center gap-1 overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs">
+        <div className="flex items-center gap-1 overflow-x-auto rounded-lg border border-[#2D3139] bg-[#202329] px-3 py-2 text-xs">
           <Home className="h-3.5 w-3.5 shrink-0 text-amber-400" />
           {crumbs.map((c, i) => (
             <span key={c.path} className="flex shrink-0 items-center gap-1">
@@ -452,7 +452,7 @@ export default function FilesTab() {
                 return (
                   <li
                     key={e.name}
-                    className="group flex items-center gap-2 py-2 pe-1 transition-colors hover:bg-zinc-800/40"
+                    className="group flex items-center gap-2 py-2 pe-1 transition-colors hover:bg-[#202329]/40"
                   >
                     <button
                       type="button"
@@ -483,7 +483,7 @@ export default function FilesTab() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-zinc-400 hover:bg-zinc-800 hover:text-emerald-300"
+                          className="h-7 w-7 text-zinc-400 hover:bg-[#202329] hover:text-emerald-300"
                           onClick={() => void downloadFile(full, e.name)}
                           title="دانلود"
                         >
@@ -494,7 +494,7 @@ export default function FilesTab() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-zinc-400 hover:bg-zinc-800 hover:text-amber-300"
+                        className="h-7 w-7 text-zinc-400 hover:bg-[#202329] hover:text-amber-300"
                         onClick={() =>
                           setRenameState({ open: true, path: full, name: e.name, busy: false })
                         }
@@ -506,7 +506,7 @@ export default function FilesTab() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-zinc-400 hover:bg-zinc-800 hover:text-red-300"
+                        className="h-7 w-7 text-zinc-400 hover:bg-[#202329] hover:text-red-300"
                         onClick={() =>
                           setDeleteState({
                             open: true,
@@ -550,7 +550,7 @@ export default function FilesTab() {
         open={viewer.open}
         onOpenChange={(o) => setViewer((v) => ({ ...v, open: o }))}
       >
-        <DialogContent dir="rtl" className="max-w-2xl border-zinc-800 bg-zinc-950 sm:max-w-3xl">
+        <DialogContent dir="rtl" className="max-w-2xl border-[#2D3139] bg-[#202329] sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle className="flex flex-wrap items-center gap-2 text-sm">
               <FileText className="h-4 w-4 text-emerald-400" />
@@ -558,7 +558,7 @@ export default function FilesTab() {
                 {viewer.data?.name || '…'}
               </span>
               {viewer.data ? (
-                <Badge variant="outline" className="border-zinc-700 text-[10px] text-zinc-400">
+                <Badge variant="outline" className="border-[#3A3F47] text-[10px] text-zinc-400">
                   {fmtBytes(viewer.data.size)}
                 </Badge>
               ) : null}
@@ -574,14 +574,14 @@ export default function FilesTab() {
             <img
               src={`data:${viewer.data.mime || 'image/png'};base64,${viewer.data.base64}`}
               alt={viewer.data.name}
-              className="mx-auto max-h-[420px] rounded-md border border-zinc-800 object-contain"
+              className="mx-auto max-h-[420px] rounded-md border border-[#2D3139] object-contain"
             />
           ) : viewer.data?.isText ? (
             <Textarea
               dir="ltr"
               value={viewer.draft}
               onChange={(e) => setViewer((v) => ({ ...v, draft: e.target.value }))}
-              className="h-72 resize-none border-zinc-800 bg-zinc-900 font-mono text-xs text-zinc-200 focus-visible:ring-emerald-500/50"
+              className="h-72 resize-none border-[#2D3139] bg-[#181A1F] font-mono text-xs text-zinc-200 focus-visible:ring-[#34D399]/50"
               spellCheck={false}
             />
           ) : viewer.data?.textTooLarge ? (
@@ -608,7 +608,7 @@ export default function FilesTab() {
               variant="outline"
               size="sm"
               onClick={() => viewer.data && void downloadFile(viewer.data.path, viewer.data.name)}
-              className="border-zinc-700 bg-zinc-950 text-zinc-200 hover:bg-zinc-800"
+              className="border-[#3A3F47] bg-[#202329] text-zinc-200 hover:bg-[#202329]"
             >
               <Download className="h-3.5 w-3.5" /> دانلود
             </Button>
@@ -617,7 +617,7 @@ export default function FilesTab() {
                 size="sm"
                 onClick={() => void saveFile()}
                 disabled={viewer.saving}
-                className="bg-emerald-600 font-bold text-white hover:bg-emerald-500"
+                className="bg-[#10B981] font-bold text-white hover:bg-[#34D399]"
               >
                 {viewer.saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 ذخیره
@@ -629,7 +629,7 @@ export default function FilesTab() {
 
       {/* ---------- new item ---------- */}
       <Dialog open={newItem.open} onOpenChange={(o) => setNewItem((s) => ({ ...s, open: o }))}>
-        <DialogContent dir="rtl" className="max-w-sm border-zinc-800 bg-zinc-950">
+        <DialogContent dir="rtl" className="max-w-sm border-[#2D3139] bg-[#202329]">
           <DialogHeader>
             <DialogTitle className="text-sm">
               {newItem.mode === 'folder' ? 'پوشه جدید' : 'فایل جدید'}
@@ -642,14 +642,14 @@ export default function FilesTab() {
             onChange={(e) => setNewItem((s) => ({ ...s, name: e.target.value }))}
             onKeyDown={(e) => e.key === 'Enter' && !newItem.busy && void createItem()}
             placeholder="new-folder"
-            className="border-zinc-700 bg-zinc-900 font-mono text-xs text-zinc-200 focus-visible:ring-emerald-500/50"
+            className="border-[#3A3F47] bg-[#181A1F] font-mono text-xs text-zinc-200 focus-visible:ring-[#34D399]/50"
           />
           <DialogFooter>
             <Button
               size="sm"
               onClick={() => void createItem()}
               disabled={newItem.busy || !newItem.name.trim()}
-              className="bg-emerald-600 font-bold text-white hover:bg-emerald-500"
+              className="bg-[#10B981] font-bold text-white hover:bg-[#34D399]"
             >
               {newItem.busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
               بساز
@@ -663,7 +663,7 @@ export default function FilesTab() {
         open={renameState.open}
         onOpenChange={(o) => setRenameState((s) => ({ ...s, open: o }))}
       >
-        <DialogContent dir="rtl" className="max-w-sm border-zinc-800 bg-zinc-950">
+        <DialogContent dir="rtl" className="max-w-sm border-[#2D3139] bg-[#202329]">
           <DialogHeader>
             <DialogTitle className="text-sm">تغییر اسم</DialogTitle>
           </DialogHeader>
@@ -673,7 +673,7 @@ export default function FilesTab() {
             value={renameState.name}
             onChange={(e) => setRenameState((s) => ({ ...s, name: e.target.value }))}
             onKeyDown={(e) => e.key === 'Enter' && !renameState.busy && void doRename()}
-            className="border-zinc-700 bg-zinc-900 font-mono text-xs text-zinc-200 focus-visible:ring-emerald-500/50"
+            className="border-[#3A3F47] bg-[#181A1F] font-mono text-xs text-zinc-200 focus-visible:ring-[#34D399]/50"
           />
           <DialogFooter>
             <Button
@@ -694,7 +694,7 @@ export default function FilesTab() {
         open={deleteState.open}
         onOpenChange={(o) => setDeleteState((s) => ({ ...s, open: o }))}
       >
-        <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950">
+        <AlertDialogContent dir="rtl" className="border-[#2D3139] bg-[#202329]">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm">
               {deleteState.isDir ? 'کل پوشه حذف بشه؟' : 'فایل حذف بشه؟'}
@@ -709,7 +709,7 @@ export default function FilesTab() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-zinc-700 bg-zinc-900 text-xs text-zinc-200 hover:bg-zinc-800">
+            <AlertDialogCancel className="border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-200 hover:bg-[#202329]">
               بی‌خیال
             </AlertDialogCancel>
             <AlertDialogAction

@@ -46,7 +46,7 @@ function ColorField({
   onPick: (hex: string) => void
 }) {
   return (
-    <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+    <div className="space-y-2 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
       <div className="flex items-center justify-between gap-2">
         <p className="text-[10px] text-zinc-500">{label}</p>
         <p className="font-mono text-[10px] text-zinc-600" dir="ltr">
@@ -59,7 +59,7 @@ function ColorField({
           value={value}
           onChange={(e) => onPick(e.target.value)}
           aria-label={label}
-          className="h-8 w-10 shrink-0 cursor-pointer rounded-md border border-zinc-700 bg-zinc-950 p-0.5"
+          className="h-8 w-10 shrink-0 cursor-pointer rounded-md border border-[#3A3F47] bg-[#202329] p-0.5"
         />
         {/* inline style on purpose: shows the EXACT color, unaffected by theme vars */}
         <p className="truncate text-xs" style={{ color: value }}>
@@ -135,7 +135,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
   return (
     <div className="space-y-4">
       {/* ---------------- appearance / readability ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Palette className="h-4 w-4 text-amber-400" /> ظاهر و خوانایی متن
@@ -151,7 +151,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                   description: 'رنگ متن‌ها و اندازه‌شون مثل اول شد.',
                 })
               }}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               <RotateCcw className="h-3.5 w-3.5" /> بازگردانی به پیش‌فرض
             </Button>
@@ -178,8 +178,8 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                         onClick={() => onThemeChange({ main: p.main, second: p.second, dim: p.dim, zoom: theme.zoom })}
                         className={`h-8 justify-start gap-2 px-2.5 text-[11px] font-bold ${
                           active
-                            ? 'border-emerald-800/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/50'
-                            : 'border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800'
+                            ? 'border-emerald-800/60 bg-[#0A2E1E]/30 text-emerald-300 hover:bg-[#0A2E1E]/50'
+                            : 'border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]'
                         }`}
                       >
                         <span className="flex shrink-0 overflow-hidden rounded" aria-hidden>
@@ -238,8 +238,8 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                         onClick={() => onThemeChange({ ...theme, zoom: z.value })}
                         className={`h-8 text-[11px] font-bold ${
                           active
-                            ? 'border-emerald-800/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/50'
-                            : 'border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800'
+                            ? 'border-emerald-800/60 bg-[#0A2E1E]/30 text-emerald-300 hover:bg-[#0A2E1E]/50'
+                            : 'border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]'
                         }`}
                       >
                         {z.label}
@@ -250,7 +250,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
               </div>
 
               {/* live preview on the panel's black background */}
-              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-4">
+              <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-4">
                 <p className="text-[10px] text-zinc-600">
                   پیش‌نمایش زنده — دقیقاً همون چیزی که همه‌جای پنل می‌بینی
                 </p>
@@ -280,7 +280,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
       </Card>
 
       {/* ---------------- password change ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <KeyRound className="h-4 w-4 text-emerald-400" /> تغییر رمز پنل
@@ -302,7 +302,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                     value={pwCurrent}
                     onChange={(e) => setPwCurrent(e.target.value)}
                     aria-invalid={currentErr ? true : undefined}
-                    className="h-8 border-zinc-700 bg-zinc-950 pr-9 text-left text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-emerald-500/50"
+                    className="h-8 border-[#3A3F47] bg-[#202329] pr-9 text-left text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-[#34D399]/50"
                   />
                   <Button
                     type="button"
@@ -310,7 +310,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                     size="icon"
                     onClick={() => setPwShowCurrent((v) => !v)}
                     aria-label="نمایش رمز"
-                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-[#202329] hover:text-zinc-300"
                   >
                     {pwShowCurrent ? (
                       <EyeOff className="h-3.5 w-3.5" />
@@ -339,7 +339,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                     value={pwNext}
                     onChange={(e) => setPwNext(e.target.value)}
                     aria-invalid={nextErr ? true : undefined}
-                    className="h-8 border-zinc-700 bg-zinc-950 pr-9 text-left text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-emerald-500/50"
+                    className="h-8 border-[#3A3F47] bg-[#202329] pr-9 text-left text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-[#34D399]/50"
                   />
                   <Button
                     type="button"
@@ -347,7 +347,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                     size="icon"
                     onClick={() => setPwShowNext((v) => !v)}
                     aria-label="نمایش رمز"
-                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-[#202329] hover:text-zinc-300"
                   >
                     {pwShowNext ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </Button>
@@ -367,7 +367,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                     value={pwConfirm}
                     onChange={(e) => setPwConfirm(e.target.value)}
                     aria-invalid={confirmErr ? true : undefined}
-                    className="h-8 border-zinc-700 bg-zinc-950 pr-9 text-left text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-emerald-500/50"
+                    className="h-8 border-[#3A3F47] bg-[#202329] pr-9 text-left text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-[#34D399]/50"
                   />
                   <Button
                     type="button"
@@ -375,7 +375,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                     size="icon"
                     onClick={() => setPwShowConfirm((v) => !v)}
                     aria-label="نمایش رمز"
-                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-[#202329] hover:text-zinc-300"
                   >
                     {pwShowConfirm ? (
                       <EyeOff className="h-3.5 w-3.5" />
@@ -392,7 +392,7 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
                 type="submit"
                 size="sm"
                 disabled={!pwValid || pwBusy}
-                className="h-8 bg-emerald-600 text-xs font-bold text-white hover:bg-emerald-500"
+                className="h-8 bg-[#10B981] text-xs font-bold text-white hover:bg-[#34D399]"
               >
                 {pwBusy ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />

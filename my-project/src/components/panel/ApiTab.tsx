@@ -115,7 +115,7 @@ function CopyBtn({ value, ariaLabel }: { value: string; ariaLabel: string }) {
       size="sm"
       onClick={() => void onCopy()}
       aria-label={ariaLabel}
-      className="h-8 shrink-0 border-zinc-700 bg-zinc-950 text-[11px] text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
+      className="h-8 shrink-0 border-[#3A3F47] bg-[#202329] text-[11px] text-zinc-300 hover:bg-[#202329] hover:text-zinc-100"
     >
       {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
       {copied ? 'کپی شد' : 'کپی'}
@@ -128,7 +128,7 @@ function CopyBtn({ value, ariaLabel }: { value: string; ariaLabel: string }) {
 function SecretRow({ name, value }: { name: string; value: string }) {
   const [show, setShow] = useState(false)
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+    <div className="flex items-center gap-2 rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
       <code className="shrink-0 font-mono text-[11px] text-amber-300" dir="ltr">
         {name}
       </code>
@@ -145,7 +145,7 @@ function SecretRow({ name, value }: { name: string; value: string }) {
         size="icon"
         onClick={() => setShow((v) => !v)}
         aria-label={show ? `مخفی‌کردن ${name}` : `نمایش ${name}`}
-        className="h-7 w-7 shrink-0 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+        className="h-7 w-7 shrink-0 text-zinc-500 hover:bg-[#202329] hover:text-zinc-300"
       >
         {show ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
       </Button>
@@ -158,7 +158,7 @@ function SecretRow({ name, value }: { name: string; value: string }) {
 
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+    <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
       <p className="text-[10px] text-zinc-500">{label}</p>
       <p className="mt-0.5 text-[12px] font-bold leading-5 text-zinc-200">{value}</p>
     </div>
@@ -273,7 +273,7 @@ export default function ApiTab() {
 
   if (loading) {
     return (
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardContent className="flex min-h-48 flex-col items-center justify-center gap-3 pt-6">
           <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
           <p className="text-xs text-zinc-400">در حال دریافت اطلاعات اتصال…</p>
@@ -284,7 +284,7 @@ export default function ApiTab() {
 
   if (error || !info) {
     return (
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardContent className="flex min-h-48 flex-col items-center justify-center gap-3 pt-6 text-center">
           <AlertTriangle className="h-6 w-6 text-amber-400" />
           <p className="text-xs text-zinc-300">{error || 'اطلاعات اتصال در دسترس نیست.'}</p>
@@ -292,7 +292,7 @@ export default function ApiTab() {
             variant="outline"
             size="sm"
             onClick={() => void load()}
-            className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-300 hover:bg-zinc-800"
+            className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-300 hover:bg-[#202329]"
           >
             <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
           </Button>
@@ -308,7 +308,7 @@ export default function ApiTab() {
   return (
     <div className="space-y-4">
       {/* ---------------- card 1: coding tools ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Cable className="h-4 w-4 shrink-0 text-emerald-400" />
@@ -327,7 +327,7 @@ export default function ApiTab() {
                 readOnly
                 dir="ltr"
                 value={baseUrl}
-                className="h-8 flex-1 border-zinc-700 bg-zinc-950 text-left font-mono text-[11px] text-zinc-200 focus-visible:ring-emerald-500/50"
+                className="h-8 flex-1 border-[#3A3F47] bg-[#202329] text-left font-mono text-[11px] text-zinc-200 focus-visible:ring-[#34D399]/50"
               />
               <CopyBtn value={baseUrl} ariaLabel="کپی بیس‌یو‌آر‌ال" />
             </div>
@@ -347,7 +347,7 @@ export default function ApiTab() {
                     dir="ltr"
                     type={showKey ? 'text' : 'password'}
                     value={info.proxyKey}
-                    className="h-8 border-zinc-700 bg-zinc-950 pr-9 text-left font-mono text-[11px] text-zinc-200 focus-visible:ring-emerald-500/50"
+                    className="h-8 border-[#3A3F47] bg-[#202329] pr-9 text-left font-mono text-[11px] text-zinc-200 focus-visible:ring-[#34D399]/50"
                   />
                   <Button
                     type="button"
@@ -355,7 +355,7 @@ export default function ApiTab() {
                     size="icon"
                     onClick={() => setShowKey((v) => !v)}
                     aria-label={showKey ? 'مخفی‌کردن کلید' : 'نمایش کلید'}
-                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300"
+                    className="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 text-zinc-500 hover:bg-[#202329] hover:text-zinc-300"
                   >
                     {showKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </Button>
@@ -380,7 +380,7 @@ export default function ApiTab() {
                 <Badge
                   key={m.id}
                   variant="outline"
-                  className="gap-1.5 border-zinc-700 bg-zinc-950 px-2.5 py-1 text-[10px] text-zinc-300"
+                  className="gap-1.5 border-[#3A3F47] bg-[#202329] px-2.5 py-1 text-[10px] text-zinc-300"
                 >
                   <code className="font-mono text-emerald-300" dir="ltr">
                     {m.id}
@@ -399,24 +399,24 @@ export default function ApiTab() {
             </div>
             <pre
               dir="ltr"
-              className="max-h-72 overflow-auto rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-left font-mono text-[11px] leading-5 text-zinc-300"
+              className="max-h-72 overflow-auto rounded-lg border border-[#2D3139] bg-[#202329] p-3 text-left font-mono text-[11px] leading-5 text-zinc-300"
             >
               {opencodeJson}
             </pre>
           </div>
 
           {/* 3-step guide */}
-          <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+          <div className="space-y-2 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
             <p className="text-[11px] font-bold text-zinc-300">راه‌اندازی در ۳ قدم</p>
             <ol className="space-y-2 text-[11px] leading-6 text-zinc-400">
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-950/50 text-[10px] font-black text-emerald-300 ring-1 ring-emerald-800/60">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0A2E1E]/50 text-[10px] font-black text-emerald-300 ring-1 ring-emerald-800/60">
                   ۱
                 </span>
                 نصب OpenCode روی سیستمت
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-950/50 text-[10px] font-black text-emerald-300 ring-1 ring-emerald-800/60">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0A2E1E]/50 text-[10px] font-black text-emerald-300 ring-1 ring-emerald-800/60">
                   ۲
                 </span>
                 <span>
@@ -432,7 +432,7 @@ export default function ApiTab() {
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-950/50 text-[10px] font-black text-emerald-300 ring-1 ring-emerald-800/60">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#0A2E1E]/50 text-[10px] font-black text-emerald-300 ring-1 ring-emerald-800/60">
                   ۳
                 </span>
                 اجرای opencode و انتخاب مدل StarVPN API
@@ -441,7 +441,7 @@ export default function ApiTab() {
           </div>
 
           {/* rotate */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-800 pt-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#2D3139] pt-3">
             <p className="max-w-md text-[10px] leading-5 text-zinc-600">
               اگه فکر می‌کنی کلید لو رفته یا برای ابزار جدید می‌خوای، یه کلید تازه بساز — کلید قبلی بلافاصله
               بی‌اعتبار می‌شه و باید توی ابزارت عوضش کنی.
@@ -462,7 +462,7 @@ export default function ApiTab() {
                   ساخت مجدد کلید
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950">
+              <AlertDialogContent dir="rtl" className="border-[#2D3139] bg-[#202329]">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-zinc-100">کلید جدید ساخته بشه؟</AlertDialogTitle>
                   <AlertDialogDescription className="text-zinc-400">
@@ -470,12 +470,12 @@ export default function ApiTab() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="flex-row gap-2">
-                  <AlertDialogCancel className="border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100">
+                  <AlertDialogCancel className="border-[#3A3F47] bg-[#181A1F] text-zinc-300 hover:bg-[#202329] hover:text-zinc-100">
                     نه، بی‌خیال
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={() => void rotate()}
-                    className="bg-amber-600 text-white hover:bg-amber-500"
+                    className="bg-[#F59E0B] text-white hover:bg-amber-500"
                   >
                     آره، بساز
                   </AlertDialogAction>
@@ -487,7 +487,7 @@ export default function ApiTab() {
       </Card>
 
       {/* ---------------- card 2: direct provider ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Server className="h-4 w-4 shrink-0 text-amber-400" />
@@ -507,13 +507,13 @@ export default function ApiTab() {
                     readOnly
                     dir="ltr"
                     value={info.direct.baseUrl}
-                    className="h-8 flex-1 border-zinc-700 bg-zinc-950 text-left font-mono text-[11px] text-zinc-200 focus-visible:ring-emerald-500/50"
+                    className="h-8 flex-1 border-[#3A3F47] bg-[#202329] text-left font-mono text-[11px] text-zinc-200 focus-visible:ring-[#34D399]/50"
                   />
                   <CopyBtn value={info.direct.baseUrl} ariaLabel="کپی آدرس مستقیم" />
                 </div>
               </div>
 
-              <p className="flex items-start gap-2 rounded-lg border border-red-900/60 bg-red-950/20 p-2.5 text-[11px] leading-5 text-red-300">
+              <p className="flex items-start gap-2 rounded-lg border border-[#5C2020]/60 bg-[#2C1517]/20 p-2.5 text-[11px] leading-5 text-red-300">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 این آدرس فقط از داخل سرور در دسترس است (شبکهٔ خصوصی provider). برای ابزارهای بیرونی (روی
                 لپ‌تاپ/کامپیوتر خودت) از بیس‌یو‌آر‌ال کارت بالا استفاده کن. کلید مستقیم خیلی محرمانه است — جایی
@@ -527,13 +527,13 @@ export default function ApiTab() {
               </div>
 
               <div className="grid gap-2 sm:grid-cols-2">
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">شناسهٔ چت (chatId)</p>
                   <p className="mt-0.5 truncate font-mono text-[11px] text-zinc-300" dir="ltr">
                     {info.direct.chatId || '—'}
                   </p>
                 </div>
-                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <p className="text-[10px] text-zinc-500">شناسهٔ کاربر (userId)</p>
                   <p className="mt-0.5 truncate font-mono text-[11px] text-zinc-300" dir="ltr">
                     {info.direct.userId || '—'}
@@ -550,7 +550,7 @@ export default function ApiTab() {
       </Card>
 
       {/* ---------------- card 3: api monitor ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <BellRing className="h-4 w-4 shrink-0 text-emerald-400" />
@@ -559,8 +559,8 @@ export default function ApiTab() {
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${
               mon.alive
-                ? 'bg-emerald-950/40 text-emerald-300 ring-1 ring-emerald-800/60'
-                : 'bg-red-950/40 text-red-300 ring-1 ring-red-900/60'
+                ? 'bg-[#0A2E1E]/40 text-emerald-300 ring-1 ring-emerald-800/60'
+                : 'bg-[#2C1517]/40 text-red-300 ring-1 ring-red-900/60'
             }`}
           >
             <span

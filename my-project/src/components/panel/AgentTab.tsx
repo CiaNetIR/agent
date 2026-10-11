@@ -242,7 +242,7 @@ async function postOp<T>(op: string, data?: Record<string, unknown>): Promise<{
 
 function EnabledBadge({ enabled }: { enabled: boolean }) {
   return enabled ? (
-    <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">فعال</Badge>
+    <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">فعال</Badge>
   ) : (
     <Badge className="bg-zinc-700/40 text-zinc-300 ring-1 ring-zinc-600/50">غیرفعال</Badge>
   )
@@ -250,7 +250,7 @@ function EnabledBadge({ enabled }: { enabled: boolean }) {
 
 function RunStatusBadge({ status }: { status: string }) {
   if (status === 'ok')
-    return <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">موفق</Badge>
+    return <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">موفق</Badge>
   if (status === 'error')
     return <Badge className="bg-red-500/15 text-red-300 ring-1 ring-red-500/40">خطا</Badge>
   if (status === 'running')
@@ -260,7 +260,7 @@ function RunStatusBadge({ status }: { status: string }) {
 
 function InvoiceStatusBadge({ status }: { status: string }) {
   if (status === 'paid')
-    return <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">پرداخت شده</Badge>
+    return <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">پرداخت شده</Badge>
   if (status === 'pending')
     return <Badge className="bg-amber-500/15 text-amber-300 ring-1 ring-amber-500/40">در انتظار پرداخت</Badge>
   return <Badge className="bg-zinc-700/40 text-zinc-300 ring-1 ring-zinc-600/50">صادرشده</Badge>
@@ -268,16 +268,16 @@ function InvoiceStatusBadge({ status }: { status: string }) {
 
 function SentTgBadge({ sent }: { sent: boolean }) {
   return sent ? (
-    <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">ارسال شد</Badge>
+    <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">ارسال شد</Badge>
   ) : (
-    <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">ارسال نشد</Badge>
+    <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">ارسال نشد</Badge>
   )
 }
 
 /** shared "settings not loaded" fallback for settings sections */
 function NoSettings({ onRetry }: { onRetry: () => void }) {
   return (
-    <Card className="border-dashed border-zinc-800 bg-zinc-900/40">
+    <Card className="border-dashed border-[#2D3139] bg-[#181A1F]/40">
       <CardContent className="flex flex-col items-center gap-2 p-6 text-center">
         <Bot className="h-7 w-7 text-zinc-600" />
         <p className="text-xs font-bold text-zinc-300">تنظیمات ایجنت دریافت نشد</p>
@@ -288,7 +288,7 @@ function NoSettings({ onRetry }: { onRetry: () => void }) {
           variant="outline"
           size="sm"
           onClick={onRetry}
-          className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+          className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
         >
           <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
         </Button>
@@ -322,7 +322,7 @@ function ListPlaceholder({
           variant="outline"
           size="sm"
           onClick={onRetry}
-          className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+          className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
         >
           <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
         </Button>
@@ -334,7 +334,7 @@ function ListPlaceholder({
 
 function InfoNote({ children }: { children: ReactNode }) {
   return (
-    <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3 text-[11px] leading-6 text-zinc-400 [&_code]:font-mono [&_code]:text-zinc-200">
+    <div className="space-y-2 rounded-lg border border-[#2D3139] bg-[#202329] p-3 text-[11px] leading-6 text-zinc-400 [&_code]:font-mono [&_code]:text-zinc-200">
       {children}
     </div>
   )
@@ -440,7 +440,7 @@ function InvoiceCreateDialog({
     <Dialog open onOpenChange={onOpenChange}>
       <DialogContent
         dir="rtl"
-        className="max-h-[88vh] overflow-y-auto border-zinc-800 bg-zinc-950 sm:max-w-lg"
+        className="max-h-[88vh] overflow-y-auto border-[#2D3139] bg-[#202329] sm:max-w-lg"
       >
         <DialogHeader>
           <DialogTitle className="text-sm text-zinc-100">فاکتور دستی</DialogTitle>
@@ -460,13 +460,13 @@ function InvoiceCreateDialog({
               onChange={(e) => setCustomer(e.target.value)}
               placeholder="مثلاً علی رضایی"
               maxLength={120}
-              className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-100 placeholder:text-zinc-600"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-100 placeholder:text-zinc-600"
             />
           </div>
 
           <div className="space-y-2">
             {items.map((it, i) => (
-              <div key={it.rid} className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-900/60 p-2.5">
+              <div key={it.rid} className="space-y-2 rounded-lg border border-[#2D3139] bg-[#181A1F]/60 p-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-[11px] font-bold text-zinc-300">ردیف {fa(i + 1)}</p>
                   <Button
@@ -474,7 +474,7 @@ function InvoiceCreateDialog({
                     size="sm"
                     onClick={() => setItems((arr) => arr.filter((x) => x.rid !== it.rid))}
                     disabled={items.length === 1}
-                    className="h-7 border-red-900/60 bg-red-950/30 text-[10px] text-red-300 hover:bg-red-950/50"
+                    className="h-7 border-[#5C2020]/60 bg-[#2C1517]/30 text-[10px] text-red-300 hover:bg-[#2C1517]/50"
                   >
                     <Trash2 className="h-3 w-3" /> حذف
                   </Button>
@@ -488,7 +488,7 @@ function InvoiceCreateDialog({
                   onChange={(e) => patchItem(it.rid, { name: e.target.value })}
                   placeholder="نام کالا / خدمات"
                   maxLength={120}
-                  className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-100 placeholder:text-zinc-600"
+                  className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-100 placeholder:text-zinc-600"
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
@@ -501,7 +501,7 @@ function InvoiceCreateDialog({
                       min={1}
                       value={it.qty}
                       onChange={(e) => patchItem(it.rid, { qty: e.target.value })}
-                      className="h-8 border-zinc-700 bg-zinc-950 text-center text-xs text-zinc-100"
+                      className="h-8 border-[#3A3F47] bg-[#202329] text-center text-xs text-zinc-100"
                     />
                   </div>
                   <div className="space-y-1">
@@ -516,7 +516,7 @@ function InvoiceCreateDialog({
                       value={it.price}
                       onChange={(e) => patchItem(it.rid, { price: e.target.value })}
                       placeholder="0"
-                      className="h-8 border-zinc-700 bg-zinc-950 text-center text-xs text-zinc-100 placeholder:text-zinc-600"
+                      className="h-8 border-[#3A3F47] bg-[#202329] text-center text-xs text-zinc-100 placeholder:text-zinc-600"
                     />
                   </div>
                 </div>
@@ -526,7 +526,7 @@ function InvoiceCreateDialog({
               variant="outline"
               size="sm"
               onClick={() => setItems((arr) => [...arr, newInvoiceItem()])}
-              className="h-8 w-full border-dashed border-zinc-700 bg-zinc-950 text-xs text-zinc-300 hover:bg-zinc-800"
+              className="h-8 w-full border-dashed border-[#3A3F47] bg-[#202329] text-xs text-zinc-300 hover:bg-[#202329]"
             >
               <Plus className="h-3.5 w-3.5" /> ردیف جدید
             </Button>
@@ -535,21 +535,21 @@ function InvoiceCreateDialog({
           <div className="space-y-1.5">
             <Label className="text-xs text-zinc-300">واحد پول</Label>
             <Select value={currency} onValueChange={(v) => setCurrency(v === 'USD' ? 'USD' : 'IRT')}>
-              <SelectTrigger className="h-8 w-full border-zinc-700 bg-zinc-950 text-xs text-zinc-100">
+              <SelectTrigger className="h-8 w-full border-[#3A3F47] bg-[#202329] text-xs text-zinc-100">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-200">
-                <SelectItem value="IRT" className="text-xs focus:bg-zinc-800">
+              <SelectContent className="border-[#2D3139] bg-[#202329] text-zinc-200">
+                <SelectItem value="IRT" className="text-xs focus:bg-[#202329]">
                   تومان (IRT)
                 </SelectItem>
-                <SelectItem value="USD" className="text-xs focus:bg-zinc-800">
+                <SelectItem value="USD" className="text-xs focus:bg-[#202329]">
                   دلار (USD)
                 </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-[#2D3139] bg-[#181A1F]/60 p-3">
             <div className="min-w-0 space-y-1">
               <p className="text-xs font-bold text-zinc-200">ارسال به تلگرام</p>
               <p className="text-[10px] leading-5 text-zinc-500">
@@ -559,7 +559,7 @@ function InvoiceCreateDialog({
             <Switch
               checked={sendTg}
               onCheckedChange={setSendTg}
-              className="data-[state=checked]:bg-emerald-600"
+              className="data-[state=checked]:bg-[#10B981]"
             />
           </div>
         </div>
@@ -569,14 +569,14 @@ function InvoiceCreateDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={saving}
-            className="border-zinc-700 bg-zinc-900 text-xs text-zinc-200 hover:bg-zinc-800"
+            className="border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-200 hover:bg-[#202329]"
           >
             بی‌خیال
           </Button>
           <Button
             onClick={() => void submit()}
             disabled={saving}
-            className="bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+            className="bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Receipt className="h-3.5 w-3.5" />}
             ساخت فاکتور
@@ -638,7 +638,7 @@ function SupportChatDialog({
 
   return (
     <Dialog open onOpenChange={onOpenChange}>
-      <DialogContent dir="rtl" className="max-h-[88vh] border-zinc-800 bg-zinc-950 sm:max-w-lg">
+      <DialogContent dir="rtl" className="max-h-[88vh] border-[#2D3139] bg-[#202329] sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-sm text-zinc-100">گفتگوی پشتیبانی سایت</DialogTitle>
           <DialogDescription className="text-[11px]">
@@ -658,7 +658,7 @@ function SupportChatDialog({
         <div
           ref={scrollRef}
           dir="rtl"
-          className="max-h-[55vh] space-y-2 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900/60 p-3"
+          className="max-h-[55vh] space-y-2 overflow-y-auto rounded-lg border border-[#2D3139] bg-[#181A1F]/60 p-3"
         >
           {messages === null ? (
             loading ? (
@@ -679,8 +679,8 @@ function SupportChatDialog({
                   <div
                     className={
                       isUser
-                        ? 'mr-auto max-w-[85%] rounded-2xl rounded-bl-sm bg-zinc-800 px-3 py-2 text-xs leading-6 text-zinc-200'
-                        : 'ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-emerald-950/60 px-3 py-2 text-xs leading-6 text-emerald-100 ring-1 ring-emerald-800/50'
+                        ? 'mr-auto max-w-[85%] rounded-2xl rounded-bl-sm bg-[#202329] px-3 py-2 text-xs leading-6 text-zinc-200'
+                        : 'ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-[#0A2E1E]/60 px-3 py-2 text-xs leading-6 text-emerald-100 ring-1 ring-emerald-800/50'
                     }
                   >
                     <p className="whitespace-pre-wrap break-words" dir="auto">
@@ -1307,7 +1307,7 @@ export default function AgentTab() {
   return (
     <div className="space-y-4">
       {/* ---------------- header ---------------- */}
-      <Card className="border-zinc-800 bg-zinc-900/70">
+      <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Bot className="h-4 w-4 text-emerald-400" /> ایجنت — هستهٔ سرویس
@@ -1318,10 +1318,10 @@ export default function AgentTab() {
                 <Loader2 className="h-3 w-3 animate-spin" /> اسکرپ در حال اجرا
               </Badge>
             ) : null}
-            <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
+            <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">
               نسخه <span dir="ltr">v{ov?.agent.version ?? '—'}</span>
             </Badge>
-            <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
+            <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">
               آپتایم {formatUptime(ov?.agent.uptimeSec ?? null)}
             </Badge>
             <Button
@@ -1331,7 +1331,7 @@ export default function AgentTab() {
                 void loadOverview()
                 void loadSettings()
               }}
-              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${ovLoading ? 'animate-spin' : ''}`} /> رفرش
             </Button>
@@ -1350,52 +1350,52 @@ export default function AgentTab() {
 
       {/* ---------------- inner tabs ---------------- */}
       <Tabs defaultValue="caps" dir="rtl" onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid h-auto w-full grid-cols-4 gap-1 rounded-xl border border-zinc-800 bg-zinc-900/70 p-1 sm:grid-cols-8">
+        <TabsList className="grid h-auto w-full grid-cols-4 gap-1 rounded-xl border border-[#2D3139] bg-[#181A1F]/70 p-1 sm:grid-cols-8">
           <TabsTrigger
             value="caps"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <ToggleLeft className="h-3.5 w-3.5" /> قابلیت‌ها
           </TabsTrigger>
           <TabsTrigger
             value="overview"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <Activity className="h-3.5 w-3.5" /> وضعیت
           </TabsTrigger>
           <TabsTrigger
             value="scraper"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <Radar className="h-3.5 w-3.5" /> اسکرپر
           </TabsTrigger>
           <TabsTrigger
             value="woo"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <ShoppingCart className="h-3.5 w-3.5" /> ووکامرس
           </TabsTrigger>
           <TabsTrigger
             value="report"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <FileText className="h-3.5 w-3.5" /> گزارش روزانه
           </TabsTrigger>
           <TabsTrigger
             value="invoices"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <Receipt className="h-3.5 w-3.5" /> فاکتورها
           </TabsTrigger>
           <TabsTrigger
             value="images"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <ImagePlus className="h-3.5 w-3.5" /> تصاویر
           </TabsTrigger>
           <TabsTrigger
             value="support"
-            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-emerald-600 data-[state=active]:text-white"
+            className="gap-1 rounded-lg px-1 py-2 text-[11px] font-bold data-[state=active]:bg-[#10B981] data-[state=active]:text-white"
           >
             <MessagesSquare className="h-3.5 w-3.5" /> پشتیبانی سایت
           </TabsTrigger>
@@ -1424,7 +1424,7 @@ export default function AgentTab() {
                 <Loader2 className="h-6 w-6 animate-spin text-emerald-400" />
               </div>
             ) : (
-              <Card className="border-dashed border-zinc-800 bg-zinc-900/40">
+              <Card className="border-dashed border-[#2D3139] bg-[#181A1F]/40">
                 <CardContent className="flex flex-col items-center gap-2 p-8 text-center">
                   <Bot className="h-8 w-8 text-zinc-600" />
                   <p className="text-sm font-bold text-zinc-300">وضعیت ایجنت دریافت نشد</p>
@@ -1435,7 +1435,7 @@ export default function AgentTab() {
                     variant="outline"
                     size="sm"
                     onClick={() => void loadOverview()}
-                    className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                    className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
                   >
                     <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
                   </Button>
@@ -1446,7 +1446,7 @@ export default function AgentTab() {
             <>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {/* ---- scraper ---- */}
-                <Card className="border-zinc-800 bg-zinc-900/70">
+                <Card className="border-[#2D3139] bg-[#181A1F]/70">
                   <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                     <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                       <Radar className="h-4 w-4 text-emerald-400" /> اسکرپر
@@ -1455,20 +1455,20 @@ export default function AgentTab() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                      <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                         <p className="text-[10px] text-zinc-500">بازهٔ اجرا</p>
                         <p className="mt-0.5 text-xs font-bold text-zinc-200">
                           هر {fa(ov.scraper.everyMin)} دقیقه
                         </p>
                       </div>
-                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                      <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                         <p className="text-[10px] text-zinc-500">اجرای بعدی</p>
                         <p className="mt-0.5 text-xs font-bold text-zinc-200">
                           {ov.scraper.nextRunAt ? fmtDateTime(ov.scraper.nextRunAt) : '—'}
                         </p>
                       </div>
                     </div>
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                    <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                       <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                         <Clock className="h-3 w-3" /> آخرین اجرا
                       </p>
@@ -1493,7 +1493,7 @@ export default function AgentTab() {
                       size="sm"
                       onClick={() => void runScraperNow()}
                       disabled={busy['run-scraper'] || ov.agent.scrapingNow}
-                      className="h-8 w-full border-emerald-800/60 bg-emerald-950/30 text-xs text-emerald-300 hover:bg-emerald-950/50"
+                      className="h-8 w-full border-emerald-800/60 bg-[#0A2E1E]/30 text-xs text-emerald-300 hover:bg-[#0A2E1E]/50"
                     >
                       {busy['run-scraper'] || ov.agent.scrapingNow ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1506,13 +1506,13 @@ export default function AgentTab() {
                 </Card>
 
                 {/* ---- woo ---- */}
-                <Card className="border-zinc-800 bg-zinc-900/70">
+                <Card className="border-[#2D3139] bg-[#181A1F]/70">
                   <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                     <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                       <ShoppingCart className="h-4 w-4 text-amber-400" /> ووکامرس
                     </CardTitle>
                     {ov.woo.configured ? (
-                      <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
+                      <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
                         متصل
                       </Badge>
                     ) : (
@@ -1522,18 +1522,18 @@ export default function AgentTab() {
                     )}
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                    <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                       <p className="text-[10px] text-zinc-500">سایت</p>
                       <p className="mt-0.5 truncate font-mono text-xs font-bold text-zinc-200" dir="ltr" title={ov.woo.site}>
                         {ov.woo.site || '—'}
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                      <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                         <p className="text-[10px] text-zinc-500">محصولات همگام</p>
                         <p className="mt-0.5 text-xs font-bold text-zinc-200">{fa(ov.woo.products)}</p>
                       </div>
-                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                      <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                         <p className="text-[10px] text-zinc-500">آخرین همگام‌سازی</p>
                         <p className="mt-0.5 text-xs font-bold text-zinc-200">
                           {ov.woo.lastSync ? fmtDateTime(ov.woo.lastSync) : '—'}
@@ -1549,7 +1549,7 @@ export default function AgentTab() {
                 </Card>
 
                 {/* ---- report ---- */}
-                <Card className="border-zinc-800 bg-zinc-900/70">
+                <Card className="border-[#2D3139] bg-[#181A1F]/70">
                   <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                     <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                       <FileText className="h-4 w-4 text-emerald-400" /> گزارش روزانه
@@ -1557,13 +1557,13 @@ export default function AgentTab() {
                     <EnabledBadge enabled={ov.report.enabled} />
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                    <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                       <p className="text-[10px] text-zinc-500">ساعت ساخت (به وقت تهران)</p>
                       <p className="mt-0.5 font-mono text-xs font-bold text-zinc-200" dir="ltr">
                         {ov.report.time || '—'}
                       </p>
                     </div>
-                    <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                    <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                       <p className="text-[10px] text-zinc-500">آخرین گزارش</p>
                       {ov.report.last ? (
                         <div className="mt-1 space-y-1.5">
@@ -1583,12 +1583,12 @@ export default function AgentTab() {
                 </Card>
 
                 {/* ---- images ---- */}
-                <Card className="border-zinc-800 bg-zinc-900/70">
+                <Card className="border-[#2D3139] bg-[#181A1F]/70">
                   <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                     <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                       <ImagePlus className="h-4 w-4 text-emerald-400" /> تصاویر
                     </CardTitle>
-                    <Badge className="bg-zinc-800 text-zinc-300 ring-1 ring-zinc-700" dir="ltr">
+                    <Badge className="bg-[#202329] text-zinc-300 ring-1 ring-zinc-700" dir="ltr">
                       {fa(ov.images.usedToday)} / {fa(ov.images.quota)}
                     </Badge>
                   </CardHeader>
@@ -1605,7 +1605,7 @@ export default function AgentTab() {
                           ? Math.min(100, (ov.images.usedToday / ov.images.quota) * 100)
                           : 0
                       }
-                      className="h-2 bg-zinc-800 [&>div]:bg-emerald-500"
+                      className="h-2 bg-[#202329] [&>div]:bg-emerald-500"
                     />
                     <p className="text-[10px] leading-5 text-zinc-600">
                       سهمیهٔ تولید تصویر به ازای هر روز (به وقت تهران) حساب می‌شه.
@@ -1614,12 +1614,12 @@ export default function AgentTab() {
                 </Card>
 
                 {/* ---- invoices ---- */}
-                <Card className="border-zinc-800 bg-zinc-900/70">
+                <Card className="border-[#2D3139] bg-[#181A1F]/70">
                   <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                     <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                       <Receipt className="h-4 w-4 text-amber-400" /> فاکتورها
                     </CardTitle>
-                    <Badge className="bg-zinc-800 text-zinc-300 ring-1 ring-zinc-700">
+                    <Badge className="bg-[#202329] text-zinc-300 ring-1 ring-zinc-700">
                       امروز {fa(ov.invoices.today)}
                     </Badge>
                   </CardHeader>
@@ -1630,7 +1630,7 @@ export default function AgentTab() {
                       ov.invoices.last.slice(0, 3).map((inv) => (
                         <div
                           key={inv.id}
-                          className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-zinc-800 bg-zinc-950 p-2 text-[11px]"
+                          className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-[#2D3139] bg-[#202329] p-2 text-[11px]"
                         >
                           <span className="font-mono text-zinc-200" dir="ltr">
                             {inv.number}
@@ -1651,7 +1651,7 @@ export default function AgentTab() {
                 </Card>
 
                 {/* ---- support ---- */}
-                <Card className="border-zinc-800 bg-zinc-900/70">
+                <Card className="border-[#2D3139] bg-[#181A1F]/70">
                   <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                     <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                       <MessagesSquare className="h-4 w-4 text-emerald-400" /> پشتیبانی سایت
@@ -1660,11 +1660,11 @@ export default function AgentTab() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="grid grid-cols-2 gap-2">
-                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                      <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                         <p className="text-[10px] text-zinc-500">گفتگوها</p>
                         <p className="mt-0.5 text-xs font-bold text-zinc-200">{fa(ov.support.sessions)}</p>
                       </div>
-                      <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                      <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                         <p className="text-[10px] text-zinc-500">آخرین فعالیت</p>
                         <p className="mt-0.5 text-xs font-bold text-zinc-200">
                           {ov.support.lastAt ? fmtDateTime(ov.support.lastAt) : '—'}
@@ -1679,7 +1679,7 @@ export default function AgentTab() {
               </div>
 
               {/* ---- runs ---- */}
-              <Card className="border-zinc-800 bg-zinc-900/70">
+              <Card className="border-[#2D3139] bg-[#181A1F]/70">
                 <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <Zap className="h-4 w-4 text-amber-400" /> آخرین اجراها
@@ -1688,7 +1688,7 @@ export default function AgentTab() {
                 <CardContent className="space-y-2">
                   <div
                     dir="rtl"
-                    className="max-h-72 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950/60 p-2"
+                    className="max-h-72 overflow-y-auto rounded-lg border border-[#2D3139] bg-[#202329]/60 p-2"
                   >
                     {ov.runs.length === 0 ? (
                       <p className="py-3 text-center text-[11px] text-zinc-600">هنوز اجرایی ثبت نشده</p>
@@ -1731,7 +1731,7 @@ export default function AgentTab() {
             <NoSettings onRetry={() => void loadSettings()} />
           ) : (
             <>
-              <Card className="border-zinc-800 bg-zinc-900/70">
+              <Card className="border-[#2D3139] bg-[#181A1F]/70">
                 <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <Radar className="h-4 w-4 text-emerald-400" /> تنظیمات اسکرپر
@@ -1739,7 +1739,7 @@ export default function AgentTab() {
                   <EnabledBadge enabled={scEnabled} />
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                     <div className="min-w-0 space-y-1">
                       <Label htmlFor="sc-enabled" className="text-xs font-bold text-zinc-200">
                         اجرای خودکار اسکرپر
@@ -1752,7 +1752,7 @@ export default function AgentTab() {
                       id="sc-enabled"
                       checked={scEnabled}
                       onCheckedChange={setScEnabled}
-                      className="data-[state=checked]:bg-emerald-600"
+                      className="data-[state=checked]:bg-[#10B981]"
                     />
                   </div>
 
@@ -1767,7 +1767,7 @@ export default function AgentTab() {
                         value={scScript}
                         onChange={(e) => setScScript(e.target.value)}
                         placeholder="/home/z/agent/scraper/scraper.py"
-                        className="h-8 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+                        className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
                       />
                       <p className="text-[10px] leading-5 text-zinc-600">
                         باید با <span className="font-mono text-zinc-400" dir="ltr">/home/z/</span> شروع بشه.
@@ -1786,7 +1786,7 @@ export default function AgentTab() {
                         max={1440}
                         value={scEveryMin}
                         onChange={(e) => setScEveryMin(e.target.value)}
-                        className="h-8 border-zinc-700 bg-zinc-950 text-center text-xs text-zinc-100"
+                        className="h-8 border-[#3A3F47] bg-[#202329] text-center text-xs text-zinc-100"
                       />
                       <p className="text-[10px] leading-5 text-zinc-600">
                         بین ۵ تا ۱۴۴۰ دقیقه (پیش‌فرض ۳۰).
@@ -1794,7 +1794,7 @@ export default function AgentTab() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                     <div className="min-w-0 space-y-1">
                       <Label htmlFor="sc-txt" className="text-xs font-bold text-zinc-200">
                         ارسال خروجی متنی به تلگرام
@@ -1807,7 +1807,7 @@ export default function AgentTab() {
                       id="sc-txt"
                       checked={scSendTxt}
                       onCheckedChange={setScSendTxt}
-                      className="data-[state=checked]:bg-emerald-600"
+                      className="data-[state=checked]:bg-[#10B981]"
                     />
                   </div>
 
@@ -1822,7 +1822,7 @@ export default function AgentTab() {
                       onChange={(e) => setTgChat(e.target.value)}
                       placeholder="me"
                       maxLength={64}
-                      className="h-8 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+                      className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
                     />
                     <p className="text-[10px] leading-5 text-zinc-600">
                       «me» یعنی Saved Messages خودت؛ یا chat_id عددی هر مقصد دیگه.
@@ -1833,7 +1833,7 @@ export default function AgentTab() {
                     <Button
                       onClick={() => void saveScraperSettings()}
                       disabled={busy['save-scraper']}
-                      className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+                      className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
                     >
                       {busy['save-scraper'] ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1846,7 +1846,7 @@ export default function AgentTab() {
                       variant="outline"
                       onClick={() => void runScraperNow()}
                       disabled={busy['run-scraper'] || !!ov?.agent.scrapingNow}
-                      className="h-8 border-emerald-800/60 bg-emerald-950/30 text-xs text-emerald-300 hover:bg-emerald-950/50"
+                      className="h-8 border-emerald-800/60 bg-[#0A2E1E]/30 text-xs text-emerald-300 hover:bg-[#0A2E1E]/50"
                     >
                       {busy['run-scraper'] || ov?.agent.scrapingNow ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1859,7 +1859,7 @@ export default function AgentTab() {
                 </CardContent>
               </Card>
 
-              <Card className="border-zinc-800 bg-zinc-900/70">
+              <Card className="border-[#2D3139] bg-[#181A1F]/70">
                 <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <Info className="h-4 w-4 text-amber-400" /> قرارداد اسکرپر
@@ -1900,13 +1900,13 @@ export default function AgentTab() {
           {settings === null ? (
             <NoSettings onRetry={() => void loadSettings()} />
           ) : (
-            <Card className="border-zinc-800 bg-zinc-900/70">
+            <Card className="border-[#2D3139] bg-[#181A1F]/70">
               <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                   <ShoppingCart className="h-4 w-4 text-amber-400" /> تنظیمات ووکامرس
                 </CardTitle>
                 {ov?.woo.configured ? (
-                  <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
+                  <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
                     متصل
                   </Badge>
                 ) : (
@@ -1925,10 +1925,10 @@ export default function AgentTab() {
                       value={wooSite}
                       onChange={(e) => setWooSite(e.target.value)}
                       placeholder="https://shop.example.com"
-                      className="h-8 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+                      className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
                     />
                   </div>
-                  <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                     <div className="min-w-0 space-y-1">
                       <Label htmlFor="woo-auto" className="text-xs font-bold text-zinc-200">
                         همگام‌سازی خودکار
@@ -1941,7 +1941,7 @@ export default function AgentTab() {
                       id="woo-auto"
                       checked={wooAutoSync}
                       onCheckedChange={setWooAutoSync}
-                      className="data-[state=checked]:bg-emerald-600"
+                      className="data-[state=checked]:bg-[#10B981]"
                     />
                   </div>
                 </div>
@@ -1958,7 +1958,7 @@ export default function AgentTab() {
                       value={wooKey}
                       onChange={(e) => setWooKey(e.target.value)}
                       placeholder="ck_…"
-                      className="h-8 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+                      className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -1972,7 +1972,7 @@ export default function AgentTab() {
                       value={wooSecret}
                       onChange={(e) => setWooSecret(e.target.value)}
                       placeholder="cs_…"
-                      className="h-8 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+                      className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
                     />
                   </div>
                 </div>
@@ -1991,14 +1991,14 @@ export default function AgentTab() {
                       readOnly
                       dir="ltr"
                       value={webhookSecret || '—'}
-                      className="h-8 flex-1 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-300"
+                      className="h-8 flex-1 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-300"
                     />
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => void copyText(webhookSecret, 'راز وبهوک')}
                       disabled={!webhookSecret}
-                      className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-300 hover:bg-zinc-800"
+                      className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-300 hover:bg-[#202329]"
                     >
                       <Copy className="h-3.5 w-3.5" /> کپی
                     </Button>
@@ -2009,7 +2009,7 @@ export default function AgentTab() {
                   <Button
                     onClick={() => void saveWooSettings()}
                     disabled={busy['save-woo']}
-                    className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+                    className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
                   >
                     {busy['save-woo'] ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -2038,8 +2038,8 @@ export default function AgentTab() {
                   <p
                     className={`rounded-lg border p-2.5 text-[11px] leading-5 ${
                       wooTestRes.ok
-                        ? 'border-emerald-900/60 bg-emerald-950/30 text-emerald-300'
-                        : 'border-red-900/60 bg-red-950/30 text-red-300'
+                        ? 'border-emerald-900/60 bg-[#0A2E1E]/30 text-emerald-300'
+                        : 'border-[#5C2020]/60 bg-[#2C1517]/30 text-red-300'
                     }`}
                     dir="auto"
                   >
@@ -2051,7 +2051,7 @@ export default function AgentTab() {
           )}
 
           {/* ---- webhook info ---- */}
-          <Card className="border-zinc-800 bg-zinc-900/70">
+          <Card className="border-[#2D3139] bg-[#181A1F]/70">
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <Zap className="h-4 w-4 text-amber-400" /> وبهوک سفارش لحظه‌ای
@@ -2064,7 +2064,7 @@ export default function AgentTab() {
                   کن تا هر سفارش، فاکتورش خودکار ساخته بشه و به تلگرام بره:
                 </p>
                 {hookUrl ? (
-                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                  <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                     <code
                       dir="ltr"
                       className="min-w-0 flex-1 break-all font-mono text-[10px] leading-5 text-amber-300/90"
@@ -2075,7 +2075,7 @@ export default function AgentTab() {
                       variant="outline"
                       size="sm"
                       onClick={() => void copyText(hookUrl, 'آدرس وبهوک')}
-                      className="h-7 border-zinc-700 bg-zinc-950 text-[10px] text-zinc-300 hover:bg-zinc-800"
+                      className="h-7 border-[#3A3F47] bg-[#202329] text-[10px] text-zinc-300 hover:bg-[#202329]"
                     >
                       <Copy className="h-3 w-3" /> کپی
                     </Button>
@@ -2090,7 +2090,7 @@ export default function AgentTab() {
           </Card>
 
           {/* ---- sync ---- */}
-          <Card className="border-zinc-800 bg-zinc-900/70">
+          <Card className="border-[#2D3139] bg-[#181A1F]/70">
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <RefreshCw className="h-4 w-4 text-emerald-400" /> همگام‌سازی محصولات
@@ -2105,7 +2105,7 @@ export default function AgentTab() {
                 variant="outline"
                 onClick={() => void syncWoo()}
                 disabled={busy['woo-sync']}
-                className="h-8 border-emerald-800/60 bg-emerald-950/30 text-xs text-emerald-300 hover:bg-emerald-950/50"
+                className="h-8 border-emerald-800/60 bg-[#0A2E1E]/30 text-xs text-emerald-300 hover:bg-[#0A2E1E]/50"
               >
                 {busy['woo-sync'] ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -2115,7 +2115,7 @@ export default function AgentTab() {
                 همگام‌سازی الان
               </Button>
               {wooSyncRes ? (
-                <div className="space-y-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                <div className="space-y-2 rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px]">
                     <span className="font-bold text-emerald-400">{fa(wooSyncRes.created)} ساخته‌شده</span>
                     <span className="text-zinc-600">·</span>
@@ -2140,14 +2140,14 @@ export default function AgentTab() {
           </Card>
 
           {/* ---- products ---- */}
-          <Card className="border-zinc-800 bg-zinc-900/70">
+          <Card className="border-[#2D3139] bg-[#181A1F]/70">
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <Package className="h-4 w-4 text-emerald-400" /> محصولات همگام‌شده
               </CardTitle>
               <div className="flex items-center gap-2">
                 {wooProducts ? (
-                  <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
+                  <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">
                     {fa(wooProducts.length)}
                   </Badge>
                 ) : null}
@@ -2155,7 +2155,7 @@ export default function AgentTab() {
                   variant="outline"
                   size="sm"
                   onClick={() => void fetchWooProducts()}
-                  className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                  className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${busy['products'] ? 'animate-spin' : ''}`} /> رفرش
                 </Button>
@@ -2170,9 +2170,9 @@ export default function AgentTab() {
                   emptyText="هنوز محصولی همگام نشده — اول اسکرپر رو اجرا کن، بعد «همگام‌سازی الان»."
                 />
               ) : (
-                <div className="max-h-96 overflow-auto rounded-lg border border-zinc-800 bg-zinc-950/60" dir="rtl">
+                <div className="max-h-96 overflow-auto rounded-lg border border-[#2D3139] bg-[#202329]/60" dir="rtl">
                   <table className="w-full min-w-[520px] text-[11px]">
-                    <thead className="sticky top-0 bg-zinc-900 text-zinc-500">
+                    <thead className="sticky top-0 bg-[#181A1F] text-zinc-500">
                       <tr>
                         <th className="px-2.5 py-2 text-right font-medium">کد (SKU)</th>
                         <th className="px-2.5 py-2 text-right font-medium">نام</th>
@@ -2208,7 +2208,7 @@ export default function AgentTab() {
           {settings === null ? (
             <NoSettings onRetry={() => void loadSettings()} />
           ) : (
-            <Card className="border-zinc-800 bg-zinc-900/70">
+            <Card className="border-[#2D3139] bg-[#181A1F]/70">
               <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                   <FileText className="h-4 w-4 text-emerald-400" /> گزارش روزانهٔ حسابداری
@@ -2216,7 +2216,7 @@ export default function AgentTab() {
                 <EnabledBadge enabled={repEnabled} />
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                   <div className="min-w-0 space-y-1">
                     <Label htmlFor="rep-enabled" className="text-xs font-bold text-zinc-200">
                       گزارش روزانهٔ خودکار
@@ -2230,7 +2230,7 @@ export default function AgentTab() {
                     id="rep-enabled"
                     checked={repEnabled}
                     onCheckedChange={setRepEnabled}
-                    className="data-[state=checked]:bg-emerald-600"
+                    className="data-[state=checked]:bg-[#10B981]"
                   />
                 </div>
 
@@ -2245,10 +2245,10 @@ export default function AgentTab() {
                       dir="ltr"
                       value={repTime}
                       onChange={(e) => setRepTime(e.target.value)}
-                      className="h-8 border-zinc-700 bg-zinc-950 text-center text-xs text-zinc-100"
+                      className="h-8 border-[#3A3F47] bg-[#202329] text-center text-xs text-zinc-100"
                     />
                   </div>
-                  <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                  <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                     <p className="text-[10px] text-zinc-500">آخرین گزارش</p>
                     {ov?.report.last ? (
                       <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-xs font-bold text-zinc-200">
@@ -2265,7 +2265,7 @@ export default function AgentTab() {
                   <Button
                     onClick={() => void saveReportSettings()}
                     disabled={busy['save-report']}
-                    className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+                    className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
                   >
                     {busy['save-report'] ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -2296,7 +2296,7 @@ export default function AgentTab() {
           )}
 
           {reportResult ? (
-            <Card className="border-emerald-900/60 bg-emerald-950/20">
+            <Card className="border-emerald-900/60 bg-[#0A2E1E]/20">
               <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                   <FileText className="h-4 w-4 text-emerald-400" /> گزارش ساخته‌شده
@@ -2306,7 +2306,7 @@ export default function AgentTab() {
               <CardContent>
                 <p
                   dir="rtl"
-                  className="max-h-72 overflow-y-auto whitespace-pre-wrap rounded-lg border border-zinc-800 bg-zinc-950/60 p-3 text-xs leading-7 text-zinc-300"
+                  className="max-h-72 overflow-y-auto whitespace-pre-wrap rounded-lg border border-[#2D3139] bg-[#202329]/60 p-3 text-xs leading-7 text-zinc-300"
                 >
                   {reportResult.content}
                 </p>
@@ -2314,7 +2314,7 @@ export default function AgentTab() {
             </Card>
           ) : null}
 
-          <Card className="border-zinc-800 bg-zinc-900/70">
+          <Card className="border-[#2D3139] bg-[#181A1F]/70">
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <Clock className="h-4 w-4 text-amber-400" /> تاریخچهٔ گزارش‌ها
@@ -2323,7 +2323,7 @@ export default function AgentTab() {
                 variant="outline"
                 size="sm"
                 onClick={() => void fetchReports()}
-                className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
               >
                 <RefreshCw className={`h-3.5 w-3.5 ${busy['reports'] ? 'animate-spin' : ''}`} /> رفرش
               </Button>
@@ -2341,7 +2341,7 @@ export default function AgentTab() {
                       open={!!openReports[r.id]}
                       onOpenChange={(o) => setOpenReports((m) => ({ ...m, [r.id]: o }))}
                     >
-                      <div className="rounded-lg border border-zinc-800 bg-zinc-950">
+                      <div className="rounded-lg border border-[#2D3139] bg-[#202329]">
                         <CollapsibleTrigger className="flex w-full items-center gap-2 p-2.5 text-right">
                           <span className="text-xs font-bold text-zinc-200">
                             گزارش {fmtDate(`${r.forDate}T00:00:00+03:30`)}
@@ -2356,7 +2356,7 @@ export default function AgentTab() {
                           />
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                          <p className="max-h-64 overflow-y-auto whitespace-pre-wrap border-t border-zinc-800 p-2.5 text-[11px] leading-6 text-zinc-400">
+                          <p className="max-h-64 overflow-y-auto whitespace-pre-wrap border-t border-[#2D3139] p-2.5 text-[11px] leading-6 text-zinc-400">
                             {r.content}
                           </p>
                         </CollapsibleContent>
@@ -2371,14 +2371,14 @@ export default function AgentTab() {
 
         {/* ================ 5. فاکتورها ================ */}
         <TabsContent value="invoices" className="mt-4 space-y-4">
-          <Card className="border-zinc-800 bg-zinc-900/70">
+          <Card className="border-[#2D3139] bg-[#181A1F]/70">
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <Receipt className="h-4 w-4 text-amber-400" /> فاکتورها
               </CardTitle>
               <div className="flex items-center gap-2">
                 {ov ? (
-                  <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
+                  <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">
                     امروز {fa(ov.invoices.today)}
                   </Badge>
                 ) : null}
@@ -2386,7 +2386,7 @@ export default function AgentTab() {
                   variant="outline"
                   size="sm"
                   onClick={() => void fetchInvoices()}
-                  className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                  className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${busy['invoices'] ? 'animate-spin' : ''}`} /> رفرش
                 </Button>
@@ -2396,7 +2396,7 @@ export default function AgentTab() {
                     setCreateSeq((s) => s + 1)
                     setCreateOpen(true)
                   }}
-                  className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+                  className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
                 >
                   <Plus className="h-3.5 w-3.5" /> فاکتور دستی
                 </Button>
@@ -2411,9 +2411,9 @@ export default function AgentTab() {
                   emptyText="هنوز فاکتوری صادر نشده — با «فاکتور دستی» یکی بساز یا وبهوک ووکامرس رو وصل کن."
                 />
               ) : (
-                <div className="max-h-[26rem] overflow-auto rounded-lg border border-zinc-800 bg-zinc-950/60" dir="rtl">
+                <div className="max-h-[26rem] overflow-auto rounded-lg border border-[#2D3139] bg-[#202329]/60" dir="rtl">
                   <table className="w-full text-[11px]">
-                    <thead className="sticky top-0 bg-zinc-900 text-zinc-500">
+                    <thead className="sticky top-0 bg-[#181A1F] text-zinc-500">
                       <tr>
                         <th className="px-2.5 py-2 text-right font-medium">شماره</th>
                         <th className="px-2.5 py-2 text-right font-medium">مشتری</th>
@@ -2465,7 +2465,7 @@ export default function AgentTab() {
                               size="sm"
                               onClick={() => void viewInvoice(inv.id, inv.number)}
                               disabled={busy[`view-${inv.id}`]}
-                              className="h-7 border-zinc-700 bg-zinc-950 text-[10px] text-zinc-300 hover:bg-zinc-800"
+                              className="h-7 border-[#3A3F47] bg-[#202329] text-[10px] text-zinc-300 hover:bg-[#202329]"
                             >
                               {busy[`view-${inv.id}`] ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -2491,12 +2491,12 @@ export default function AgentTab() {
             <NoSettings onRetry={() => void loadSettings()} />
           ) : (
             <>
-              <Card className="border-zinc-800 bg-zinc-900/70">
+              <Card className="border-[#2D3139] bg-[#181A1F]/70">
                 <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <ImagePlus className="h-4 w-4 text-emerald-400" /> تولید تصویر
                   </CardTitle>
-                  <Badge className="bg-zinc-800 text-zinc-300 ring-1 ring-zinc-700" dir="ltr">
+                  <Badge className="bg-[#202329] text-zinc-300 ring-1 ring-zinc-700" dir="ltr">
                     {fa(usedToday)} / {fa(imgQuotaNum)}
                   </Badge>
                 </CardHeader>
@@ -2513,7 +2513,7 @@ export default function AgentTab() {
                       onChange={(e) => setImgPrompt(e.target.value)}
                       placeholder="مثلاً: گربهٔ فضانورد با کلاه شیشه‌ای، سبک نقاشی دیجیتال"
                       maxLength={900}
-                      className="min-h-16 border-zinc-700 bg-zinc-950 text-xs leading-6 text-zinc-100 placeholder:text-zinc-600"
+                      className="min-h-16 border-[#3A3F47] bg-[#202329] text-xs leading-6 text-zinc-100 placeholder:text-zinc-600"
                     />
                   </div>
 
@@ -2521,12 +2521,12 @@ export default function AgentTab() {
                     <div className="space-y-1.5">
                       <Label className="text-xs text-zinc-300">تعداد</Label>
                       <Select value={imgCount} onValueChange={setImgCount}>
-                        <SelectTrigger className="h-8 w-full border-zinc-700 bg-zinc-950 text-xs text-zinc-100">
+                        <SelectTrigger className="h-8 w-full border-[#3A3F47] bg-[#202329] text-xs text-zinc-100">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-200">
+                        <SelectContent className="border-[#2D3139] bg-[#202329] text-zinc-200">
                           {['1', '2', '3', '4'].map((c) => (
-                            <SelectItem key={c} value={c} className="text-xs focus:bg-zinc-800">
+                            <SelectItem key={c} value={c} className="text-xs focus:bg-[#202329]">
                               {fa(Number(c))} تصویر
                             </SelectItem>
                           ))}
@@ -2536,19 +2536,19 @@ export default function AgentTab() {
                     <div className="space-y-1.5">
                       <Label className="text-xs text-zinc-300">اندازه</Label>
                       <Select value={imgSize} onValueChange={setImgSize}>
-                        <SelectTrigger className="h-8 w-full border-zinc-700 bg-zinc-950 text-xs text-zinc-100">
+                        <SelectTrigger className="h-8 w-full border-[#3A3F47] bg-[#202329] text-xs text-zinc-100">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-200">
+                        <SelectContent className="border-[#2D3139] bg-[#202329] text-zinc-200">
                           {sizes.map((s) => (
-                            <SelectItem key={s} value={s} className="text-xs focus:bg-zinc-800">
+                            <SelectItem key={s} value={s} className="text-xs focus:bg-[#202329]">
                               {s}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                    <div className="flex items-center justify-between gap-3 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-zinc-200">ارسال به تلگرام</p>
                         <p className="mt-0.5 text-[10px] leading-4 text-zinc-500">بعد از ساخت</p>
@@ -2556,7 +2556,7 @@ export default function AgentTab() {
                       <Switch
                         checked={imgSendTg}
                         onCheckedChange={setImgSendTg}
-                        className="data-[state=checked]:bg-emerald-600"
+                        className="data-[state=checked]:bg-[#10B981]"
                       />
                     </div>
                   </div>
@@ -2565,7 +2565,7 @@ export default function AgentTab() {
                     <Button
                       onClick={() => void generateImage()}
                       disabled={busy['generate']}
-                      className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+                      className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
                     >
                       {busy['generate'] ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -2588,13 +2588,13 @@ export default function AgentTab() {
                     </p>
                     <Progress
                       value={imgQuotaPct}
-                      className={`h-2 bg-zinc-800 ${imgQuotaPct >= 80 ? '[&>div]:bg-amber-400' : '[&>div]:bg-emerald-500'}`}
+                      className={`h-2 bg-[#202329] ${imgQuotaPct >= 80 ? '[&>div]:bg-amber-400' : '[&>div]:bg-emerald-500'}`}
                     />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-zinc-800 bg-zinc-900/70">
+              <Card className="border-[#2D3139] bg-[#181A1F]/70">
                 <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <Info className="h-4 w-4 text-amber-400" /> سهمیه و اندازهٔ پیش‌فرض
@@ -2615,19 +2615,19 @@ export default function AgentTab() {
                         max={1000}
                         value={imgQuota}
                         onChange={(e) => setImgQuota(e.target.value)}
-                        className="h-8 border-zinc-700 bg-zinc-950 text-center text-xs text-zinc-100"
+                        className="h-8 border-[#3A3F47] bg-[#202329] text-center text-xs text-zinc-100"
                       />
                       <p className="text-[10px] leading-5 text-zinc-600">بین ۱ تا ۱۰۰۰ (پیش‌فرض ۱۵۰).</p>
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs text-zinc-300">اندازهٔ پیش‌فرض</Label>
                       <Select value={imgDefaultSize} onValueChange={setImgDefaultSize}>
-                        <SelectTrigger className="h-8 w-full border-zinc-700 bg-zinc-950 text-xs text-zinc-100">
+                        <SelectTrigger className="h-8 w-full border-[#3A3F47] bg-[#202329] text-xs text-zinc-100">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-200">
+                        <SelectContent className="border-[#2D3139] bg-[#202329] text-zinc-200">
                           {sizes.map((s) => (
-                            <SelectItem key={s} value={s} className="text-xs focus:bg-zinc-800">
+                            <SelectItem key={s} value={s} className="text-xs focus:bg-[#202329]">
                               {s}
                             </SelectItem>
                           ))}
@@ -2641,7 +2641,7 @@ export default function AgentTab() {
                   <Button
                     onClick={() => void saveImageSettings()}
                     disabled={busy['save-image']}
-                    className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+                    className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
                   >
                     {busy['save-image'] ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -2655,14 +2655,14 @@ export default function AgentTab() {
             </>
           )}
 
-          <Card className="border-zinc-800 bg-zinc-900/70">
+          <Card className="border-[#2D3139] bg-[#181A1F]/70">
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <ImageIcon className="h-4 w-4 text-emerald-400" /> گالری تصاویر
               </CardTitle>
               <div className="flex items-center gap-2">
                 {imagesData ? (
-                  <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
+                  <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">
                     {fa(imagesData.images.length)}
                   </Badge>
                 ) : null}
@@ -2670,7 +2670,7 @@ export default function AgentTab() {
                   variant="outline"
                   size="sm"
                   onClick={() => void fetchImages()}
-                  className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                  className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${busy['images'] ? 'animate-spin' : ''}`} /> رفرش
                 </Button>
@@ -2685,8 +2685,8 @@ export default function AgentTab() {
                 <div className="max-h-[28rem] overflow-y-auto pr-1">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                     {imagesData.images.map((im) => (
-                      <div key={im.id} className="overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950">
-                        <div className="relative h-40 w-full bg-zinc-900">
+                      <div key={im.id} className="overflow-hidden rounded-lg border border-[#2D3139] bg-[#202329]">
+                        <div className="relative h-40 w-full bg-[#181A1F]">
                           <ImageIcon className="absolute inset-0 m-auto h-8 w-8 text-zinc-700" />
                           <img
                             src={withMediaKey(im.path)}
@@ -2709,7 +2709,7 @@ export default function AgentTab() {
                             size="sm"
                             onClick={() => void sendImage(im.id)}
                             disabled={busy[`send-${im.id}`]}
-                            className="h-7 w-full border-emerald-800/60 bg-emerald-950/30 text-[10px] text-emerald-300 hover:bg-emerald-950/50"
+                            className="h-7 w-full border-emerald-800/60 bg-[#0A2E1E]/30 text-[10px] text-emerald-300 hover:bg-[#0A2E1E]/50"
                           >
                             {busy[`send-${im.id}`] ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
@@ -2734,7 +2734,7 @@ export default function AgentTab() {
             <NoSettings onRetry={() => void loadSettings()} />
           ) : (
             <>
-              <Card className="border-zinc-800 bg-zinc-900/70">
+              <Card className="border-[#2D3139] bg-[#181A1F]/70">
                 <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <MessagesSquare className="h-4 w-4 text-emerald-400" /> تنظیمات پشتیبانی سایت
@@ -2742,7 +2742,7 @@ export default function AgentTab() {
                   <EnabledBadge enabled={supEnabled} />
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-[#2D3139] bg-[#202329] p-3">
                     <div className="min-w-0 space-y-1">
                       <Label htmlFor="sup-enabled" className="text-xs font-bold text-zinc-200">
                         ویجت پشتیبانی فعال
@@ -2755,7 +2755,7 @@ export default function AgentTab() {
                       id="sup-enabled"
                       checked={supEnabled}
                       onCheckedChange={setSupEnabled}
-                      className="data-[state=checked]:bg-emerald-600"
+                      className="data-[state=checked]:bg-[#10B981]"
                     />
                   </div>
 
@@ -2771,7 +2771,7 @@ export default function AgentTab() {
                         onChange={(e) => setSupStore(e.target.value)}
                         placeholder="مثلاً فروشگاه من"
                         maxLength={80}
-                        className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-100 placeholder:text-zinc-600"
+                        className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-100 placeholder:text-zinc-600"
                       />
                       <p className="text-[10px] leading-5 text-zinc-600">
                         توی جواب‌های دستیار و فاکتورها هم استفاده می‌شه.
@@ -2788,7 +2788,7 @@ export default function AgentTab() {
                         onChange={(e) => setSupWelcome(e.target.value)}
                         placeholder="سلام! چطور می‌تونم کمکتون کنم؟"
                         maxLength={200}
-                        className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-100 placeholder:text-zinc-600"
+                        className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-100 placeholder:text-zinc-600"
                       />
                     </div>
                   </div>
@@ -2803,7 +2803,7 @@ export default function AgentTab() {
                       value={publicBaseUrl}
                       onChange={(e) => setPublicBaseUrl(e.target.value)}
                       placeholder="https://xxx.example.com"
-                      className="h-8 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+                      className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
                     />
                     <p className="text-[10px] leading-5 text-zinc-600">
                       آدرس عمومی همین پنل مثل https://xxx.example.com — برای ساخت کد جاگذاری و وبهوک
@@ -2822,7 +2822,7 @@ export default function AgentTab() {
                       value={supPersona}
                       onChange={(e) => setSupPersona(e.target.value)}
                       placeholder="تو پشتیبانی آنلاین فروشگاه هستی…"
-                      className="min-h-32 border-zinc-700 bg-zinc-950 text-xs leading-6 text-zinc-100 placeholder:text-zinc-600"
+                      className="min-h-32 border-[#3A3F47] bg-[#202329] text-xs leading-6 text-zinc-100 placeholder:text-zinc-600"
                     />
                     <p className="text-[10px] leading-5 text-zinc-600">
                       لیست قیمت و موجودی به‌صورت خودکار به انتهای این متن چسبیده می‌شه — دستیار از
@@ -2833,7 +2833,7 @@ export default function AgentTab() {
                   <Button
                     onClick={() => void saveSupportSettings()}
                     disabled={busy['save-support']}
-                    className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
+                    className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
                   >
                     {busy['save-support'] ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -2845,7 +2845,7 @@ export default function AgentTab() {
                 </CardContent>
               </Card>
 
-              <Card className="border-zinc-800 bg-zinc-900/70">
+              <Card className="border-[#2D3139] bg-[#181A1F]/70">
                 <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
                   <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                     <Copy className="h-4 w-4 text-amber-400" /> کد جاگذاری در سایت
@@ -2859,14 +2859,14 @@ export default function AgentTab() {
                         readOnly
                         dir="ltr"
                         value={siteKey || '—'}
-                        className="h-8 flex-1 border-zinc-700 bg-zinc-950 font-mono text-xs text-zinc-300"
+                        className="h-8 flex-1 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-300"
                       />
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => void copyText(siteKey, 'کلید سایت')}
                         disabled={!siteKey}
-                        className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-300 hover:bg-zinc-800"
+                        className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-300 hover:bg-[#202329]"
                       >
                         <Copy className="h-3.5 w-3.5" /> کپی
                       </Button>
@@ -2891,7 +2891,7 @@ export default function AgentTab() {
                           ? 'کلید سایت هنوز ساخته نشده — دوباره رفرش کن.'
                           : 'اول «آدرس عمومی پنل» رو ذخیره کن تا این کد ساخته بشه.'
                       }
-                      className="min-h-20 border-zinc-700 bg-zinc-950 font-mono text-[10px] leading-5 text-zinc-300 placeholder:text-zinc-600"
+                      className="min-h-20 border-[#3A3F47] bg-[#202329] font-mono text-[10px] leading-5 text-zinc-300 placeholder:text-zinc-600"
                     />
                     <div className="flex flex-wrap items-center gap-2">
                       <Button
@@ -2899,7 +2899,7 @@ export default function AgentTab() {
                         size="sm"
                         onClick={() => void copyText(widgetCode, 'کد جاگذاری')}
                         disabled={!widgetCode}
-                        className="h-8 border-emerald-800/60 bg-emerald-950/30 text-xs text-emerald-300 hover:bg-emerald-950/50"
+                        className="h-8 border-emerald-800/60 bg-[#0A2E1E]/30 text-xs text-emerald-300 hover:bg-[#0A2E1E]/50"
                       >
                         <Copy className="h-3.5 w-3.5" /> کپی کد
                       </Button>
@@ -2913,14 +2913,14 @@ export default function AgentTab() {
             </>
           )}
 
-          <Card className="border-zinc-800 bg-zinc-900/70">
+          <Card className="border-[#2D3139] bg-[#181A1F]/70">
             <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
                 <MessageSquare className="h-4 w-4 text-emerald-400" /> گفتگوهای سایت
               </CardTitle>
               <div className="flex items-center gap-2">
                 {sessions ? (
-                  <Badge className="bg-zinc-800 text-zinc-400 ring-1 ring-zinc-700">
+                  <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">
                     {fa(sessions.length)}
                   </Badge>
                 ) : null}
@@ -2928,7 +2928,7 @@ export default function AgentTab() {
                   variant="outline"
                   size="sm"
                   onClick={() => void fetchSessions()}
-                  className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+                  className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${busy['sessions'] ? 'animate-spin' : ''}`} /> رفرش
                 </Button>
@@ -2945,13 +2945,13 @@ export default function AgentTab() {
               ) : (
                 <div className="max-h-96 space-y-2 overflow-y-auto pr-1" dir="rtl">
                   {sessions.map((s) => (
-                    <div key={s.id} className="rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
+                    <div key={s.id} className="rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="min-w-0 flex-1 truncate text-xs text-zinc-300" dir="auto">
                           {s.lastSnippet || '—'}
                         </p>
                         <div className="flex shrink-0 items-center gap-2">
-                          <Badge className="bg-zinc-800 text-zinc-300">{fa(s.msgs)} پیام</Badge>
+                          <Badge className="bg-[#202329] text-zinc-300">{fa(s.msgs)} پیام</Badge>
                           <span className="text-[10px] text-zinc-600">{fmtDateTime(s.lastAt)}</span>
                         </div>
                       </div>
@@ -2963,7 +2963,7 @@ export default function AgentTab() {
                           variant="outline"
                           size="sm"
                           onClick={() => setChatSession(s)}
-                          className="h-7 border-emerald-800/60 bg-emerald-950/30 text-[10px] text-emerald-300 hover:bg-emerald-950/50"
+                          className="h-7 border-emerald-800/60 bg-[#0A2E1E]/30 text-[10px] text-emerald-300 hover:bg-[#0A2E1E]/50"
                         >
                           <MessageSquare className="h-3 w-3" /> گفتگو
                         </Button>
@@ -2994,7 +2994,7 @@ export default function AgentTab() {
 
       {/* ---------------- invoice html preview ---------------- */}
       <Dialog open={invoiceHtml !== null} onOpenChange={(o) => !o && closeInvoiceHtml()}>
-        <DialogContent dir="rtl" className="max-h-[90vh] border-zinc-800 bg-zinc-950 sm:max-w-3xl">
+        <DialogContent dir="rtl" className="max-h-[90vh] border-[#2D3139] bg-[#202329] sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle className="text-sm text-zinc-100">فاکتور {invoiceHtml?.number}</DialogTitle>
             <DialogDescription className="text-[11px]">
@@ -3004,7 +3004,7 @@ export default function AgentTab() {
           <iframe
             src={invoiceHtml?.url || undefined}
             title={`فاکتور ${invoiceHtml?.number ?? ''}`}
-            className="h-[70vh] w-full rounded-lg border border-zinc-800 bg-white"
+            className="h-[70vh] w-full rounded-lg border border-[#2D3139] bg-white"
           />
         </DialogContent>
       </Dialog>
