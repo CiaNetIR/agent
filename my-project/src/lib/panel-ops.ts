@@ -47,10 +47,21 @@ export function run(
   timeoutMs = 25_000
 ): Promise<{ ok: boolean; out: string }> {
   return new Promise((resolve) => {
+    // Pass through env + add TELEGRAM_PROXY from tg.env (for watcher scripts)
+    const env = { ...process.env } as Record<string, string>
+    try {
+      const HOME = process.env.HOME || '/root'
+      const tgEnvPath = `${HOME}/my-project/.secrets/tg.env`
+      const tgEnv = readFileSync(tgEnvPath, 'utf8')
+      for (const line of tgEnv.split('\n')) {
+        const m = line.match(/^TELEGRAM_PROXY=(.+)$/)
+        if (m) { env.TELEGRAM_PROXY = m[1].trim().replace(/^["']|["']$/g, ''); break }
+      }
+    } catch { /* no tg.env */ }
     execFile(
       'bash',
       [script, ...args],
-      { timeout: timeoutMs, maxBuffer: 1024 * 1024 },
+      { timeout: timeoutMs, maxBuffer: 1024 * 1024, env },
       (err, stdout, stderr) => {
         const out = `${stdout || ''}${stderr ? '\n' + stderr : ''}`.trim().slice(-1500)
         resolve({ ok: !err, out })

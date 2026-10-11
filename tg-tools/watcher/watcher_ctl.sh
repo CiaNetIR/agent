@@ -11,6 +11,15 @@ set -u
 cd "$(dirname "$0")"
 PY="$HOME/.venv/bin/python"
 
+# Auto-load TELEGRAM_PROXY from ~/my-project/.secrets/tg.env (if not set)
+if [ -z "${TELEGRAM_PROXY:-}" ]; then
+  TG_ENV="$HOME/my-project/.secrets/tg.env"
+  if [ -f "$TG_ENV" ]; then
+    TELEGRAM_PROXY=$(grep "^TELEGRAM_PROXY=" "$TG_ENV" 2>/dev/null | cut -d= -f2- | tr -d "'\"" || echo "")
+    export TELEGRAM_PROXY
+  fi
+fi
+
 sup_pid()  { [ -f supervisor.pid ] && cat supervisor.pid 2>/dev/null; }
 wat_pid()  { [ -f watcher.lock ] && cat watcher.lock 2>/dev/null; }
 
