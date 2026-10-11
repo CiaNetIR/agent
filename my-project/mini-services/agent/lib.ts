@@ -331,6 +331,34 @@ export function pidFromFileAlive(p: string): boolean {
   }
 }
 
+/** Check if any watcher.py process is running via /proc scan (fallback) */
+function isWatcherRunning(): { running: boolean; pid: number | null } {
+  // First try watcher.lock file
+  try {
+    const lockPath = path.join(WATCHER_DIR, 'watcher.lock')
+    if (pidFromFileAlive(lockPath)) {
+      const pid = parseInt(readFileSync(lockPath, 'utf8').trim(), 10)
+      return { running: true, pid }
+    }
+  } catch { /* */ }
+  // Fallback: scan /proc for watcher.py processes (not instances)
+  try {
+    for (const name of readdirSync('/proc')) {
+      if (!/^\d+$/.test(name)) continue
+      try {
+        const cmdline = readFileSync(`/proc/${name}/cmdline`, 'utf8')
+        if (cmdline.includes('watcher.py') && !cmdline.includes('instances/')) {
+          const pid = parseInt(name, 10)
+          // Update watcher.lock so future checks are fast
+          try { writeFileSync(path.join(WATCHER_DIR, 'watcher.lock'), String(pid)) } catch { /* */ }
+          return { running: true, pid }
+        }
+      } catch { /* process gone or no access */ }
+    }
+  } catch { /* /proc not available */ }
+  return { running: false, pid: null }
+}
+
 /** how many account instances exist / are running + is the main watcher up */
 export function tgLiveness(): { mainRunning: boolean; instancesTotal: number; instancesRunning: number } {
   let instancesTotal = 0
@@ -349,8 +377,9 @@ export function tgLiveness(): { mainRunning: boolean; instancesTotal: number; in
   } catch {
     /* no instances dir yet */
   }
+  const mainCheck = isWatcherRunning()
   return {
-    mainRunning: pidFromFileAlive(path.join(WATCHER_DIR, 'watcher.lock')),
+    mainRunning: mainCheck.running,
     instancesTotal,
     instancesRunning,
   }

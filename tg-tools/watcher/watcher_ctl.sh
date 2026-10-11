@@ -28,14 +28,32 @@ alive()    { p="$1"; [ -n "$p" ] && kill -0 "$p" 2>/dev/null; }
 case "${1:-help}" in
   start)
     N="${2:-15}"
+    # Check if supervisor already running
     if sp="$(sup_pid)" && alive "$sp"; then
       echo "already running (supervisor pid $sp)"; exit 0
+    fi
+    # Check if watcher.py is already running directly (via setsid)
+    if wp="$(wat_pid)" && alive "$wp"; then
+      echo "already running (watcher pid $wp, no supervisor)"; exit 0
+    fi
+    # Also check via pgrep (catches watchers started outside our ctl)
+    if pgrep -f "watcher\.py" >/dev/null 2>&1; then
+      wp=$(pgrep -f "watcher\.py" | head -1)
+      echo "$wp" > watcher.lock 2>/dev/null || true
+      echo "already running (watcher pid $wp via pgrep)"; exit 0
     fi
     rm -f PAUSE
     echo "$N" > catchup.txt
     setsid --fork bash "$0" _supervisor_boot >/dev/null 2>&1
-    sleep 2
-    echo "started (supervisor pid $(sup_pid 2>/dev/null || echo '?')) catchup=${N}m"
+    sleep 3
+    # Check if watcher actually started
+    if pgrep -f "watcher\.py" >/dev/null 2>&1; then
+      wp=$(pgrep -f "watcher\.py" | head -1)
+      echo "$wp" > watcher.lock 2>/dev/null || true
+      echo "started (watcher pid $wp) catchup=${N}m"; exit 0
+    else
+      echo "FAILED to start watcher — check service.log"; exit 1
+    fi
     ;;
   _supervisor_boot)
     exec bash supervisor.sh
