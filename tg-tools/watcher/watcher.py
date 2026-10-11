@@ -1437,7 +1437,33 @@ class Watcher:
         try:
             # Proxy support for Iran/filtered networks
             # Format: socks5://127.0.0.1:10808 or http://127.0.0.1:10809
+            # Auto-detect: read TELEGRAM_PROXY from env, or from tg.env file, or scan common ports
             proxy_str = os.environ.get("TELEGRAM_PROXY", "")
+            if not proxy_str:
+                # Try to read from tg.env file
+                try:
+                    tg_env_path = os.path.join(_PROJECT_DIR, '.secrets', 'tg.env')
+                    if os.path.exists(tg_env_path):
+                        with open(tg_env_path) as f:
+                            for line in f:
+                                if line.strip().startswith('TELEGRAM_PROXY='):
+                                    proxy_str = line.split('=', 1)[1].strip().strip('"\'')
+                                    break
+                except Exception:
+                    pass
+            if not proxy_str:
+                # Auto-scan common proxy ports (v2ray, xray, clash)
+                import socket as _socket
+                for _port in [10808, 10809, 7890, 1080, 2080, 8080]:
+                    try:
+                        _s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+                        _s.settimeout(0.3)
+                        if _s.connect_ex(('127.0.0.1', _port)) == 0:
+                            proxy_str = f"socks5://127.0.0.1:{_port}"
+                            break
+                        _s.close()
+                    except Exception:
+                        pass
             proxy_kwargs = {}
             if proxy_str:
                 try:

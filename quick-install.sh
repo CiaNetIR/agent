@@ -244,12 +244,58 @@ bunx prisma db push --accept-data-loss 2>&1 | tail -3 || err "prisma db push ن�
 say "  ✓ وابستگی‌ها نصب شدند"
 
 # ────────────────────────────────────────────────────────────────────
-# STEP 9: Python + Telethon (for Telegram watcher)
+# STEP 9: Python + Telethon + PySocks (for Telegram watcher + proxy)
 # ────────────────────────────────────────────────────────────────────
-say "9/12 — نصب پایتون + telethon"
+say "9/12 — نصب پایتون + telethon + PySocks"
 [ -x "$ROOT/.venv/bin/python" ] || python3 -m venv "$ROOT/.venv" 2>/dev/null
-"$ROOT/.venv/bin/pip" install -q telethon 2>&1 | tail -2 || warn "telethon نصب نشد (واتچر کار نخواهد کرد)"
+"$ROOT/.venv/bin/pip" install -q telethon PySocks 2>&1 | tail -2 || warn "telethon/PySocks نصب نشد"
 say "  ✓ پایتون آماده شد"
+
+# ────────────────────────────────────────────────────────────────────
+# STEP 9.5: Install z-ai CLI (used by watcher for LLM responses)
+# ────────────────────────────────────────────────────────────────────
+say "9.5/12 — نصب z-ai CLI (برای پاسخ‌گویی واتچر)"
+if command -v z-ai >/dev/null 2>&1; then
+  say "  ✓ z-ai از قبل نصب شده"
+else
+  npm install -g z-ai-web-dev-sdk 2>/dev/null || warn "نصب z-ai ناموفق بود"
+  # Ensure it's in /usr/local/bin
+  [ -x "$HOME/.bun/bin/z-ai" ] && ln -sf "$HOME/.bun/bin/z-ai" /usr/local/bin/z-ai 2>/dev/null
+  command -v z-ai >/dev/null 2>&1 && say "  ✓ z-ai نصب شد" || warn "z-ai نصب نشد"
+fi
+
+# ────────────────────────────────────────────────────────────────────
+# STEP 9.6: Auto-detect Telegram proxy (for Iran/filtered networks)
+# ────────────────────────────────────────────────────────────────────
+say "9.6/12 — تشخیص پروکسی تلگرام"
+PROXY_FOUND=""
+for port in 10808 10809 7890 1080 2080 8080; do
+  if curl -s -m 1 --socks5 127.0.0.1:$port http://example.com >/dev/null 2>&1; then
+    PROXY_FOUND="socks5://127.0.0.1:$port"
+    break
+  fi
+done
+if [ -z "$PROXY_FOUND" ]; then
+  for port in 10809 7890 1080 8080; do
+    if curl -s -m 1 -x http://127.0.0.1:$port http://example.com >/dev/null 2>&1; then
+      PROXY_FOUND="http://127.0.0.1:$port"
+      break
+    fi
+  done
+fi
+if [ -n "$PROXY_FOUND" ]; then
+  say "  ✓ پروکسی پیدا شد: $PROXY_FOUND"
+  # Save to tg.env if not already there
+  if [ -f "$PROJECT/.secrets/tg.env" ]; then
+    if ! grep -q "TELEGRAM_PROXY" "$PROJECT/.secrets/tg.env"; then
+      echo "TELEGRAM_PROXY=$PROXY_FOUND" >> "$PROJECT/.secrets/tg.env"
+    else
+      sed -i "s|^TELEGRAM_PROXY=.*|TELEGRAM_PROXY=$PROXY_FOUND|" "$PROJECT/.secrets/tg.env"
+    fi
+  fi
+else
+  say "  ℹ پروکسی پیدا نشد — اگه تلگرام فیلتره، VPN روشن کن و دوباره"
+fi
 
 # ────────────────────────────────────────────────────────────────────
 # STEP 10: Start services (with retry loop)
@@ -303,7 +349,21 @@ sleep 3
 
 # Start watcher only if tg.env has session
 if [ -f "$PROJECT/.secrets/tg.env" ] && grep -q "API_ID" "$PROJECT/.secrets/tg.env" 2>/dev/null; then
+  say "  استارت واتچر با پروکسی (اگه تنظیم شده باشه)"
+  # Export proxy env for watcher
+  if [ -n "${PROXY_FOUND:-}" ]; then
+    export TELEGRAM_PROXY="$PROXY_FOUND"
+  elif grep -q "^TELEGRAM_PROXY=" "$PROJECT/.secrets/tg.env" 2>/dev/null; then
+    export TELEGRAM_PROXY=$(grep "^TELEGRAM_PROXY=" "$PROJECT/.secrets/tg.env" | cut -d= -f2-)
+  fi
   cd "$TG_TOOLS/watcher" && bash watcher_ctl.sh start 2>&1 | tail -2 || warn "watcher شروع نشد"
+  sleep 5
+  # Verify watcher is running
+  if ! pgrep -f "watcher.py" >/dev/null; then
+    warn "watcher با ctl شروع نشد — تلاش مستقیم با پروکسی..."
+    setsid --fork bash -c 'cd "'$TG_TOOLS'/watcher" && exec "$HOME/.venv/bin/python" watcher.py' </dev/null >>"$TG_TOOLS/watcher/service.log" 2>&1
+    sleep 5
+  fi
 else
   warn "watcher شروع نشد (فایل .secrets/tg.env کامل نیست)"
 fi
@@ -315,6 +375,7 @@ sleep 3
 say "12/12 — فعال‌سازی keepalive daemon"
 cat > "$ROOT/keepalive.sh" <<'KA'
 #!/bin/bash
+export PATH="$HOME/.bun/bin:$PATH"
 LOG=$HOME/keepalive.log
 say() { echo "[$(date '+%F %T')] $*" >> "$LOG"; }
 say "keepalive started (pid $$)"
@@ -326,14 +387,21 @@ while true; do
     pkill -9 -f "next-server" 2>/dev/null
     sleep 3
     rm -rf $HOME/my-project/.next
-    setsid --fork bash -c "cd $HOME/my-project && exec bun run dev" </dev/null >/dev/null 2>&1
+    setsid --fork bash -c 'export PATH="$HOME/.bun/bin:$PATH"; cd $HOME/my-project && exec bun run dev' </dev/null >/dev/null 2>&1
   fi
   # Agent
   curl -s -m 5 http://localhost:3004/healthz >/dev/null 2>&1 || bash $HOME/my-project/mini-services/agent/agent_ctl.sh start >>"$LOG" 2>&1
   # Terminal
   curl -s -m 5 -o /dev/null http://localhost:3001/ 2>/dev/null || bash $HOME/my-project/mini-services/terminal/term_ctl.sh start >>"$LOG" 2>&1
-  # Watcher
-  pgrep -f "watcher.py" >/dev/null || (cd $HOME/tg-tools/watcher && bash watcher_ctl.sh start) >>"$LOG" 2>&1
+  # Watcher (with proxy auto-detect from tg.env)
+  if ! pgrep -f "watcher.py" >/dev/null; then
+    # Read proxy from tg.env if exists
+    if [ -f "$HOME/my-project/.secrets/tg.env" ]; then
+      export TELEGRAM_PROXY=$(grep "^TELEGRAM_PROXY=" "$HOME/my-project/.secrets/tg.env" 2>/dev/null | cut -d= -f2- || echo "")
+    fi
+    setsid --fork bash -c 'cd $HOME/tg-tools/watcher && exec $HOME/.venv/bin/python watcher.py' </dev/null >>$HOME/tg-tools/watcher/service.log 2>&1
+    say "watcher restarted"
+  fi
   sleep 60
 done
 KA
