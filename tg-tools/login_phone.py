@@ -7,7 +7,7 @@ Usage:
   login_phone.py status                       # show pending/active state
 
 After `complete`, the StringSession is persisted to
-/home/z/my-project/.secrets/tg.env (durable across sandbox resets).
+~/my-project/.secrets/tg.env (durable across sandbox resets).
 """
 import argparse
 import asyncio

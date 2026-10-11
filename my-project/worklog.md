@@ -1943,3 +1943,43 @@ Work Log:
 Stage Summary:
 - همه ۱۵ قابلیت قبلی mount و سالم؛ رمز مالک دست‌نخورده (69062dfe)؛ pending: استقرار production از ریپو + rotate توکن‌ها
 ---
+
+---
+Task ID: TG-FIX-1
+Agent: tg-tools Fix Agent
+Task: Replace hardcoded /home/z/ paths in tg-tools with dynamic HOME paths
+
+Work Log:
+- Grepped tg-tools/ for /home/z/ — found 22 references across 11 files (3 shell, 7 Python, 1 Markdown). Some were not listed in the task spec (tg_common.py, send_owner_package.py, login_phone.py) but were fixed anyway so the verification grep returns zero matches.
+- tg-tools/watcher/watcher_ctl.sh:12 — PY=/home/z/.venv/bin/python -> PY="$HOME/.venv/bin/python"
+- tg-tools/watcher/supervisor.sh:12 — PY=/home/z/.venv/bin/python -> PY="$HOME/.venv/bin/python"
+- tg-tools/instances_ctl.sh — line 4 comment + lines 12/13: WATCHER_HOME and INST now use $HOME; comment uses ~/
+- tg-tools/watcher/watcher.py — added _HOME/_PROJECT_DIR module constants after TG_TOOLS; SECRETS_DIR (L77), MANUAL_PATH (L83), LLM_COOLDOWN_FILE (L414) now built via os.path.join from those constants. Docstring "Durable files" block (L46-48) updated to ~/ for clarity. PROJECT_DIR env var honored as override.
+- tg-tools/send_full_backup.py — sys.path.insert (L26-27) and BACKUP_DIR (L36) now use os.path.expanduser('~'). os already imported.
+- tg-tools/overview_dms.py — added `import os` (was missing); sys.path.insert (L9) now dynamic.
+- tg-tools/peek.py — added `import os` (was missing); sys.path.insert (L7) now dynamic.
+- tg-tools/send_owner_package.py — sys.path.insert (L22-23) now dynamic. os already imported.
+- tg-tools/tg_common.py — added _HOME/_PROJECT_DIR after imports; SECRETS_ENV (L18), FALLBACK_ENV (L19), WATCHER_LOCK (L95) now dynamic. Docstring comment (L4) updated to ~/.
+- tg-tools/login_phone.py — docstring comment (L10) updated to ~/.
+- tg-tools/watcher/README.md — all /home/z/ replaced with ~/ (lines 4, 56, 71, 72, 73).
+
+Verification:
+- `grep -rn "/home/z/" tg-tools/` returns zero matches (exit 1).
+- All 7 Python files pass `python3 -m py_compile`.
+- All 3 shell scripts pass `bash -n`.
+- Simulated HOME=/root: SECRETS_DIR=/root/my-project/.secrets, MANUAL_PATH=/root/my-project/tg-tools-backup/Z-OWNER-MANUAL.md, LLM_COOLDOWN_FILE=/root/agent-files/llm-cooldown.json, WATCHER_LOCK=/root/tg-tools/watcher/watcher.lock, PY=/root/.venv/bin/python — all assertions passed.
+- PROJECT_DIR env-var override verified (e.g. PROJECT_DIR=/opt/cianet -> SECRETS_DIR=/opt/cianet/.secrets).
+
+Stage Summary:
+Files modified (11):
+- tg-tools/watcher/watcher_ctl.sh
+- tg-tools/watcher/supervisor.sh
+- tg-tools/watcher/watcher.py
+- tg-tools/watcher/README.md
+- tg-tools/instances_ctl.sh
+- tg-tools/send_full_backup.py
+- tg-tools/overview_dms.py
+- tg-tools/peek.py
+- tg-tools/send_owner_package.py
+- tg-tools/tg_common.py
+- tg-tools/login_phone.py

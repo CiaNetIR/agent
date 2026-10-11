@@ -43,9 +43,9 @@ owner-active skip, rate limits, flood handling, LLM in executor, catchup
 DMs-only, no bots.
 
 Durable files:
-  /home/z/my-project/.secrets/tg.env               session + api creds
-  /home/z/my-project/.secrets/watcher-config.json  blacklist + instructions
-  /home/z/my-project/tg-tools-backup/              code mirror + owner manual
+  ~/my-project/.secrets/tg.env               session + api creds
+  ~/my-project/.secrets/watcher-config.json  blacklist + instructions
+  ~/my-project/tg-tools-backup/              code mirror + owner manual
 """
 import argparse
 import asyncio
@@ -74,13 +74,15 @@ from tg_common import (  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 TG_TOOLS = os.path.dirname(HERE)
-SECRETS_DIR = "/home/z/my-project/.secrets"
+_HOME = os.path.expanduser("~")
+_PROJECT_DIR = os.environ.get("PROJECT_DIR", os.path.join(_HOME, "my-project"))
+SECRETS_DIR = os.path.join(_PROJECT_DIR, ".secrets")
 STATE_PATH = os.path.join(HERE, "state.json")
 LOG_PATH = os.path.join(HERE, "wlog.jsonl")
 PAUSE_PATH = os.path.join(HERE, "PAUSE")
 LIVE_LOCK = os.path.join(HERE, "watcher.lock")
 CONFIG_PATH = os.path.join(SECRETS_DIR, "watcher-config.json")
-MANUAL_PATH = "/home/z/my-project/tg-tools-backup/Z-OWNER-MANUAL.md"
+MANUAL_PATH = os.path.join(_PROJECT_DIR, "tg-tools-backup", "Z-OWNER-MANUAL.md")
 BACKUP_TRIGGER = os.path.join(HERE, "BACKUP_NOW")
 
 # ---- multi-account instances (panel «اکانت‌ها») --------------------------
@@ -411,7 +413,7 @@ def _z_ai_call(prompt: str, system: str) -> str:
 
 # ---- 429 circuit breaker state (shared with the agent core via a file) ----
 # File format: {"until": <epoch ms>, "reason": "429", "at": <epoch ms>}
-LLM_COOLDOWN_FILE = "/home/z/agent-files/llm-cooldown.json"
+LLM_COOLDOWN_FILE = os.path.join(_HOME, "agent-files", "llm-cooldown.json")
 COOLDOWN_STEPS_S = [30, 60, 120, 300, 600]  # escalating, cap 10 min
 REPLY_BUDGET_S = 170  # max wall-clock a reply waits out a lockout before fallback
 _RL_LOCK = threading.Lock()

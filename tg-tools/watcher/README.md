@@ -1,7 +1,7 @@
 # @VpnStarZ Watcher — 7-day AI auto-responder (v4)
 
 Restored 2026-10-07 after full sandbox reset wiped v1. Session + credentials
-now live in the DURABLE location `/home/z/my-project/.secrets/`
+now live in the DURABLE location `~/my-project/.secrets/`
 (survive sandbox resets — my-project is the only persistent volume):
 - `tg.env` — session string + API credentials
 - `watcher-config.json` — blacklist + standing instructions
@@ -53,7 +53,7 @@ now live in the DURABLE location `/home/z/my-project/.secrets/`
 
 ## Operations
 ```bash
-cd /home/z/tg-tools/watcher
+cd ~/tg-tools/watcher
 ./watcher_ctl.sh start 15      # deploy, catchup last 15 min of missed DMs
 ./watcher_ctl.sh status        # processes + state
 ./watcher_ctl.sh log 50        # last 50 events
@@ -68,8 +68,8 @@ cd /home/z/tg-tools/watcher
 · 42 window expired (supervisor exits) · other crash → backoff 30→600 s
 
 ## If the sandbox resets again
-1. `uv pip install --python /home/z/.venv/bin/python telethon`
-2. Check `/home/z/my-project/.secrets/tg.env` — session survives there.
-3. Recreate `/home/z/tg-tools/` (scripts) if wiped, then
+1. `uv pip install --python ~/.venv/bin/python telethon`
+2. Check `~/my-project/.secrets/tg.env` — session survives there.
+3. Recreate `~/tg-tools/` (scripts) if wiped, then
    `watcher_ctl.sh start 30` — catchup covers the outage gap.
 No new login code is needed unless the string is missing.

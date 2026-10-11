@@ -9,7 +9,7 @@
 #   log [N]                    last N log events (default 30)
 set -u
 cd "$(dirname "$0")"
-PY=/home/z/.venv/bin/python
+PY="$HOME/.venv/bin/python"
 
 sup_pid()  { [ -f supervisor.pid ] && cat supervisor.pid 2>/dev/null; }
 wat_pid()  { [ -f watcher.lock ] && cat watcher.lock 2>/dev/null; }

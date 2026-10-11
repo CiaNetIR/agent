@@ -23,8 +23,8 @@ import json
 import os
 import sys
 
-sys.path.insert(0, "/home/z/tg-tools")
-sys.path.insert(0, "/home/z/tg-tools/watcher")
+sys.path.insert(0, os.path.join(os.path.expanduser("~"), "tg-tools"))
+sys.path.insert(0, os.path.join(os.path.expanduser("~"), "tg-tools", "watcher"))
 
 import watcher  # noqa: E402  (constants: STATE_PATH, FOOTER)
 from tg_common import (  # noqa: E402
@@ -33,7 +33,7 @@ from tg_common import (  # noqa: E402
 from telethon import TelegramClient  # noqa: E402
 from telethon.sessions import StringSession  # noqa: E402
 
-BACKUP_DIR = "/home/z/my-project/backups"
+BACKUP_DIR = os.path.join(os.path.expanduser("~"), "my-project", "backups")
 
 
 def newest_backup() -> str:

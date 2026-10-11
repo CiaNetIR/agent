@@ -19,8 +19,8 @@ import json
 import os
 import sys
 
-sys.path.insert(0, "/home/z/tg-tools")
-sys.path.insert(0, "/home/z/tg-tools/watcher")
+sys.path.insert(0, os.path.join(os.path.expanduser("~"), "tg-tools"))
+sys.path.insert(0, os.path.join(os.path.expanduser("~"), "tg-tools", "watcher"))
 
 import watcher  # noqa: E402  (constants, build_backup_zip, render_llm_settings_txt)
 from tg_common import (  # noqa: E402

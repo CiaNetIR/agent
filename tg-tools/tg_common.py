@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Shared helpers for @VpnStarZ tooling.
 
-Session/credentials live in /home/z/my-project/.secrets/tg.env (PERSISTENT
+Session/credentials live in ~/my-project/.secrets/tg.env (PERSISTENT
 across sandbox resets — my-project is the only mounted volume that survives).
 TELEGRAM_SESSION_STRING is appended there right after a successful login.
 
@@ -15,8 +15,10 @@ import json
 import time
 import tempfile
 
-SECRETS_ENV = "/home/z/my-project/.secrets/tg.env"
-FALLBACK_ENV = "/home/z/tg-tools/.env"
+_HOME = os.path.expanduser("~")
+_PROJECT_DIR = os.environ.get("PROJECT_DIR", os.path.join(_HOME, "my-project"))
+SECRETS_ENV = os.path.join(_PROJECT_DIR, ".secrets", "tg.env")
+FALLBACK_ENV = os.path.join(_HOME, "tg-tools", ".env")
 
 OWNER_USER_ID = 6255258083  # @VpnStarZ (this account itself)
 
@@ -92,7 +94,7 @@ def jalali_now() -> str:
 # The watcher holds watcher.lock while alive. Manual tools MUST refuse to
 # connect with the same session while it is live — pause it first:
 #   ~/tg-tools/watcher/watcher_ctl.sh pause     (resume: ... resume)
-WATCHER_LOCK = "/home/z/tg-tools/watcher/watcher.lock"
+WATCHER_LOCK = os.path.join(_HOME, "tg-tools", "watcher", "watcher.lock")
 
 
 def watcher_alive() -> bool:

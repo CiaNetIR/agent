@@ -3,10 +3,11 @@
 Purpose: find chats waiting for a reply (last=IN) since the watcher died.
 """
 import asyncio
+import os
 import sys
 import time
 
-sys.path.insert(0, "/home/z/tg-tools")
+sys.path.insert(0, os.path.join(os.path.expanduser("~"), "tg-tools"))
 from telethon import TelegramClient  # noqa: E402
 from telethon.sessions import StringSession  # noqa: E402
 from telethon.tl.types import User  # noqa: E402

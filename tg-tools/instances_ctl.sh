@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # instances_ctl.sh — manage per-account watcher instances (panel «اکانت‌ها»).
 # Each account added in the panel gets its own isolated dir:
-#   /home/z/tg-tools/instances/<account-id>/
+#   ~/tg-tools/instances/<account-id>/
 #     env            TELEGRAM_SESSION_STRING (0600)
 #     config.json    persona/footer/thinking/blacklist/instructions…
 #     state.json / wlog.jsonl / watcher.lock / supervisor.pid / catchup.txt
@@ -9,8 +9,8 @@
 set -u
 ID="${1:?account id required}"
 CMD="${2:-status}"
-WATCHER_HOME="/home/z/tg-tools/watcher"
-INST="/home/z/tg-tools/instances/$ID"
+WATCHER_HOME="$HOME/tg-tools/watcher"
+INST="$HOME/tg-tools/instances/$ID"
 
 sup_pid() { [ -f "$INST/supervisor.pid" ] && cat "$INST/supervisor.pid" 2>/dev/null; }
 wat_pid() { [ -f "$INST/watcher.lock" ] && cat "$INST/watcher.lock" 2>/dev/null; }

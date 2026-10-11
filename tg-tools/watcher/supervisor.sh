@@ -9,7 +9,7 @@
 # «اکانت‌ها»): pid/state/pause/catchup/log all live inside the instance dir.
 set -u
 cd "$(dirname "$0")"
-PY=/home/z/.venv/bin/python
+PY="$HOME/.venv/bin/python"
 
 INST="${W_INSTANCE_DIR:-}"
 if [ -n "$INST" ]; then

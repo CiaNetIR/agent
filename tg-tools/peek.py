@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Read the tail of specific chats (read-only, run while watcher paused)."""
 import asyncio
+import os
 import sys
 import time
 
-sys.path.insert(0, "/home/z/tg-tools")
+sys.path.insert(0, os.path.join(os.path.expanduser("~"), "tg-tools"))
 from telethon import TelegramClient  # noqa: E402
 from telethon.sessions import StringSession  # noqa: E402
 from tg_common import (  # noqa: E402
