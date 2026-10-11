@@ -11,13 +11,17 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { readFileSync, writeFileSync } from 'fs'
+import os from 'os'
+import path from 'path'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const TOKEN_PATH = '/home/z/my-project/.secrets/handoff-token.txt'
-const STATE_PATH = '/home/z/my-project/.secrets/handoff-state.json'
-const HANDOFF_PATH = '/home/z/HANDOFF-private.md'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const TOKEN_PATH = path.join(PROJECT_DIR, '.secrets', 'handoff-token.txt')
+const STATE_PATH = path.join(PROJECT_DIR, '.secrets', 'handoff-state.json')
+const HANDOFF_PATH = path.join(HOME, 'HANDOFF-private.md')
 const MAX_DOWNLOADS = 5
 
 interface HandoffState {

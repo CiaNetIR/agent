@@ -13,6 +13,7 @@
  * Nothing here is importable from the browser — routes only.
  */
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs'
+import os from 'os'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import { zaiChat, type PanelChatMsg } from './llm-provider'
@@ -92,9 +93,11 @@ export interface ProviderPublic extends LlmProviderMeta {
 
 /* ------------------------------- storage ------------------------------- */
 
-const SECRETS_DIR = '/home/z/my-project/.secrets'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const SECRETS_DIR = path.join(PROJECT_DIR, '.secrets')
 const META_FILE = path.join(SECRETS_DIR, 'llm-providers.json')
-const KEYS_DIR = '/home/z/.llm-keys'
+const KEYS_DIR = path.join(HOME, '.llm-keys')
 const KEYS_FILE = path.join(KEYS_DIR, 'keys.json')
 
 const DEFAULT_TIMEOUT_MS = 60_000
