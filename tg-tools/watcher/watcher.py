@@ -106,7 +106,10 @@ if W_INSTANCE_DIR:
     CONFIG_PATH = os.path.join(W_INSTANCE_DIR, "config.json")
     INSTANCE_ENV = os.path.join(W_INSTANCE_DIR, "env")
 
-Z_AI = "/usr/local/bin/z-ai"
+Z_AI = os.path.join(os.path.dirname(os.path.abspath(__file__)), "llm-wrapper.sh")
+# Fallback: try z-ai CLI if wrapper doesn't exist
+if not os.path.exists(Z_AI):
+    Z_AI = "/usr/local/bin/z-ai"
 # Footer wording per owner's Saved-Messages instruction (2026-10-07 16:10 UTC):
 # «به جای ... باید بگویید: من یک دستیار هوش مصنوعی هستم. پشتیبانی آفلاین است.»
 FOOTER = "\n\nمن یک دستیار هوش مصنوعی هستم. پشتیبانی آفلاین است."
