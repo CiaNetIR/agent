@@ -136,6 +136,9 @@ def call_llm(prompt, system, thinking=False):
         "Authorization": f"Bearer {API_KEY}",
         "HTTP-Referer": "https://github.com/CiaNetIR/agent",
         "X-Title": "CiaNet Watcher",
+        # Cloudflare/Groq blocks urllib default UA — use curl-like UA
+        "User-Agent": "curl/8.5.0",
+        "Accept": "application/json",
     }
     req = urllib.request.Request(url, data=data, headers=headers, method="POST")
     
