@@ -160,9 +160,19 @@ bash ~/my-project/mini-services/agent/agent_ctl.sh restart
 
 | Provider | Base URL | مدل رایگان |
 |---|---|---|
-| OpenRouter | `https://openrouter.ai/api/v1` | `deepseek/deepseek-chat`, `meta-llama/llama-3.3-70b-instruct` |
-| Groq | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` |
+| OpenRouter | `https://openrouter.ai/api/v1` | `deepseek/deepseek-chat` (ارزون، ~$0.002/7k token), `meta-llama/llama-3.3-70b-instruct:free` (رایگان نامحدود), `deepseek/deepseek-r1:free` (رایگان با تفکر) |
+| Groq | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` (سریع‌ترین، رایگان) |
 | Ollama (محلی) | `http://127.0.0.1:11434/v1` | `llama3.1:8b` (بعد از `ollama pull`) |
+
+### محدودیت‌های OpenRouter رایگان
+
+| پلن | درخواست/دقیقه | درخواست/روز |
+|---|---|---|
+| Free models (`:free`) | 20 | 50 |
+| Paid models (مثل `deepseek-chat`) | 1000 | بدون محدودیت |
+
+> 💡 **پیشنهاد:** اگه حجم چت زیاده، از مدل‌های `:free` استفاده کن (رایگان نامحدود).
+> اگه کیفیت مهمه، `deepseek/deepseek-chat` خیلی ارزونه (~$0.002 هر ۷k توکن).
 
 ---
 
