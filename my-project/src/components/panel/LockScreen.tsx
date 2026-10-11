@@ -19,7 +19,7 @@ export default function LockScreen({ onUnlock }: { onUnlock: (key: string) => vo
   }, [onUnlock])
   return (
     <div className="flex min-h-[70vh] items-center justify-center p-4">
-      <div className="w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-900/80 p-8 text-center shadow-2xl">
+      <div className="ci-card w-full max-w-sm rounded-2xl bg-[#181A1F]/80 p-8 text-center shadow-2xl">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-400/20 to-emerald-500/20 ring-1 ring-amber-400/40">
           <Star className="h-8 w-8 fill-amber-400 text-amber-400" />
         </div>
