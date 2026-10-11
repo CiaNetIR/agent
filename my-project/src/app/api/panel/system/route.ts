@@ -11,7 +11,6 @@ import {
   PANEL_DIR,
   PROJECT_DIR,
   TERM_CTL,
-  TERM_DIR,
   WATCHER_CTL,
   WATCHER_DIR,
   audit,
@@ -39,8 +38,9 @@ export const dynamic = 'force-dynamic'
  */
 
 const HOME = process.env.HOME || os.homedir() || '/root'
+const TERM_DIR = path.join(PROJECT_DIR, 'mini-services', 'terminal')
+const DB_PATH = path.join(PROJECT_DIR, 'db', 'custom.db')
 const TRASH_DIR = path.join(HOME, '.trash')
-
 const CONFIRM_WORDS: Record<string, string> = {
   'factory-reset': 'ریست',
   'delete-project': 'حذف',
@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
   let dbSize = 0
   let auditSize = 0
   try {
-    dbSize = statSync(path.join(PROJECT_DIR, 'db', 'custom.db')).size
+    dbSize = statSync(DB_PATH).size
   } catch {
     /* noop */
   }
@@ -193,15 +193,16 @@ export async function POST(req: NextRequest) {
     case 'delete-project': {
       await stopAllServices()
       // respond first, then backup+wipe (detached) so this response gets out
+      // dynamic HOME-based paths — never literal /home/z/
       spawn('bash', ['-c',
-        `sleep 3; mkdir -p ${TRASH_DIR}; ` +
+        `sleep 3; mkdir -p ${JSON.stringify(TRASH_DIR)}; ` +
         'ts=$(date +%Y%m%d-%H%M%S); ' +
-        `tar czf "${TRASH_DIR}/my-project-src-$ts.tar.gz" -C ${PROJECT_DIR} ` +
+        `tar czf ${JSON.stringify(path.join(TRASH_DIR, `my-project-src-$ts.tar.gz`))} -C ${JSON.stringify(PROJECT_DIR)} ` +
         'src prisma db mini-services package.json bun.lock next.config.ts tsconfig.json ' +
         'tailwind.config.ts postcss.config.mjs components.json eslint.config.mjs ' +
         'Caddyfile .env .secrets worklog.md 2>/dev/null; ' +
-        `find ${PROJECT_DIR} -mindepth 1 -maxdepth 1 ! -name upload -exec rm -rf {} +; ` +
-        `echo "deleted via panel $(date)" > ${PROJECT_DIR}/DELETED.txt`,
+        `find ${JSON.stringify(PROJECT_DIR)} -mindepth 1 -maxdepth 1 ! -name upload -exec rm -rf {} +; ` +
+        `echo "deleted via panel $(date)" > ${JSON.stringify(path.join(PROJECT_DIR, 'DELETED.txt'))}`,
       ], { detached: true, stdio: 'ignore' }).unref()
       return NextResponse.json({
         ok: true,

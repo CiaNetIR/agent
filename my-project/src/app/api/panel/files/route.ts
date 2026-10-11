@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic'
 
 const HOME = process.env.HOME || os.homedir() || '/root'
 const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const TG_TOOLS_ROOT = process.env.TG_TOOLS || path.join(HOME, 'tg-tools')
 const ROOT = HOME
 const PANEL_DIR = path.join(PROJECT_DIR, '.panel')
 const AUDIT_LOG = path.join(PANEL_DIR, 'audit.log')
@@ -26,7 +27,7 @@ const MAX_UPLOAD = 8 * 1024 * 1024 // 8MB upload
 const PROTECTED_SUBTREES = [
   path.join(PROJECT_DIR, '.secrets'),
   path.join(PROJECT_DIR, 'tg-tools-backup'),
-  path.join(HOME, 'tg-tools'),
+  TG_TOOLS_ROOT,
 ]
 /** exact paths protected from delete AND rename (the infra itself) */
 const PROTECTED_EXACT = new Set([

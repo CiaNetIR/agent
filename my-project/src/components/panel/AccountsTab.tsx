@@ -170,7 +170,7 @@ function AccountDialog({
     <Dialog open onOpenChange={onOpenChange}>
       <DialogContent
         dir="rtl"
-        className="max-h-[88vh] overflow-y-auto border-[#2D3139] bg-[#202329] sm:max-w-lg"
+        className="max-h-[88vh] overflow-y-auto border-zinc-800 bg-zinc-950 sm:max-w-lg"
       >
         <DialogHeader>
           <DialogTitle className="text-sm text-zinc-100">
@@ -194,7 +194,7 @@ function AccountDialog({
               onChange={(e) => setLabel(e.target.value)}
               placeholder="مثلاً فروشگاه دوم"
               maxLength={40}
-              className="h-9 border-[#2D3139] bg-[#181A1F] text-sm text-zinc-100 placeholder:text-zinc-600"
+              className="h-9 border-zinc-800 bg-zinc-900 text-sm text-zinc-100 placeholder:text-zinc-600"
             />
           </div>
 
@@ -208,7 +208,7 @@ function AccountDialog({
               onChange={(e) => setTopic(e.target.value)}
               placeholder="مثلاً پشتیبانی نرم‌افزار"
               maxLength={80}
-              className="h-9 border-[#2D3139] bg-[#181A1F] text-sm text-zinc-100 placeholder:text-zinc-600"
+              className="h-9 border-zinc-800 bg-zinc-900 text-sm text-zinc-100 placeholder:text-zinc-600"
             />
           </div>
 
@@ -222,7 +222,7 @@ function AccountDialog({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+98912xxxxxxx"
-              className="h-9 border-[#2D3139] bg-[#181A1F] font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
+              className="h-9 border-zinc-800 bg-zinc-900 font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
             />
           </div>
 
@@ -241,7 +241,7 @@ function AccountDialog({
                   : 'رشته‌ی بلند StringSession تلگرام اینجا پیست کن'
               }
               rows={3}
-              className="min-h-16 border-[#2D3139] bg-[#181A1F] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
+              className="min-h-16 border-zinc-800 bg-zinc-900 font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
             />
             <Collapsible open={guideOpen} onOpenChange={setGuideOpen}>
               <CollapsibleTrigger className="flex items-center gap-1 text-[11px] text-amber-400/90 transition-colors hover:text-amber-300">
@@ -251,7 +251,7 @@ function AccountDialog({
                   className={`h-3 w-3 transition-transform ${guideOpen ? 'rotate-180' : ''}`}
                 />
               </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 rounded-lg border border-[#2D3139] bg-[#181A1F]/60 p-3">
+              <CollapsibleContent className="mt-2 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
                 <ul className="space-y-1.5 text-[11px] leading-5 text-zinc-400">
                   <li>— سشنِ هر اکانت جدا از بقیه است؛ هر سشن فقط یه کلاینت مجاز داره.</li>
                   <li>
@@ -279,7 +279,7 @@ function AccountDialog({
               onChange={(e) => setPersona(e.target.value)}
               placeholder="خالی = شخصیت پیش‌فرض VPN | STAR"
               rows={3}
-              className="min-h-16 border-[#2D3139] bg-[#181A1F] text-xs leading-6 text-zinc-100 placeholder:text-zinc-600"
+              className="min-h-16 border-zinc-800 bg-zinc-900 text-xs leading-6 text-zinc-100 placeholder:text-zinc-600"
             />
           </div>
 
@@ -294,11 +294,11 @@ function AccountDialog({
               onChange={(e) => setFooter(e.target.value)}
               placeholder="خالی = فوتر پیش‌فرض"
               maxLength={300}
-              className="h-9 border-[#2D3139] bg-[#181A1F] text-sm text-zinc-100 placeholder:text-zinc-600"
+              className="h-9 border-zinc-800 bg-zinc-900 text-sm text-zinc-100 placeholder:text-zinc-600"
             />
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border border-[#2D3139] bg-[#181A1F]/60 p-3">
+          <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
             <div>
               <p className="text-xs font-bold text-zinc-200">حالت تفکر</p>
               <p className="mt-0.5 text-[10px] text-zinc-500">جواب‌های دقیق‌تر، کمی کندتر</p>
@@ -306,7 +306,7 @@ function AccountDialog({
             <Switch
               checked={thinking}
               onCheckedChange={setThinking}
-              className="h-6 w-11 data-[state=checked]:bg-[#10B981]"
+              className="h-6 w-11 data-[state=checked]:bg-emerald-600"
             />
           </div>
         </div>
@@ -316,14 +316,14 @@ function AccountDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={saving}
-            className="border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-200 hover:bg-[#202329]"
+            className="border-zinc-700 bg-zinc-900 text-xs text-zinc-200 hover:bg-zinc-800"
           >
             بی‌خیال
           </Button>
           <Button
             onClick={() => void submit()}
             disabled={saving}
-            className="bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
+            className="bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
           >
             {saving ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -514,7 +514,7 @@ function SimpleLoginWizard({
         if (!o) close(true)
       }}
     >
-      <DialogContent dir="rtl" className="max-h-[88vh] overflow-y-auto border-[#2D3139] bg-[#202329] sm:max-w-md">
+      <DialogContent dir="rtl" className="max-h-[88vh] overflow-y-auto border-zinc-800 bg-zinc-950 sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-sm text-zinc-100">
             اتصال ساده اکانت تلگرام
@@ -554,7 +554,7 @@ function SimpleLoginWizard({
                 <span
                   key={s}
                   className={`h-1 flex-1 rounded-full ${
-                    step >= s ? 'bg-emerald-500' : 'bg-[#202329]'
+                    step >= s ? 'bg-emerald-500' : 'bg-zinc-800'
                   }`}
                 />
               ))}
@@ -580,7 +580,7 @@ function SimpleLoginWizard({
                       if (e.key === 'Enter' && busy !== 'send') void sendCode()
                     }}
                     placeholder="+989123456789"
-                    className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
+                    className="h-8 border-zinc-700 bg-zinc-950 font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
                   />
                   <p className="text-[11px] leading-5 text-zinc-500">
                     کد تایید به تلگرامِ همون شماره میره (پیامک تلگرام یا اپ خودش).
@@ -591,7 +591,7 @@ function SimpleLoginWizard({
                   <Button
                     onClick={() => void sendCode()}
                     disabled={busy === 'send'}
-                    className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
+                    className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
                   >
                     {busy === 'send' ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -606,7 +606,7 @@ function SimpleLoginWizard({
 
             {step === 2 ? (
               <div className="space-y-3">
-                <div className="rounded-lg border border-[#2D3139] bg-[#181A1F]/60 px-3 py-2 text-center">
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-2 text-center">
                   <p className="text-[10px] text-zinc-500">
                     کد تایید برای این شماره ارسال شد:
                   </p>
@@ -631,7 +631,7 @@ function SimpleLoginWizard({
                       if (e.key === 'Enter' && busy !== 'complete') void complete(false)
                     }}
                     placeholder="12345"
-                    className="h-8 border-[#3A3F47] bg-[#202329] text-center font-mono text-sm tracking-widest text-zinc-100 placeholder:text-zinc-600"
+                    className="h-8 border-zinc-700 bg-zinc-950 text-center font-mono text-sm tracking-widest text-zinc-100 placeholder:text-zinc-600"
                   />
                   <p className="text-[11px] leading-5 text-zinc-500">
                     اگه کد نیومد، ۱-۲ دقیقه صبر کن یا با «ویرایش شماره» برگرد و دوباره
@@ -644,7 +644,7 @@ function SimpleLoginWizard({
                     variant="outline"
                     onClick={() => close(true)}
                     disabled={busy === 'complete'}
-                    className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-400 hover:bg-[#202329]"
+                    className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-400 hover:bg-zinc-800"
                   >
                     انصراف
                   </Button>
@@ -656,14 +656,14 @@ function SimpleLoginWizard({
                         setStep(1)
                       }}
                       disabled={busy === 'complete'}
-                      className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-200 hover:bg-[#202329]"
+                      className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-200 hover:bg-zinc-800"
                     >
                       ویرایش شماره
                     </Button>
                     <Button
                       onClick={() => void complete(false)}
                       disabled={busy === 'complete' || code.length < 4}
-                      className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
+                      className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
                     >
                       {busy === 'complete' ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -699,7 +699,7 @@ function SimpleLoginWizard({
                       if (e.key === 'Enter' && busy !== 'complete') void complete(true)
                     }}
                     placeholder="••••••••"
-                    className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
+                    className="h-8 border-zinc-700 bg-zinc-950 font-mono text-sm text-zinc-100 placeholder:text-zinc-600"
                   />
                 </div>
                 {error ? <p className="text-[11px] text-red-400">{error}</p> : null}
@@ -708,14 +708,14 @@ function SimpleLoginWizard({
                     variant="outline"
                     onClick={() => close(true)}
                     disabled={busy === 'complete'}
-                    className="h-8 border-[#3A3F47] bg-[#202329] text-xs text-zinc-400 hover:bg-[#202329]"
+                    className="h-8 border-zinc-700 bg-zinc-950 text-xs text-zinc-400 hover:bg-zinc-800"
                   >
                     انصراف
                   </Button>
                   <Button
                     onClick={() => void complete(true)}
                     disabled={busy === 'complete' || !password}
-                    className="h-8 bg-[#10B981] text-xs font-bold text-zinc-950 hover:bg-[#34D399]"
+                    className="h-8 bg-emerald-600 text-xs font-bold text-zinc-950 hover:bg-emerald-500"
                   >
                     {busy === 'complete' ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -869,10 +869,10 @@ export default function AccountsTab() {
   if (accounts === null && loading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-36 w-full rounded-xl bg-[#202329]/60" />
+        <Skeleton className="h-36 w-full rounded-xl bg-zinc-800/60" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Skeleton className="h-80 w-full rounded-xl bg-[#202329]/60" />
-          <Skeleton className="h-80 w-full rounded-xl bg-[#202329]/60" />
+          <Skeleton className="h-80 w-full rounded-xl bg-zinc-800/60" />
+          <Skeleton className="h-80 w-full rounded-xl bg-zinc-800/60" />
         </div>
       </div>
     )
@@ -880,14 +880,14 @@ export default function AccountsTab() {
 
   if (accounts === null) {
     return (
-      <Card className="border-[#5C2020] bg-[#2C1517]/30">
+      <Card className="border-red-900 bg-red-950/30">
         <CardContent className="flex flex-wrap items-center justify-between gap-2 p-4 text-red-300">
           <p className="text-sm">لیست اکانت‌ها دریافت نشد.</p>
           <Button
             variant="outline"
             size="sm"
             onClick={() => void load()}
-            className="h-8 border-red-800/60 bg-[#2C1517]/40 text-red-200 hover:bg-[#2C1517]/60"
+            className="h-8 border-red-800/60 bg-red-950/40 text-red-200 hover:bg-red-950/60"
           >
             <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
           </Button>
@@ -901,7 +901,7 @@ export default function AccountsTab() {
   return (
     <div className="space-y-4">
       {/* ---------------- header ---------------- */}
-      <Card className="border-[#2D3139] bg-[#181A1F]/70">
+      <Card className="border-zinc-800 bg-zinc-900/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Users className="h-4 w-4 text-emerald-400" /> مدیریت چند اکانت
@@ -911,7 +911,7 @@ export default function AccountsTab() {
               variant="outline"
               size="sm"
               onClick={() => void load()}
-              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
+              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> رفرش
             </Button>
@@ -919,14 +919,14 @@ export default function AccountsTab() {
               variant="outline"
               size="sm"
               onClick={() => setDialog({ seq: Date.now(), account: null })}
-              className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
+              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
             >
               <Plus className="h-3.5 w-3.5" /> افزودن پیشرفته
             </Button>
             <Button
               size="sm"
               onClick={() => setWizard({ seq: Date.now() })}
-              className="h-8 bg-[#10B981] font-bold text-zinc-950 shadow-lg shadow-emerald-500/25 hover:bg-[#34D399]"
+              className="h-8 bg-emerald-600 font-bold text-zinc-950 shadow-lg shadow-emerald-500/25 hover:bg-emerald-500"
             >
               <Smartphone className="h-3.5 w-3.5" /> اتصال ساده
             </Button>
@@ -938,7 +938,7 @@ export default function AccountsTab() {
             می‌تونه همزمان با بقیه روشن باشه. قانون تک‌کلاینت به ازای هر سشن رعایت میشه — سشنِ
             اکانت اصلی هیچ‌وقت دوباره استفاده نمی‌شه.
           </p>
-          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[#2D3139] bg-[#202329] p-2.5">
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-2.5">
             <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400" />
             <p className="flex-1 text-[11px] leading-5 text-zinc-400">
               اکانت اصلی فروشگاه{' '}
@@ -947,7 +947,6 @@ export default function AccountsTab() {
               </span>{' '}
               جدا از اینجاست و از تب‌های «وضعیت» و «سرویس‌ها» مدیریت میشه.
             </p>
-            <Badge className="bg-[#202329] text-zinc-400 ring-1 ring-zinc-700">فقط-خواندنی</Badge>
           </div>
           <p className="text-[10px] leading-5 text-zinc-600">
             وضعیت اکانت‌ها هر ۱۵ ثانیه خودکار رفرش میشه.
@@ -957,7 +956,7 @@ export default function AccountsTab() {
 
       {/* ---------------- account cards ---------------- */}
       {accounts.length === 0 ? (
-        <Card className="border-dashed border-[#2D3139] bg-[#181A1F]/40">
+        <Card className="border-dashed border-zinc-800 bg-zinc-900/40">
           <CardContent className="flex flex-col items-center gap-2 p-8 text-center">
             <Users className="h-8 w-8 text-zinc-600" />
             <p className="text-sm font-bold text-zinc-300">هنوز اکانتی اضافه نکردی</p>
@@ -975,12 +974,12 @@ export default function AccountsTab() {
             const busyOp = busy[acc.id] ?? null
             const cardDisabled = busyOp !== null
             return (
-              <Card key={acc.id} className="flex flex-col border-[#2D3139] bg-[#181A1F]/70">
+              <Card key={acc.id} className="flex flex-col border-zinc-800 bg-zinc-900/70">
                 <CardHeader className="space-y-2 pb-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <CardTitle className="text-sm font-bold text-zinc-100">{acc.label}</CardTitle>
                     {st.running ? (
-                      <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
+                      <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
                         فعال
                       </Badge>
                     ) : st.lastError ? (
@@ -995,7 +994,7 @@ export default function AccountsTab() {
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {acc.topic ? (
-                      <Badge className="max-w-full truncate bg-[#202329] text-zinc-300">
+                      <Badge className="max-w-full truncate bg-zinc-800 text-zinc-300">
                         {acc.topic}
                       </Badge>
                     ) : null}
@@ -1008,11 +1007,11 @@ export default function AccountsTab() {
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-3">
                   <div className="flex flex-wrap gap-1.5">
-                    <Badge className="bg-[#202329] text-zinc-300">
+                    <Badge className="bg-zinc-800 text-zinc-300">
                       آپتایم {faUptime(st.uptimeSec)}
                     </Badge>
-                    <Badge className="bg-[#202329] text-zinc-300">جواب‌ها {fa(st.repliesTotal)}</Badge>
-                    <Badge className="bg-[#202329] text-zinc-300">
+                    <Badge className="bg-zinc-800 text-zinc-300">جواب‌ها {fa(st.repliesTotal)}</Badge>
+                    <Badge className="bg-zinc-800 text-zinc-300">
                       استارت‌ها {fa(st.startedCount)}
                     </Badge>
                   </div>
@@ -1024,7 +1023,7 @@ export default function AccountsTab() {
                   ) : null}
 
                   <div
-                    className="max-h-40 flex-1 overflow-y-auto rounded-lg border border-[#2D3139] bg-[#202329]/60 p-2"
+                    className="max-h-40 flex-1 overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950/60 p-2"
                     dir="rtl"
                   >
                     {st.events.length === 0 ? (
@@ -1069,7 +1068,7 @@ export default function AccountsTab() {
                       size="sm"
                       onClick={() => void runOp(acc, 'start')}
                       disabled={cardDisabled || st.running}
-                      className="h-8 border-emerald-800/60 bg-[#0A2E1E]/30 text-emerald-300 hover:bg-[#0A2E1E]/50"
+                      className="h-8 border-emerald-800/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/50"
                     >
                       {busyOp === 'start' ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1097,7 +1096,7 @@ export default function AccountsTab() {
                       size="sm"
                       onClick={() => void runOp(acc, 'restart')}
                       disabled={cardDisabled}
-                      className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
+                      className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
                     >
                       {busyOp === 'restart' ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1111,7 +1110,7 @@ export default function AccountsTab() {
                       size="sm"
                       onClick={() => setDialog({ seq: Date.now(), account: acc })}
                       disabled={cardDisabled}
-                      className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
+                      className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
                     >
                       {busyOp ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1125,7 +1124,7 @@ export default function AccountsTab() {
                       size="sm"
                       onClick={() => setDeleteTarget(acc)}
                       disabled={cardDisabled}
-                      className="h-8 border-[#5C2020]/60 bg-[#2C1517]/30 text-red-300 hover:bg-[#2C1517]/50"
+                      className="h-8 border-red-900/60 bg-red-950/30 text-red-300 hover:bg-red-950/50"
                     >
                       {busyOp === 'delete' ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1178,7 +1177,7 @@ export default function AccountsTab() {
           if (!o && !deleting) setDeleteTarget(null)
         }}
       >
-        <AlertDialogContent dir="rtl" className="border-[#2D3139] bg-[#202329]">
+        <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm">
               حذف اکانت{deleteTarget ? ` «${deleteTarget.label}»` : ''}؟
@@ -1191,7 +1190,7 @@ export default function AccountsTab() {
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={deleting}
-              className="border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-200 hover:bg-[#202329]"
+              className="border-zinc-700 bg-zinc-900 text-xs text-zinc-200 hover:bg-zinc-800"
             >
               بی‌خیال
             </AlertDialogCancel>

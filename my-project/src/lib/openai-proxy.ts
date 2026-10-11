@@ -16,6 +16,9 @@ import os from 'os'
 import path from 'path'
 import { PANEL_ENV, registerFail } from './panel-server'
 
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+
 /* ---------------- provider config ---------------- */
 
 export interface ZaiConfig {
@@ -26,8 +29,6 @@ export interface ZaiConfig {
   userId: string
 }
 
-const HOME = process.env.HOME || os.homedir() || '/root'
-const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
 const ZAI_CFG = '/etc/.z-ai-config'
 const ZAI_CFG_BAK = path.join(PROJECT_DIR, '.secrets', 'z-ai-config.json')
 
@@ -138,7 +139,8 @@ export const PROXY_MODELS: ProxyModel[] = [
 
 /* ---------------- 429 circuit breaker (cross-process, shared file) ---- */
 
-const COOLDOWN_FILE = path.join(HOME, 'agent-files', 'llm-cooldown.json')
+const AGENT_FILES_DIR = process.env.AGENT_FILES_DIR || path.join(HOME, 'agent-files')
+const COOLDOWN_FILE = path.join(AGENT_FILES_DIR, 'llm-cooldown.json')
 const COOLDOWN_STEPS_MS = [30_000, 60_000, 120_000, 300_000, 600_000]
 let cdStreak = 0
 

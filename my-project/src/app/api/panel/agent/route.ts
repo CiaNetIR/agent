@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyKey } from '@/lib/panel-server'
-import { audit, PROJECT_DIR } from '@/lib/panel-ops'
+import { audit } from '@/lib/panel-ops'
 import { readFileSync } from 'fs'
-import path from 'path'
+import { PANEL_ENV } from '@/lib/panel-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -14,7 +14,6 @@ export const dynamic = 'force-dynamic'
  */
 
 const AGENT = 'http://127.0.0.1:3004'
-const PANEL_ENV = path.join(PROJECT_DIR, '.secrets', 'panel.env')
 
 function internalToken(): string {
   try {

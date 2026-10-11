@@ -1,12 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Tailwind v4 auto-content-detection scans the whole project (minus
+   .gitignore). mini-services/vnc/rootfs is a 961MB Alpine chroot tree
+   (6000 files + 1000 absolute symlinks) that turned the postcss worker
+   into a 30s / 2GB+ job — the dev server got OOM-killed into a restart
+   loop. Keep the scan limited to the panel sources. */
 @source not "../../mini-services";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /* Persian-first stack: Vazirmatn (fa + latin) with Geist as latin/math
+     fallback — the panel body text is Persian; system fonts render it poorly. */
   --font-sans: var(--font-vazir), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -46,209 +54,168 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0); --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0); --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0); --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0); --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0); --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0); --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0); --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0); --input: oklch(0.922 0 0); --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116); --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392); --chart-4: oklch(0.828 0.189 84.429); --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0); --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0); --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0); --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0); --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
+
 .dark {
-  --background: oklch(0.145 0 0); --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0); --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0); --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0); --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0); --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0); --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0); --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%); --input: oklch(1 0 0 / 15%); --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376); --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08); --chart-4: oklch(0.627 0.265 303.9); --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0); --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376); --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0); --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%); --sidebar-ring: oklch(0.556 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
-  * { @apply border-border outline-ring/50; }
-  html { font-family: ui-sans-serif, system-ui, sans-serif; }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+  }
   body {
     @apply bg-background text-foreground;
+    /* Persian-first stack — on body (next/font variable classes live on
+       body; CSS vars don't inherit upward to html). Tailwind v4 @theme inline
+       does not wire --font-sans into the document default font either. */
     font-family: var(--font-vazir), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   CiaNet Premium Dark SaaS Design System v3
-   ════════════════════════════════════════════════════════════════════ */
-
-/* ── Design Tokens ── */
+/* ===================================================================
+   Owner theme layer (panel «تنظیمات» tab — readability controls).
+   .theme-scope wraps the whole panel; CSS variables below re-tint every
+   zinc text class inside it. Unlayered CSS wins over Tailwind's layered
+   utilities, so this works without touching each component.
+   Defaults are a bit BRIGHTER than plain zinc (owner asked for readable
+   text on the dark background); the owner can also pick presets or exact
+   colors from the settings tab.
+   =================================================================== */
 .theme-scope {
-  /* Palette — Premium Dark SaaS */
-  --tp-bg:          #101114;   /* پس‌زمینه اصلی */
-  --tp-card:        #181A1F;   /* سطح کارت‌ها */
-  --tp-surface:     #202329;   /* سطح دوم و ورودی‌ها */
-  --tp-border:      #2D3139;   /* خطوط مرزی */
-  --tp-main:        #F3F4F6;   /* متن اصلی */
-  --tp-2:           #A1A1AA;   /* متن ثانویه */
-  --tp-dim:         #71717A;   /* متن کم‌رنگ */
-  --tp-accent:      #34D399;   /* سبز زمردی — رنگ اصلی تعاملی */
-  --tp-accent-dim:  #10B981;   /* سبز تیره‌تر */
-  --tp-success:     #34D399;
-  --tp-warn:        #FBBF24;   /* کهربایی */
-  --tp-error:       #F87171;   /* قرمز */
-  --tp-info:        #60A5FA;   /* آبی */
-  --tp-purple:      #A78BFA;   /* بنفش — Z.ai */
+  --tp-main: #f4f4f5; /* اصلی  — was zinc-100 */
+  --tp-2: #d4d4d8;    /* ثانوی — was zinc-300 */
+  --tp-dim: #a1a1aa;  /* کم‌رنگ — was zinc-500/600, bumped to zinc-400 */
 
-  /* shadcn token mappings */
-  --background: var(--tp-bg);
+  /* semantic shadcn tokens → dark panel palette. Without this, components
+     inside the panel (tab triggers use text-foreground = near-BLACK in light
+     root theme) render black-on-dark and become unreadable. Re-mapping the
+     tokens here fixes EVERY shadcn component at once (tabs, dialogs, toasts,
+     buttons, switch…) without needing a .dark class on <html>. */
+  --background: #09090b;            /* zinc-950 */
   --foreground: var(--tp-main);
-  --card: var(--tp-card);
+  --card: #18181b;                  /* zinc-900 */
   --card-foreground: var(--tp-main);
-  --popover: var(--tp-surface);
+  --popover: #18181b;
   --popover-foreground: var(--tp-main);
-  --primary: var(--tp-accent-dim);
-  --primary-foreground: #FFFFFF;
-  --secondary: var(--tp-surface);
-  --secondary-foreground: var(--tp-main);
-  --muted: var(--tp-surface);
-  --muted-foreground: var(--tp-2);
-  --accent: var(--tp-surface);
+  --primary: #059669;               /* emerald-600 */
+  --primary-foreground: #ffffff;
+  --secondary: #27272a;             /* zinc-800 */
+  --secondary-foreground: var(--tp-2);
+  --muted: #27272a;
+  --muted-foreground: var(--tp-dim);
+  --accent: #27272a;
   --accent-foreground: var(--tp-main);
-  --destructive: var(--tp-error);
-  --border: var(--tp-border);
-  --input: var(--tp-surface);
-  --ring: rgba(52, 211, 153, 0.35);
-
-  /* Sidebar tokens */
-  --sidebar: #0D0E12;
-  --sidebar-foreground: var(--tp-2);
-  --sidebar-primary: var(--tp-accent);
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: var(--tp-surface);
-  --sidebar-accent-foreground: var(--tp-main);
-  --sidebar-border: rgba(255, 255, 255, 0.04);
-  --sidebar-ring: rgba(52, 211, 153, 0.25);
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
 }
-
-/* ── Component-level overrides ── */
-
-/* Switch thumb */
-.theme-scope [data-slot='switch-thumb'] { background-color: #FAFAFA; }
-
-/* Zinc text → token mapping */
-.theme-scope .text-zinc-100, .theme-scope .text-zinc-200 { color: var(--tp-main); }
-.theme-scope .text-zinc-300, .theme-scope .text-zinc-400 { color: var(--tp-2); }
-.theme-scope .text-zinc-500, .theme-scope .text-zinc-600 { color: var(--tp-dim); }
-
-/* Emerald accent */
-.theme-scope .text-emerald-400 { color: var(--tp-accent); }
-.theme-scope .text-emerald-500 { color: var(--tp-accent); }
-.theme-scope .bg-emerald-600 { background-color: var(--tp-accent-dim); }
-.theme-scope .hover\:bg-emerald-500:hover { background-color: var(--tp-accent); }
-.theme-scope .ring-emerald-500\/50 { --tw-ring-color: rgba(52, 211, 153, 0.5); }
-
-/* ── Scrollbars ── */
-.theme-scope ::-webkit-scrollbar { width: 6px; height: 6px; }
-.theme-scope ::-webkit-scrollbar-thumb { background: #3F3F46; border-radius: 9999px; }
-.theme-scope ::-webkit-scrollbar-thumb:hover { background: #52525B; }
-.theme-scope ::-webkit-scrollbar-track { background: transparent; }
-
-/* ── Sidebar ── */
-.ci-sidebar {
-  width: 260px;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+/* switch thumb must stay LIGHT on the dark track (bg-background would be dark now) */
+.theme-scope [data-slot='switch-thumb'] {
+  background-color: #fafafa;
 }
-.ci-sidebar.collapsed { width: 68px; }
-.ci-sidebar-item { position: relative; transition: all 0.15s ease; }
-.ci-sidebar-item.active {
-  background: rgba(52, 211, 153, 0.08);
-  color: var(--tp-accent);
-}
-.ci-sidebar-item.active::before {
-  content: '';
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 65%; background: var(--tp-accent); border-radius: 9999px;
-}
-.ci-sidebar-item:not(.active):hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-/* Mobile sidebar */
-@media (max-width: 768px) {
-  .ci-sidebar {
-    position: fixed; top: 0; right: 0; bottom: 0; z-index: 50;
-    transform: translateX(100%);
-    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
-  }
-  .ci-sidebar.open { transform: translateX(0); }
-  .ci-sidebar-overlay {
-    position: fixed; inset: 0; z-index: 49; background: rgba(0, 0, 0, 0.5);
-    opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
-  }
-  .ci-sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-}
-.ci-main { flex: 1; min-width: 0; overflow-y: auto; }
-
-/* ── Tab bar (legacy) ── */
-.tabs-bar { scrollbar-width: none; -ms-overflow-style: none; scroll-snap-type: x proximity; }
-.tabs-bar::-webkit-scrollbar { display: none; }
-.tabs-bar > [role='tab'] { scroll-snap-align: center; }
-
-/* ── Status badges ── */
-.ci-badge-ok   { background: rgba(52, 211, 153, 0.12); color: var(--tp-success); }
-.ci-badge-warn { background: rgba(251, 191, 36, 0.12);  color: var(--tp-warn); }
-.ci-badge-err  { background: rgba(248, 113, 113, 0.12); color: var(--tp-error); }
-.ci-badge-info { background: rgba(96, 165, 250, 0.12);  color: var(--tp-info); }
-
-/* ── Provider type colors ── */
-.ci-provider-zai     { background: rgba(167, 139, 250, 0.12); color: var(--tp-purple); }
-.ci-provider-openai   { background: rgba(52, 211, 153, 0.12);  color: var(--tp-success); }
-.ci-provider-ollama   { background: rgba(96, 165, 250, 0.12);  color: var(--tp-info); }
-.ci-provider-local   { background: rgba(251, 191, 36, 0.12);  color: var(--tp-warn); }
-.ci-provider-custom   { background: rgba(168, 85, 247, 0.12);  color: #C084FC; }
-
-/* ── Card hover ── */
-.ci-card {
-  background: var(--tp-card);
-  border: 1px solid var(--tp-border);
-  border-radius: var(--radius);
-  transition: border-color 0.15s ease;
-}
-.ci-card:hover { border-color: rgba(255, 255, 255, 0.10); }
-
-/* ── Shimmer loading ── */
-.ci-shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-/* ── reduced motion ── */
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-}
-
-/* ── Focus visible ── */
-.theme-scope :focus-visible {
-  outline: 2px solid var(--tp-accent);
-  outline-offset: 2px;
-}
-
-/* ── Selection ── */
-.theme-scope ::selection {
-  background: rgba(52, 211, 153, 0.25);
+.theme-scope .text-zinc-100,
+.theme-scope .text-zinc-200 {
   color: var(--tp-main);
+}
+.theme-scope .text-zinc-300,
+.theme-scope .text-zinc-400 {
+  color: var(--tp-2);
+}
+.theme-scope .text-zinc-500,
+.theme-scope .text-zinc-600 {
+  color: var(--tp-dim);
+}
+
+/* thin custom scrollbars inside the panel */
+.theme-scope ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.theme-scope ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+  border-radius: 9999px;
+}
+.theme-scope ::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+.theme-scope ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* main tab bar (mobile): single-row horizontal scroller — hide the bar's own
+   scrollbar; content remains discoverable by swipe + active-tab auto-centering */
+.tabs-bar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
+}
+.tabs-bar::-webkit-scrollbar {
+  display: none;
+}
+.tabs-bar > [role='tab'] {
+  scroll-snap-align: center;
 }

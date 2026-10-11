@@ -2,16 +2,18 @@
  * VPN STAR panel — server-side helpers (node runtime only).
  * Shared by all /api/panel/* routes.
  */
+import os from 'os'
 import { createHash, timingSafeEqual } from 'crypto'
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs'
-import os from 'os'
 import path from 'path'
 
 const HOME = process.env.HOME || os.homedir() || '/root'
 const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const TG_TOOLS_ROOT = process.env.TG_TOOLS || path.join(HOME, 'tg-tools')
+
 export const PANEL_ENV = path.join(PROJECT_DIR, '.secrets', 'panel.env')
-export const WATCHER_DIR = path.join(HOME, 'tg-tools', 'watcher')
-export const TG_TOOLS = path.join(HOME, 'tg-tools')
+export const WATCHER_DIR = path.join(TG_TOOLS_ROOT, 'watcher')
+export const TG_TOOLS = TG_TOOLS_ROOT
 export const MANUAL_PATH = path.join(PROJECT_DIR, 'tg-tools-backup', 'Z-OWNER-MANUAL.md')
 export const BACKUP_TRIGGER = path.join(WATCHER_DIR, 'BACKUP_NOW')
 

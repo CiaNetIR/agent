@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { existsSync, readFileSync, statSync, writeFileSync } from 'fs'
+import { existsSync, statSync, writeFileSync } from 'fs'
 import { BACKUP_TRIGGER, pidAlive, verifyKey, WATCHER_DIR } from '@/lib/panel-server'
 import path from 'path'
 

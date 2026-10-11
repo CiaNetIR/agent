@@ -8,7 +8,7 @@ import {
   verifyKey,
 } from '@/lib/panel-server'
 import { WATCHER_CONFIG } from '@/lib/panel-ops'
-import { existsSync, readFileSync, statfsSync } from 'fs'
+import { readFileSync, statfsSync } from 'fs'
 import os from 'os'
 import path from 'path'
 

@@ -6,15 +6,16 @@
  * POST /api/connection-info  (x-panel-key) — { action: 'rotate' } regenerates
  *      the proxy key (takes effect immediately, no service restart).
  */
-import { readJsonSafe, verifyKey } from '@/lib/panel-server'
-import { PROXY_MODELS, getProxyKey, readZaiConfig, rotateProxyKey } from '@/lib/openai-proxy'
 import os from 'os'
 import path from 'path'
+import { readJsonSafe, verifyKey } from '@/lib/panel-server'
+import { PROXY_MODELS, getProxyKey, readZaiConfig, rotateProxyKey } from '@/lib/openai-proxy'
 
 export const dynamic = 'force-dynamic'
 
 const HOME = process.env.HOME || os.homedir() || '/root'
-const MONITOR_STATE = path.join(HOME, 'agent-files', 'api-monitor-state.json')
+const AGENT_FILES_DIR = process.env.AGENT_FILES_DIR || path.join(HOME, 'agent-files')
+const MONITOR_STATE = path.join(AGENT_FILES_DIR, 'api-monitor-state.json')
 
 function monitorStatus() {
   const st = readJsonSafe<Record<string, unknown>>(MONITOR_STATE, {})

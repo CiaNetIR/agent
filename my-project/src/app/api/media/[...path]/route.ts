@@ -19,6 +19,7 @@ export const dynamic = 'force-dynamic'
 
 const HOME = process.env.HOME || os.homedir() || '/root'
 const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+
 const ROOTS: Record<string, string> = {
   'agent-videos': path.join(PROJECT_DIR, 'public', 'agent-videos'),
   'agent-images': path.join(PROJECT_DIR, 'public', 'agent-images'),

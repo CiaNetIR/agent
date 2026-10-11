@@ -12,6 +12,7 @@ import {
   verifyKey,
   isLocked,
 } from '@/lib/panel-server'
+import { PROJECT_DIR } from '@/lib/panel-ops'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,6 @@ export const dynamic = 'force-dynamic'
  */
 
 const HOME = process.env.HOME || os.homedir() || '/root'
-const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
 const PANEL_DIR = path.join(PROJECT_DIR, '.panel')
 const AUDIT_LOG = path.join(PANEL_DIR, 'audit.log')
 const TERM_DIR = path.join(PROJECT_DIR, 'mini-services', 'terminal')

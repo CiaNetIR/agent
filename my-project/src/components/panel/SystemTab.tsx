@@ -243,7 +243,7 @@ export default function SystemTab() {
   return (
     <div className="space-y-4">
       {/* ---------------- 1. وضعیت سیستم ---------------- */}
-      <Card className="border-[#2D3139] bg-[#181A1F]/70">
+      <Card className="border-zinc-800 bg-zinc-900/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Server className="h-4 w-4 text-emerald-400" /> وضعیت سیستم
@@ -253,7 +253,7 @@ export default function SystemTab() {
             size="sm"
             onClick={() => void load()}
             disabled={busy !== null}
-            className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
+            className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} /> رفرش
           </Button>
@@ -261,13 +261,13 @@ export default function SystemTab() {
         <CardContent className="space-y-3">
           {info ? (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <Bot className="h-3 w-3" /> دستیار اصلی
                 </p>
                 <div className="mt-1.5">
                   {info.watcherRunning ? (
-                    <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
+                    <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
                       فعال
                     </Badge>
                   ) : (
@@ -277,13 +277,13 @@ export default function SystemTab() {
                   )}
                 </div>
               </div>
-              <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <Terminal className="h-3 w-3" /> سرویس ترمینال
                 </p>
                 <div className="mt-1.5">
                   {info.terminalAlive ? (
-                    <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
+                    <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
                       فعال
                     </Badge>
                   ) : (
@@ -293,7 +293,7 @@ export default function SystemTab() {
                   )}
                 </div>
               </div>
-              <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <Database className="h-3 w-3" /> اکانت‌های افزوده
                 </p>
@@ -301,7 +301,7 @@ export default function SystemTab() {
                   {info.dbAccounts}
                 </p>
               </div>
-              <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <Boxes className="h-3 w-3" /> اینستنس‌های فعال
                 </p>
@@ -309,7 +309,7 @@ export default function SystemTab() {
                   {info.instanceCount}
                 </p>
               </div>
-              <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <Database className="h-3 w-3" /> حجم دیتابیس
                 </p>
@@ -317,7 +317,7 @@ export default function SystemTab() {
                   {fmtBytes(info.sizes?.db)}
                 </p>
               </div>
-              <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+              <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <FileText className="h-3 w-3" /> حجم لاگ پنل
                 </p>
@@ -325,7 +325,7 @@ export default function SystemTab() {
                   {fmtBytes(info.sizes?.audit)}
                 </p>
               </div>
-              <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#2D3139] bg-[#202329] p-3 sm:col-span-4">
+              <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3 sm:col-span-4">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <FolderOpen className="h-3 w-3" /> مسیر پروژه
                 </p>
@@ -333,7 +333,7 @@ export default function SystemTab() {
                   {info.projectDir}
                 </p>
               </div>
-              <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#2D3139] bg-[#202329] p-3 sm:col-span-4">
+              <div className="col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zinc-800 bg-zinc-950 p-3 sm:col-span-4">
                 <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
                   <Recycle className="h-3 w-3" /> سبد بازیافت
                 </p>
@@ -346,11 +346,11 @@ export default function SystemTab() {
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-14 rounded-lg bg-[#202329]/60" />
+                  <Skeleton key={i} className="h-14 rounded-lg bg-zinc-800/60" />
                 ))}
               </div>
-              <Skeleton className="h-11 w-full rounded-lg bg-[#202329]/60" />
-              <Skeleton className="h-11 w-full rounded-lg bg-[#202329]/60" />
+              <Skeleton className="h-11 w-full rounded-lg bg-zinc-800/60" />
+              <Skeleton className="h-11 w-full rounded-lg bg-zinc-800/60" />
             </div>
           ) : (
             <p className="text-xs text-zinc-500">اطلاعاتی دریافت نشد.</p>
@@ -359,14 +359,14 @@ export default function SystemTab() {
       </Card>
 
       {/* ---------------- 2. خاموش / روشن سرویس‌ها (soft power) ---------------- */}
-      <Card className="border-teal-900/50 bg-[#181A1F]/70">
+      <Card className="border-teal-900/50 bg-zinc-900/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Power className="h-4 w-4 text-teal-400" /> خاموش / روشن سرویس‌ها
           </CardTitle>
           {servicesUp !== null ? (
             servicesUp ? (
-              <Badge className="bg-[#34D399]/15 text-emerald-400 ring-1 ring-[#34D399]/40">
+              <Badge className="bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/40">
                 سرویس‌ها روشن
               </Badge>
             ) : (
@@ -397,7 +397,7 @@ export default function SystemTab() {
               size="sm"
               onClick={() => void runAction('services-start')}
               disabled={busy !== null}
-              className="h-8 border-emerald-800/60 bg-[#0A2E1E]/30 text-emerald-300 hover:bg-[#0A2E1E]/50"
+              className="h-8 border-emerald-800/60 bg-emerald-950/30 text-emerald-300 hover:bg-emerald-950/50"
             >
               {busy === 'services-start' ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -408,7 +408,7 @@ export default function SystemTab() {
             </Button>
           </div>
           {logLines && (
-            <div className="rounded-lg border border-[#2D3139] bg-black/60 p-2.5">
+            <div className="rounded-lg border border-zinc-800 bg-black/60 p-2.5">
               <p className="mb-1 text-[10px] text-zinc-500">خروجی آخرین عملیات:</p>
               <pre
                 dir="ltr"
@@ -454,7 +454,7 @@ export default function SystemTab() {
       </Card>
 
       {/* ---------------- 4. حذف کامل پروژه ---------------- */}
-      <Card className="border-[#5C2020]/50 bg-[#2C1517]/20">
+      <Card className="border-red-900/50 bg-red-950/20">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Trash2 className="h-4 w-4 text-red-400" /> حذف کامل پروژه
@@ -470,7 +470,7 @@ export default function SystemTab() {
             size="sm"
             onClick={() => openHard('delete-project')}
             disabled={busy !== null}
-            className="h-8 border-red-800/70 bg-[#2C1517]/40 text-red-300 hover:bg-red-900/50"
+            className="h-8 border-red-800/70 bg-red-950/40 text-red-300 hover:bg-red-900/50"
           >
             {busy === 'delete-project' ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -483,7 +483,7 @@ export default function SystemTab() {
       </Card>
 
       {/* ---------------- 5. خاموشی کامل وب‌سرور ---------------- */}
-      <Card className="border-[#5C2020]/50 bg-[#2C1517]/20">
+      <Card className="border-red-900/50 bg-red-950/20">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <PowerOff className="h-4 w-4 text-red-400" /> خاموشی کامل وب‌سرور
@@ -499,7 +499,7 @@ export default function SystemTab() {
             size="sm"
             onClick={() => openHard('power-off-server')}
             disabled={busy !== null}
-            className="h-8 border-red-800/70 bg-[#2C1517]/40 text-red-300 hover:bg-red-900/50"
+            className="h-8 border-red-800/70 bg-red-950/40 text-red-300 hover:bg-red-900/50"
           >
             {busy === 'power-off-server' ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -527,7 +527,7 @@ export default function SystemTab() {
           if (!o) setStopOpen(false)
         }}
       >
-        <AlertDialogContent dir="rtl" className="border-[#2D3139] bg-[#202329]">
+        <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm">سرویس‌ها خاموش بشن؟</AlertDialogTitle>
             <AlertDialogDescription className="text-xs leading-6">
@@ -538,7 +538,7 @@ export default function SystemTab() {
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={busy !== null}
-              className="border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-200 hover:bg-[#202329]"
+              className="border-zinc-700 bg-zinc-900 text-xs text-zinc-200 hover:bg-zinc-800"
             >
               بی‌خیال
             </AlertDialogCancel>
@@ -569,7 +569,7 @@ export default function SystemTab() {
           }
         }}
       >
-        <AlertDialogContent dir="rtl" className="border-[#2D3139] bg-[#202329]">
+        <AlertDialogContent dir="rtl" className="border-zinc-800 bg-zinc-950">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm">
               {confirmAction ? DIALOG_TITLES[confirmAction] : ''}
@@ -596,7 +596,7 @@ export default function SystemTab() {
                 }
               }}
               placeholder={`بنویس: ${confirmWord}`}
-              className="h-9 border-[#3A3F47] bg-[#181A1F] text-sm text-zinc-100 placeholder:text-zinc-600"
+              className="h-9 border-zinc-700 bg-zinc-900 text-sm text-zinc-100 placeholder:text-zinc-600"
             />
             <p className="text-[10px] leading-5 text-zinc-500">
               برای فعال شدن دکمه بنویس:{' '}
@@ -606,7 +606,7 @@ export default function SystemTab() {
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={busy !== null}
-              className="border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-200 hover:bg-[#202329]"
+              className="border-zinc-700 bg-zinc-900 text-xs text-zinc-200 hover:bg-zinc-800"
             >
               بی‌خیال
             </AlertDialogCancel>
@@ -640,7 +640,7 @@ export default function SystemTab() {
         >
           <div
             dir="rtl"
-            className="w-full max-w-md space-y-3 rounded-xl border-2 border-red-500/60 bg-[#202329] p-5 shadow-2xl shadow-red-950/60"
+            className="w-full max-w-md space-y-3 rounded-xl border-2 border-red-500/60 bg-zinc-950 p-5 shadow-2xl shadow-red-950/60"
           >
             <div className="flex items-center gap-2">
               <TriangleAlert className="h-5 w-5 animate-pulse text-red-400" />
@@ -655,7 +655,7 @@ export default function SystemTab() {
               variant="outline"
               size="sm"
               onClick={closeAttention}
-              className="h-8 border-[#3A3F47] bg-[#181A1F] text-xs text-zinc-300 hover:bg-[#202329]"
+              className="h-8 border-zinc-700 bg-zinc-900 text-xs text-zinc-300 hover:bg-zinc-800"
             >
               باشه، فهمیدم
             </Button>

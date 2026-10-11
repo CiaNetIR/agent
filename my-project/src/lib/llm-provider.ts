@@ -99,13 +99,13 @@ async function resolveProvider(): Promise<PanelProviderKind> {
       }
       if (forced === 'zai') return 'zai'
       if (env.LLM_BASE_URL) return 'openai'
-      try {
-        await zai()
-        return 'zai'
-      } catch (e) {
-        detectError = e instanceof Error ? e.message : String(e)
-        return 'none'
-      }
+      // No explicit provider configured. Previously we silently fell through
+      // to the bundled z-ai-web-dev-sdk and reported «Z.ai Internal», which
+      // masked an unconfigured state. Now we surface 'none' so the owner
+      // sees a real error pointing them at .secrets/llm.env. The sandbox SDK
+      // can still be opted into explicitly via LLM_PROVIDER=zai.
+      detectError = 'LLM_PROVIDER تنظیم نشده — فایل .secrets/llm.env را طبق راهنمای LLM-SETUP.md کامل کنید (یا LLM_PROVIDER=zai برای استفاده از سندباکس داخلی)'
+      return 'none'
     })()
     providerP.catch(() => { providerP = null })
   }
@@ -113,21 +113,6 @@ async function resolveProvider(): Promise<PanelProviderKind> {
 }
 
 export async function panelProviderInfo(): Promise<PanelProviderInfo> {
-  // Check DB for a default provider first
-  try {
-    const { PrismaClient } = await import('@prisma/client')
-    const db = new PrismaClient()
-    const defaultProvider = await db.llmProvider.findFirst({ where: { isDefault: true, enabled: true } })
-    await db.$disconnect()
-    if (defaultProvider) {
-      const kind = defaultProvider.kind as PanelProviderKind
-      let host = defaultProvider.baseUrl
-      try { host = new URL(defaultProvider.baseUrl).host } catch { /* keep raw */ }
-      return { kind, label: defaultProvider.name + (host ? ` (${host})` : ''), model: defaultProvider.model, error: '' }
-    }
-  } catch { /* DB not available — fall through */ }
-
-  // Fall back to env-based detection
   const env = llmEnv()
   const kind = await resolveProvider()
   if (kind === 'openai') {
@@ -148,9 +133,9 @@ export async function panelProviderInfo(): Promise<PanelProviderInfo> {
   }
   return {
     kind: 'none',
-    label: 'مدل تنظیم نشده — فایل llm.env را کامل کنید',
+    label: 'مدل تنظیم نشده',
     model: '',
-    error: detectError,
+    error: detectError || 'LLM_PROVIDER تنظیم نشده — فایل .secrets/llm.env را طبق راهنمای LLM-SETUP.md کامل کنید',
   }
 }
 
@@ -164,43 +149,6 @@ export async function panelLlmChat(
   messages: PanelChatMsg[],
   opts: { thinking?: boolean; timeoutMs?: number } = {}
 ): Promise<{ content: string; model: string }> {
-  // 1. Check DB for default provider
-  try {
-    const { PrismaClient } = await import('@prisma/client')
-    const db = new PrismaClient()
-    const provider = await db.llmProvider.findFirst({ where: { isDefault: true, enabled: true } })
-    await db.$disconnect()
-    if (provider && provider.kind !== 'zai') {
-      const baseUrl = provider.baseUrl.replace(/\/+$/, '')
-      const apiKey = provider.apiKey
-      const model = provider.model
-      const ms = opts.timeoutMs ?? provider.timeoutMs ?? 90_000
-      if (!model) throw new Error('مدل تنظیم نشده — در تب «هوش مصنوعی» مدل را مشخص کنید')
-      let url = baseUrl
-      if (provider.kind === 'ollama' && !url.includes('/v1')) url += '/v1'
-      const envNow = llmEnv()
-      const proxyUrl = envNow.LLM_PROXY || envNow.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
-      const fetchOpts2: RequestInit & { dispatcher?: unknown } = {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}), 'http-referer': 'https://cianet.local', 'x-title': 'CiaNet Panel', 'user-agent': 'curl/8.5.0' },
-        body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, ...messages], temperature: provider.temperature, max_tokens: provider.maxTokens }),
-        signal: AbortSignal.timeout(ms),
-      }
-      if (proxyUrl) { try { const { ProxyAgent } = await import('undici'); (fetchOpts2 as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl) } catch { /* */ } }
-      const res = await fetch(`${url}/chat/completions`, fetchOpts2)
-      if (!res.ok) { const txt = await res.text().catch(() => ''); throw new Error(`سرویس مدل خطای HTTP ${res.status}: ${txt.slice(0, 200) || 'بدون متن'}`) }
-      const data = await res.json()
-      const content = String(data?.choices?.[0]?.message?.content || '').trim()
-      if (!content) throw new Error('پاسخ مدل خالی بود')
-      return { content, model: data?.model || model }
-    }
-    // If provider is zai, fall through to sandbox SDK
-  } catch (e) {
-    if (e instanceof Error && !e.message.includes('Cannot read') && !e.message.includes('prisma')) throw e
-    /* DB not available — fall through to env-based detection */
-  }
-
-  // 2. Fall back to env-based detection (legacy)
   const env = llmEnv()
   const kind = await resolveProvider()
   const ms = opts.timeoutMs ?? 90_000
@@ -212,28 +160,17 @@ export async function panelLlmChat(
     if (!model) throw new Error('LLM_MODEL تنظیم نشده — .secrets/llm.env را کامل کنید (LLM-SETUP.md)')
     let res: Response
     try {
-      // Auto-detect proxy from env or llm.env (needed for Iran/filtered networks)
-      const proxyUrl = env.LLM_PROXY || env.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
-      const fetchOpts: RequestInit & { dispatcher?: unknown } = {
+      res = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
           ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
           'http-referer': 'https://cianet.local',
           'x-title': 'CiaNet Panel',
-          'user-agent': 'curl/8.5.0',
         },
         body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, ...messages] }),
         signal: AbortSignal.timeout(ms),
-      }
-      // If proxy is set, use undici dispatcher (Node.js 18+ built-in)
-      if (proxyUrl) {
-        try {
-          const { ProxyAgent } = await import('undici')
-          ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
-        } catch { /* undici not available — try without */ }
-      }
-      res = await fetch(`${baseUrl}/chat/completions`, fetchOpts)
+      })
     } catch (e) {
       throw new Error(`اتصال به سرویس مدل برقرار نشد: ${e instanceof Error ? e.message.slice(0, 160) : 'خطا'}`)
     }
@@ -266,59 +203,4 @@ export async function panelLlmChat(
   throw new Error(
     'هیچ مدلی تنظیم نشده. فایل .secrets/llm.env را طبق راهنمای LLM-SETUP.md کامل کنید (سرویس ابری OpenAI-سازگار یا Ollama محلی).'
   )
-}
-
-/* ==================== Provider Management (DB-backed) ==================== */
-
-export interface TestConnectionParams { baseUrl: string; apiKey: string; model: string; kind: string; timeoutMs: number }
-export interface TestResult { ok: boolean; latencyMs: number; model?: string; error?: string }
-
-export async function testProviderConnection(params: TestConnectionParams): Promise<TestResult> {
-  const { baseUrl, apiKey, model, kind, timeoutMs } = params
-  const start = Date.now()
-  if (!baseUrl.trim()) return { ok: false, latencyMs: 0, error: 'Base URL خالی است' }
-  let url = baseUrl.replace(/\/+$/, '')
-  if (kind === 'ollama' && !url.includes('/v1')) url += '/v1'
-  try {
-    const res = await fetch(`${url}/chat/completions`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}), 'http-referer': 'https://cianet.local', 'x-title': 'CiaNet Panel Test' },
-      body: JSON.stringify({ model: model || 'gpt-3.5-turbo', messages: [{ role: 'user', content: 'ping' }], max_tokens: 5, temperature: 0 }),
-      signal: AbortSignal.timeout(timeoutMs || 30000),
-    })
-    const latencyMs = Date.now() - start
-    if (res.ok) { const data = await res.json().catch(() => ({})); return { ok: true, latencyMs, model: data?.model || model } }
-    const errorText = await res.text().catch(() => '')
-    let errorMsg = `HTTP ${res.status}`
-    if (res.status === 401) errorMsg = 'کلید API نامعتبر'
-    else if (res.status === 404) errorMsg = 'مدل پیدا نشد'
-    else if (res.status === 429) errorMsg = 'محدودیت درخواست'
-    else if (res.status >= 500) errorMsg = 'سرویس در دسترس نیست'
-    if (errorText) errorMsg += `: ${errorText.slice(0, 200)}`
-    return { ok: false, latencyMs, error: errorMsg }
-  } catch (e) {
-    const latencyMs = Date.now() - start
-    const err = e instanceof Error ? e.message : String(e)
-    if (err.includes('aborted') || err.includes('timeout')) return { ok: false, latencyMs, error: 'مهلت پاسخ تمام شد' }
-    if (err.includes('ECONNREFUSED')) return { ok: false, latencyMs, error: 'اتصال رد شد — سرویس روشن نیست' }
-    if (err.includes('ENOTFOUND')) return { ok: false, latencyMs, error: 'دامنه پیدا نشد' }
-    if (err.includes('fetch failed')) return { ok: false, latencyMs, error: 'اتصال برقرار نشد' }
-    return { ok: false, latencyMs, error: err.slice(0, 200) }
-  }
-}
-
-export async function discoverModels(baseUrl: string, apiKey: string, kind: string): Promise<string[]> {
-  let url = baseUrl.replace(/\/+$/, '')
-  if (kind === 'ollama' && !url.includes('/v1')) url += '/v1'
-  try {
-    const res = await fetch(`${url}/models`, { headers: { ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}) }, signal: AbortSignal.timeout(15000) })
-    if (!res.ok) throw new Error(`HTTP ${res.status}: دریافت لیست مدل‌ها ناموفق`)
-    const data = await res.json()
-    const models: string[] = (data?.data || data?.models || []).map((m: { id?: string; name?: string }) => m.id || m.name).filter(Boolean)
-    if (models.length === 0) throw new Error('هیچ مدلی یافت نشد — شناسه مدل را دستی وارد کنید')
-    return models
-  } catch (e) {
-    if (e instanceof Error && e.message.includes('HTTP')) throw e
-    throw new Error(e instanceof Error ? `شناسایی مدل‌ها ناموفق: ${e.message.slice(0, 160)}` : 'شناسایی مدل‌ها ناموفق بود')
-  }
 }

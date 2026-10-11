@@ -11,9 +11,10 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const execFileAsync = promisify(execFile)
+
 const HOME = process.env.HOME || os.homedir() || '/root'
-const PY = path.join(HOME, '.venv', 'bin', 'python')
-const TG_TOOLS_PATH = path.join(HOME, 'tg-tools')
+const TG_TOOLS_ROOT = process.env.TG_TOOLS || path.join(HOME, 'tg-tools')
+const PY = process.env.PYTHON_BIN || path.join(HOME, '.venv', 'bin', 'python')
 
 let cache: { at: number; data: unknown } | null = null
 const CACHE_MS = 60_000
@@ -22,8 +23,8 @@ async function loadLlmSettings(): Promise<unknown> {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache.data
   const code = [
     'import sys, json',
-    `sys.path.insert(0, ${JSON.stringify(TG_TOOLS_PATH)})`,
-    `sys.path.insert(0, ${JSON.stringify(path.join(TG_TOOLS_PATH, 'watcher'))})`,
+    `sys.path.insert(0, ${JSON.stringify(TG_TOOLS_ROOT)})`,
+    `sys.path.insert(0, ${JSON.stringify(path.join(TG_TOOLS_ROOT, 'watcher'))})`,
     'import watcher',
     'print(json.dumps(watcher.llm_settings_dict(), ensure_ascii=False))',
   ].join('; ')
