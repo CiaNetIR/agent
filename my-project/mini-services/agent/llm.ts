@@ -27,7 +27,8 @@ import path from 'path'
 
 export type ProviderKind = 'zai' | 'openai' | 'none'
 
-const PROJECT_DIR = '/home/z/my-project'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
 const DEFAULT_OPENAI_BASE = 'https://api.openai.com/v1'
 const TAVILY_URL = 'https://api.tavily.com/search'
 
@@ -82,7 +83,6 @@ function openaiCfg(env: Record<string, string>): { baseUrl: string; apiKey: stri
  * and every caller backs off until it clears. Escalating schedule:
  *   30s → 60s → 120s → 300s → 600s (cap), reset after one clean call. */
 
-const HOME = process.env.HOME || os.homedir() || '/root'
 const COOLDOWN_FILE = path.join(HOME, 'agent-files', 'llm-cooldown.json')
 const COOLDOWN_STEPS_MS = [30_000, 60_000, 120_000, 300_000, 600_000]
 
