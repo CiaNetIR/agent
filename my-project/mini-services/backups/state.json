@@ -1,22 +1,11 @@
 {
   "running": true,
-  "lastRunAt": "2026-10-11T05:09:08.099Z",
+  "lastRunAt": "2026-10-11T05:09:56.530Z",
   "lastOkAt": "2026-10-11T04:37:15.535Z",
   "lastError": "git push: ed to push some refs to 'https://github.com/CiaNetIR/agent.git'\nhint: Updates were rejected because the remote contains work that you do not\nhint: have locally. This is usually caused by another repository pushing to\nhint: the same ref. If you want to integrate the remote changes, use\nhint: 'git pull' before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
   "lastCommit": "bc56edbe035300215b9c5188c9b1b6868dfbaf4d",
   "nextRunAt": null,
   "history": [
-    {
-      "at": "2026-10-08T05:22:18.544Z",
-      "trigger": "manual",
-      "ok": true,
-      "lint": true,
-      "tsc": false,
-      "build": true,
-      "files": 219,
-      "commit": "c389bc9d17636da17b9b91bcbcd9e0e483eb51cf",
-      "durMs": 38078
-    },
     {
       "at": "2026-10-08T06:00:00.044Z",
       "trigger": "hourly",
@@ -536,6 +525,18 @@
       "commit": "af3df0683b2dd559d09295c4edf32fb4286d74b5",
       "error": "git push: ed to push some refs to 'https://github.com/CiaNetIR/agent.git'\nhint: Updates were rejected because the remote contains work that you do not\nhint: have locally. This is usually caused by another repository pushing to\nhint: the same ref. If you want to integrate the remote changes, use\nhint: 'git pull' before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
       "durMs": 39608
+    },
+    {
+      "at": "2026-10-11T05:09:08.099Z",
+      "trigger": "manual",
+      "ok": false,
+      "lint": true,
+      "tsc": false,
+      "build": true,
+      "files": 5,
+      "commit": "76abead33b0e073b58621efb1f2092a4160a7bd2",
+      "error": "git push: ed to push some refs to 'https://github.com/CiaNetIR/agent.git'\nhint: Updates were rejected because the remote contains work that you do not\nhint: have locally. This is usually caused by another repository pushing to\nhint: the same ref. If you want to integrate the remote changes, use\nhint: 'git pull' before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
+      "durMs": 40516
     }
   ]
 }
