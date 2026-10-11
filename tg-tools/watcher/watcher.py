@@ -1435,9 +1435,31 @@ class Watcher:
         api_id = int(get_env("TELEGRAM_API_ID"))
         api_hash = get_env("TELEGRAM_API_HASH")
         try:
+            # Proxy support for Iran/filtered networks
+            # Format: socks5://127.0.0.1:10808 or http://127.0.0.1:10809
+            proxy_str = os.environ.get("TELEGRAM_PROXY", "")
+            proxy_kwargs = {}
+            if proxy_str:
+                try:
+                    import socks as _socks
+                    if proxy_str.startswith("socks5://"):
+                        host, port = proxy_str[9:].split(":")
+                        proxy_kwargs["proxy"] = (_socks.SOCKS5, host, int(port))
+                    elif proxy_str.startswith("socks4://"):
+                        host, port = proxy_str[9:].split(":")
+                        proxy_kwargs["proxy"] = (_socks.SOCKS4, host, int(port))
+                    elif proxy_str.startswith("http://"):
+                        host, port = proxy_str[7:].split(":")
+                        proxy_kwargs["proxy"] = (_socks.HTTP, host, int(port))
+                    WLOG.log("info", msg=f"using proxy {proxy_str}")
+                except ImportError:
+                    WLOG.log("warn", err="python-socks not installed — pip install python-socks")
+                except Exception as e:
+                    WLOG.log("warn", err=f"proxy parse failed: {e}")
             self.client = TelegramClient(
                 StringSession(session_string), api_id, api_hash,
-                device_model="Z Watcher", system_version="linux")
+                device_model="Z Watcher", system_version="linux",
+                **proxy_kwargs)
             await self.client.connect()
             me = await self.client.get_me()
         except Exception as e:  # noqa: BLE001
