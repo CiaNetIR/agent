@@ -106,10 +106,17 @@ if W_INSTANCE_DIR:
     CONFIG_PATH = os.path.join(W_INSTANCE_DIR, "config.json")
     INSTANCE_ENV = os.path.join(W_INSTANCE_DIR, "env")
 
-Z_AI = os.path.join(os.path.dirname(os.path.abspath(__file__)), "llm-wrapper.sh")
-# Fallback: try z-ai CLI if wrapper doesn't exist
+# Use llm-wrapper.sh (supports OpenRouter with proxy) — falls back to z-ai CLI
+_HERE = os.path.dirname(os.path.abspath(__file__))
+Z_AI = os.path.join(_HERE, "llm-wrapper.sh")
 if not os.path.exists(Z_AI):
-    Z_AI = "/usr/local/bin/z-ai"
+    # Try alternate locations
+    for _p in [os.path.join(os.path.expanduser('~'), 'tg-tools', 'watcher', 'llm-wrapper.sh'),
+               '/usr/local/bin/llm-wrapper.sh',
+               '/usr/local/bin/z-ai']:
+        if os.path.exists(_p):
+            Z_AI = _p
+            break
 # Footer wording per owner's Saved-Messages instruction (2026-10-07 16:10 UTC):
 # «به جای ... باید بگویید: من یک دستیار هوش مصنوعی هستم. پشتیبانی آفلاین است.»
 FOOTER = "\n\nمن یک دستیار هوش مصنوعی هستم. پشتیبانی آفلاین است."
@@ -363,7 +370,11 @@ def _z_ai_call(prompt: str, system: str) -> str:
     # half-written file (spurious llm_fail → FALLBACK text to a customer)
     out_file = os.path.join(
         HERE, f".llm_{os.getpid()}_{uuid.uuid4().hex[:8]}.json")
-    cmd = [Z_AI, "chat", "-p", prompt, "-s", system, "-o", out_file]
+    # llm-wrapper.sh is a Python script — run it with python3
+    if Z_AI.endswith('llm-wrapper.sh'):
+        cmd = [sys.executable or 'python3', Z_AI, 'chat', '-p', prompt, '-s', system, '-o', out_file]
+    else:
+        cmd = [Z_AI, 'chat', '-p', prompt, '-s', system, '-o', out_file]
     if thinking:
         cmd.append("-t")  # flag must come AFTER the chat subcommand
     last_err = ""
