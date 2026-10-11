@@ -20,6 +20,7 @@
  * the git backup). Full Persian guide: LLM-SETUP.md.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import os from 'os'
 import path from 'path'
 
 /* ================================ config ================================ */
@@ -81,7 +82,8 @@ function openaiCfg(env: Record<string, string>): { baseUrl: string; apiKey: stri
  * and every caller backs off until it clears. Escalating schedule:
  *   30s → 60s → 120s → 300s → 600s (cap), reset after one clean call. */
 
-const COOLDOWN_FILE = '/home/z/agent-files/llm-cooldown.json'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const COOLDOWN_FILE = path.join(HOME, 'agent-files', 'llm-cooldown.json')
 const COOLDOWN_STEPS_MS = [30_000, 60_000, 120_000, 300_000, 600_000]
 
 let cdUntil = 0        // in-memory mirror of the file (epoch ms)
@@ -358,17 +360,28 @@ async function oaiPost(
 ): Promise<Record<string, unknown>> {
   let res: Response
   try {
-    res = await fetch(`${cfg.baseUrl}${apiPath}`, {
+    // Auto-detect proxy from env (needed for Iran/filtered networks)
+    const envProxy = llmEnv()
+    const proxyUrl = envProxy.LLM_PROXY || envProxy.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+    const fetchOpts: RequestInit & { dispatcher?: unknown } = {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         ...(cfg.apiKey ? { authorization: `Bearer ${cfg.apiKey}` } : {}),
         'http-referer': 'https://cianet.local',
         'x-title': 'CiaNet Agent',
+        'user-agent': 'curl/8.5.0',
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(ms),
-    })
+    }
+    if (proxyUrl) {
+      try {
+        const { ProxyAgent } = await import('undici')
+        ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
+      } catch { /* undici not available */ }
+    }
+    res = await fetch(`${cfg.baseUrl}${apiPath}`, fetchOpts)
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     throw new Error(`اتصال به سرویس مدل برقرار نشد (${cfg.baseUrl}): ${msg.slice(0, 160)}`)

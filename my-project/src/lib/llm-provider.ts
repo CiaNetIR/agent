@@ -178,12 +178,16 @@ export async function panelLlmChat(
       if (!model) throw new Error('مدل تنظیم نشده — در تب «هوش مصنوعی» مدل را مشخص کنید')
       let url = baseUrl
       if (provider.kind === 'ollama' && !url.includes('/v1')) url += '/v1'
-      const res = await fetch(`${url}/chat/completions`, {
+      const envNow = llmEnv()
+      const proxyUrl = envNow.LLM_PROXY || envNow.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+      const fetchOpts2: RequestInit & { dispatcher?: unknown } = {
         method: 'POST',
-        headers: { 'content-type': 'application/json', ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}), 'http-referer': 'https://cianet.local', 'x-title': 'CiaNet Panel' },
+        headers: { 'content-type': 'application/json', ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}), 'http-referer': 'https://cianet.local', 'x-title': 'CiaNet Panel', 'user-agent': 'curl/8.5.0' },
         body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, ...messages], temperature: provider.temperature, max_tokens: provider.maxTokens }),
         signal: AbortSignal.timeout(ms),
-      })
+      }
+      if (proxyUrl) { try { const { ProxyAgent } = await import('undici'); (fetchOpts2 as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl) } catch { /* */ } }
+      const res = await fetch(`${url}/chat/completions`, fetchOpts2)
       if (!res.ok) { const txt = await res.text().catch(() => ''); throw new Error(`سرویس مدل خطای HTTP ${res.status}: ${txt.slice(0, 200) || 'بدون متن'}`) }
       const data = await res.json()
       const content = String(data?.choices?.[0]?.message?.content || '').trim()
@@ -208,17 +212,28 @@ export async function panelLlmChat(
     if (!model) throw new Error('LLM_MODEL تنظیم نشده — .secrets/llm.env را کامل کنید (LLM-SETUP.md)')
     let res: Response
     try {
-      res = await fetch(`${baseUrl}/chat/completions`, {
+      // Auto-detect proxy from env or llm.env (needed for Iran/filtered networks)
+      const proxyUrl = env.LLM_PROXY || env.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+      const fetchOpts: RequestInit & { dispatcher?: unknown } = {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
           ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
           'http-referer': 'https://cianet.local',
           'x-title': 'CiaNet Panel',
+          'user-agent': 'curl/8.5.0',
         },
         body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, ...messages] }),
         signal: AbortSignal.timeout(ms),
-      })
+      }
+      // If proxy is set, use undici dispatcher (Node.js 18+ built-in)
+      if (proxyUrl) {
+        try {
+          const { ProxyAgent } = await import('undici')
+          ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
+        } catch { /* undici not available — try without */ }
+      }
+      res = await fetch(`${baseUrl}/chat/completions`, fetchOpts)
     } catch (e) {
       throw new Error(`اتصال به سرویس مدل برقرار نشد: ${e instanceof Error ? e.message.slice(0, 160) : 'خطا'}`)
     }
