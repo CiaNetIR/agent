@@ -1,22 +1,11 @@
 {
   "running": true,
-  "lastRunAt": "2026-10-11T05:00:00.052Z",
+  "lastRunAt": "2026-10-11T05:09:08.099Z",
   "lastOkAt": "2026-10-11T04:37:15.535Z",
-  "lastError": null,
+  "lastError": "git push: ed to push some refs to 'https://github.com/CiaNetIR/agent.git'\nhint: Updates were rejected because the remote contains work that you do not\nhint: have locally. This is usually caused by another repository pushing to\nhint: the same ref. If you want to integrate the remote changes, use\nhint: 'git pull' before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
   "lastCommit": "bc56edbe035300215b9c5188c9b1b6868dfbaf4d",
   "nextRunAt": null,
   "history": [
-    {
-      "at": "2026-10-08T05:00:00.031Z",
-      "trigger": "hourly",
-      "ok": true,
-      "lint": true,
-      "tsc": false,
-      "build": true,
-      "files": 18,
-      "commit": "ff093727f61b0a55f07333738387020ee2056848",
-      "durMs": 30545
-    },
     {
       "at": "2026-10-08T05:22:18.544Z",
       "trigger": "manual",
@@ -535,6 +524,18 @@
       "files": 297,
       "commit": "bc56edbe035300215b9c5188c9b1b6868dfbaf4d",
       "durMs": 48990
+    },
+    {
+      "at": "2026-10-11T05:00:00.052Z",
+      "trigger": "hourly",
+      "ok": false,
+      "lint": true,
+      "tsc": false,
+      "build": true,
+      "files": 9,
+      "commit": "af3df0683b2dd559d09295c4edf32fb4286d74b5",
+      "error": "git push: ed to push some refs to 'https://github.com/CiaNetIR/agent.git'\nhint: Updates were rejected because the remote contains work that you do not\nhint: have locally. This is usually caused by another repository pushing to\nhint: the same ref. If you want to integrate the remote changes, use\nhint: 'git pull' before pushing again.\nhint: See the 'Note about fast-forwards' in 'git push --help' for details.\n",
+      "durMs": 39608
     }
   ]
 }
