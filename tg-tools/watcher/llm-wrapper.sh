@@ -14,9 +14,40 @@ import os
 import json
 import urllib.request
 import urllib.error
+import socket
+import ssl
 
 HOME = os.path.expanduser("~")
 PROJECT_DIR = os.environ.get("PROJECT_DIR", os.path.join(HOME, "my-project"))
+
+
+def _detect_proxy():
+    """Auto-detect proxy: env var > tg.env > scan common ports."""
+    proxy = os.environ.get("TELEGRAM_PROXY", "") or os.environ.get("LLM_PROXY", "")
+    if proxy:
+        return proxy
+    # Try reading from tg.env
+    tg_env = os.path.join(PROJECT_DIR, ".secrets", "tg.env")
+    if os.path.exists(tg_env):
+        try:
+            with open(tg_env) as f:
+                for line in f:
+                    if line.strip().startswith("TELEGRAM_PROXY="):
+                        return line.split("=", 1)[1].strip().strip("'\"")
+        except Exception:
+            pass
+    # Auto-scan common proxy ports (v2ray/xray/clash)
+    for port in [10808, 10809, 7890, 1080, 2080, 8080]:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(0.3)
+            if s.connect_ex(("127.0.0.1", port)) == 0:
+                s.close()
+                return f"socks5://127.0.0.1:{port}"
+            s.close()
+        except Exception:
+            pass
+    return ""
 
 # Load config
 API_KEY = ""
@@ -100,20 +131,38 @@ def call_llm(prompt, system, thinking=False):
     }
     
     data = json.dumps(body).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=data,
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {API_KEY}",
-            "HTTP-Referer": "https://github.com/CiaNetIR/agent",
-            "X-Title": "CiaNet Watcher",
-        },
-        method="POST",
-    )
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {API_KEY}",
+        "HTTP-Referer": "https://github.com/CiaNetIR/agent",
+        "X-Title": "CiaNet Watcher",
+    }
+    req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+    
+    # Auto-detect and use proxy (needed for Iran/filtered networks)
+    proxy = _detect_proxy()
+    if proxy:
+        try:
+            import socks
+            proxy_handler = None
+            if proxy.startswith("socks5://"):
+                host, port = proxy[9:].split(":")
+                socks.set_default_proxy(socks.SOCKS5, host, int(port))
+                socket.socket = socks.socksocket
+            elif proxy.startswith("http://"):
+                proxy_handler = urllib.request.ProxyHandler({"http": proxy, "https": proxy})
+            if proxy_handler:
+                opener = urllib.request.build_opener(proxy_handler)
+                urllib.request.install_opener(opener)
+            print(f"✓ using proxy: {proxy}", file=sys.stderr)
+        except ImportError:
+            print("⚠ PySocks not installed — pip install PySocks", file=sys.stderr)
+        except Exception as e:
+            print(f"⚠ proxy setup failed: {e}", file=sys.stderr)
     
     try:
-        with urllib.request.urlopen(req, timeout=90) as resp:
+        ctx = ssl.create_default_context()
+        with urllib.request.urlopen(req, timeout=90, context=ctx) as resp:
             result = json.loads(resp.read().decode("utf-8"))
             return result
     except urllib.error.HTTPError as e:
