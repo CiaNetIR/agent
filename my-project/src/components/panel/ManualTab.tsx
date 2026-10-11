@@ -72,7 +72,7 @@ export default function ManualTab() {
           dir="rtl"
           className="max-h-[70vh] overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-950/60 p-5"
         >
-          <div className="manual prose-sm max-w-none text-zinc-300 [&_code]:rounded [&_code]:bg-zinc-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-emerald-300 [&_code]:text-[12px] [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:text-lg [&_h1]:font-black [&_h1]:text-amber-400 [&_h2]:mt-6 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-emerald-400 [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-bold [&_h3]:text-zinc-100 [&_li]:mt-1 [&_ol]:list-decimal [&_ol]:pr-5 [&_p]:mt-2 [&_p]:leading-8 [&_pre]:mt-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-black [&_pre]:p-3 [&_pre]:text-[12px] [&_pre]:leading-6 [&_pre]:text-zinc-300 [&_strong]:text-zinc-100 [&_ul]:list-disc [&_ul]:pr-5 [&_pre]:[direction:ltr] [&_code]:[direction:ltr] [&_pre]:text-left">
+          <div className="manual prose-sm max-w-none text-zinc-300 [&_code]:rounded [&_code]:bg-zinc-800 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-emerald-300 [&_code]:text-[12px] [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:text-lg [&_h1]:font-black [&_h1]:text-amber-400 [&_h2]:mt-6 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-emerald-400 [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:text-sm [&_h3]:font-bold [&_h3]:text-zinc-100 [&_li]:mt-1 [&_ol]:list-decimal [&_ol]:pr-5 [&_p]:mt-2 [&_p]:leading-8 [&_pre]:mt-3 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-black [&_pre]:p-3 [&_pre]:text-[12px] [&_pre]:leading-6 [&_pre]:text-zinc-300 [&_strong]:text-zinc-100 [&_ul]:list-disc [&_ul]:pr-5">
             <Markdown>{md}</Markdown>
           </div>
         </div>

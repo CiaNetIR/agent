@@ -1,25 +1,6 @@
 #!/usr/bin/env python3
 """@VpnStarZ — always-on AI auto-responder (v6).
 
-v8 (owner request, 2026-10-08 evening — "agent suite"):
-- SENDQ: a small queue dir (sendq/*.json) consumed by the watchdog every
-  10 s — {chat, text | file, caption} — so OTHER services (the agent core
-  on :3004) can ship REAL Telegram messages/files through THIS client
-  without ever creating a second Telegram connection (one session = one
-  client, never violated). Failed entries survive as *.failed for audit.
-- IMGREQ: owner command «image» (تصویر بساز / عکست بکش ...) drops
-  imgreq/req-*.json; the agent core polls it, generates the image with the
-  image model and replies through sendq — Telegram → AI image → Telegram.
-
-v7 (owner request, 2026-10-08 — "panel LLM settings + multi-account"):
-- LLM settings (thinking / retries / rate limits / footer / persona /
-  command prompt) are now owner-editable overrides stored in
-  watcher-config.json via the web panel; the code constants above are only
-  fallbacks. llm_settings_dict() reports the EFFECTIVE values.
-- Multi-account instances: when W_INSTANCE_DIR is set, this process is an
-  isolated watcher for ONE extra Telegram account (panel «اکانت‌ها»,
-  launched by ~/tg-tools/instances_ctl.sh). Main watcher behaviour unchanged.
-
 v6 (owner request, 2026-10-07 evening — "backup + owner tutorial + shell access"):
 - Backup zip now carries docs/Z-OWNER-MANUAL.md (full Persian owner manual)
   and Z-LLM-SETTINGS.txt (readable snapshot of the LLM persona/settings).
@@ -55,9 +36,7 @@ import random
 import re
 import subprocess
 import sys
-import threading
 import time
-import uuid
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -82,27 +61,6 @@ LIVE_LOCK = os.path.join(HERE, "watcher.lock")
 CONFIG_PATH = os.path.join(SECRETS_DIR, "watcher-config.json")
 MANUAL_PATH = "/home/z/my-project/tg-tools-backup/Z-OWNER-MANUAL.md"
 BACKUP_TRIGGER = os.path.join(HERE, "BACKUP_NOW")
-
-# ---- multi-account instances (panel «اکانت‌ها») --------------------------
-# When W_INSTANCE_DIR is set (launched by ~/tg-tools/instances_ctl.sh) this
-# process is an ISOLATED watcher for one extra Telegram account: state, log,
-# lock, pause-file, config and session all live inside the instance dir.
-# Owner commands reach it as DMs from the main account (OWNER_USER_ID) or
-# via that account's own Saved Messages. The main watcher never sets this.
-W_INSTANCE_DIR = os.environ.get("W_INSTANCE_DIR", "")
-INSTANCE_ENV = ""
-# v8 queues live next to the rest of this watcher's state (main or instance)
-_QROOT = W_INSTANCE_DIR or HERE
-SENDQ_DIR = os.path.join(_QROOT, "sendq")
-IMGREQ_DIR = os.path.join(_QROOT, "imgreq")
-if W_INSTANCE_DIR:
-    STATE_PATH = os.path.join(W_INSTANCE_DIR, "state.json")
-    LOG_PATH = os.path.join(W_INSTANCE_DIR, "wlog.jsonl")
-    PAUSE_PATH = os.path.join(W_INSTANCE_DIR, "PAUSE")
-    LIVE_LOCK = os.path.join(W_INSTANCE_DIR, "watcher.lock")
-    BACKUP_TRIGGER = os.path.join(W_INSTANCE_DIR, "BACKUP_NOW")
-    CONFIG_PATH = os.path.join(W_INSTANCE_DIR, "config.json")
-    INSTANCE_ENV = os.path.join(W_INSTANCE_DIR, "env")
 
 Z_AI = "/usr/local/bin/z-ai"
 # Footer wording per owner's Saved-Messages instruction (2026-10-07 16:10 UTC):
@@ -132,9 +90,9 @@ SYSTEM_PROMPT = """تو همون ادمینِ دستیار فروشگاه «VPN 
 اگه مستقیم پرسیدن ربطی/هوش مصنوعی هستی، صادقانه و خودمونی قبول کن (یه دستیار هوشمند که صاحب فروشگاه وصل کرده) و ادامه بده.
 
 اطلاعات درست فروشگاه (فقط همین‌ها، هیچ عدد جدید از خودت درست نکن):
-- سرویس نامحدود: یک سرویس واحد برای اندروید و ویندوز — ماهانه ۳۹۹ هزار تومن، با اپلیکیشن اختصاصی خودمون
-- سرویس حجمی: برای آیفون و سایر دستگاه‌ها — هر گیگ ۱۵ هزار تومن
-- اندروید و ویندوز دو محصول جدا نیستن؛ هر دو همین سرویس نامحدودن
+- اندروید نامحدود: ماهانه ۳۹۹ هزار تومن، با اپلیکیشن اختصاصی خودمون
+- حجمی: هر گیگ ۱۵ هزار تومن
+- ویندوز هم اپ داره (حالت p2p به زودی میاد)
 - اعتبار اکانت از موقع فعالسازی شروع میشه
 - سفارش و سوال: همین چت یا چنل @VPN_STAR3
 
@@ -157,7 +115,6 @@ COMMAND_SYSTEM_PROMPT = """تو مغز فرمان‌گاه دستیار «Z» ه
 - forget_instructions: مالک گفته همه قوانین دائمی قبلی پاک شه.
 - backup: مالک خواسته فایل بکاپ کل سیستم ساخته و براش فرستاده شه (بکاپ بگیر / نسخه پشتیبان بفرست).
 - broadcast: مالک خواسته یک پیام به همه مشتری‌های اخیر بره (به همه بگو ... / به همه خبر بده که ...). فیلد text = فقط خود متن پیام که باید برای مشتری‌ها بره، بدون «به همه بگو» و بدون خود دستور (مثلا برای «به همه بگو تخفیف داریم» متن فقط می‌شه «تخفیف داریم»). Z خودش قبل ارسال تایید می‌گیره، تو کاری نکن.
-- image: مالک خواسته با هوش مصنوعی تصویر/عکس ساخته بشه و براش فرستاده شه (تصویر بساز / عکس بکش / یه عکس از ... در بیار / لوگو بساز). فیلد prompt = توصیف کامل و دقیق تصویر، همون‌جوری که مالک گفته یا کامل‌ترش (اگه فارسی بود، خودت همون متن فارسی رو دقیق نگه دار و فقط جزئیات گمشده رو اضافه کن).
 - chat: هر چیز دیگه — گپ، سوال، یا درخواستی که تو لیست نیست. اگه درخواستی از توان Z خارجه (مثل بلاک واقعی تلگرام، پاک کردن پیام‌ها، تغییر رمز اکانت و ...) صادقانه جواب بده این کار از دستت برنمیاد و چی می‌تونی. فیلد reply = جواب خودت به مالک، حتماً خودمونی و آدمیزادی و کوتاه (مثل سبک گپ با یه رفیق)، نه رسمی و نه «متاسفانه نمی‌توانم».
 
 ممکنه مالک چند تا کار رو تو یه پیام بگه؛ همه رو به ترتیب تو لیست actions بذار.
@@ -211,14 +168,6 @@ AUTOBACKUP_MIN_GAP = 3600
 BROADCAST_MAX = 50
 BROADCAST_CONFIRM_S = 10 * 60
 PERMANENT_WINDOW_END = 4102444800  # 2100-01-01 — "never off" per owner
-# Part B: turn-buffer cap — aggregated fragments never blow up the prompt
-TURN_MAX_CHARS = 3500
-# Part J: single payment follow-up (armed when the card number is sent)
-FOLLOWUP_DELAY_S = 10 * 60
-FOLLOWUP_TEXTS = ("برای پرداخت مشکلی پیش اومده؟",
-                  "همه چی اوکیه؟ اگه برای پرداخت گیر کردی بگو 🙏🏻")
-# Part J: follow-up arms only when this card number appears in OUR reply
-CARD_RE = re.compile(r"6219[ \-]?8614[ \-]?9432[ \-]?5490")
 
 
 class WLog:
@@ -270,197 +219,35 @@ def load_config() -> dict:
             "saved_messages_commands": True}
 
 
-# ---- owner-editable overrides (panel «هوش مصنوعی») -----------------------
-# Every value below reads watcher-config.json FIRST and falls back to the
-# code constants. An override is removed by deleting the key (or writing "").
-
-def _cfg_str(cfg: dict, key: str, fallback: str) -> str:
-    v = cfg.get(key)
-    if isinstance(v, str) and v.strip():
-        return v.strip()
-    return fallback
-
-
-def _cfg_bool(cfg: dict, key: str, fallback: bool) -> bool:
-    v = cfg.get(key)
-    return v if isinstance(v, bool) else fallback
-
-
-def _cfg_int(cfg: dict, key: str, fallback: int, lo: int, hi: int) -> int:
-    try:
-        return max(lo, min(hi, int(cfg.get(key, fallback))))
-    except (TypeError, ValueError):
-        return fallback
-
-
-def _rate_limits(cfg: dict) -> dict:
-    rl = cfg.get("rate_limits")
-    rl = rl if isinstance(rl, dict) else {}
-    return {
-        "per_chat_hour": _cfg_int(rl, "per_chat_hour", PER_CHAT_H, 1, 200),
-        "global_hour": _cfg_int(rl, "global_hour", GLOBAL_H, 1, 1000),
-        "debounce_s": _cfg_int(rl, "debounce_s", DEBOUNCE_S, 0, 300),
-    }
-
-
-def effective_footer(cfg: dict) -> str:
-    """Footer override from the panel config ("" → code default)."""
-    v = cfg.get("footer")
-    if isinstance(v, str) and v.strip():
-        return "\n\n" + v.strip()
-    return FOOTER
-
-
-def footer_marks(cfg: dict) -> list:
-    """All footer wordings that mark a message as ours (default/old/custom)."""
-    f = effective_footer(cfg).strip()
-    marks = list(FOOTER_MARKS)
-    if f not in marks:
-        marks.append(f)
-    return marks
-
-
-def _instance_env_value(key: str) -> str:
-    """Read a key from the instance env file (instance mode only)."""
-    if not INSTANCE_ENV:
-        return ""
-    try:
-        with open(INSTANCE_ENV, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip().startswith(key + "="):
-                    return line.split("=", 1)[1].strip()
-    except OSError:
-        pass
-    return ""
-
-
 def _z_ai_call(prompt: str, system: str) -> str:
     """Blocking z-ai chat CLI call — always inside LLM_POOL executor.
-    Uses glm-4-plus — the strongest (and, verified 2026-10, the ONLY) model
-    this endpoint serves; every `model` value is normalized to glm-4-plus.
-    Thinking mode and retries are owner-configurable via watcher-config.json
-    (panel «هوش مصنوعی» tab).
-
-    429 («Too many requests») is handled through a CROSS-PROCESS circuit
-    breaker shared with the agent core (:3004): any 429 bumps a cooldown
-    file (escalating 30→60→120→300→600 s) and every caller — this watcher,
-    the panel chat, video jobs — backs off until it clears. Fast retries
-    were making it worse (each burst re-arms the lockout), which is why a
-    customer used to get the FALLBACK text within seconds. Now a reply may
-    spend up to REPLY_BUDGET_S waiting out a short lockout; a long lockout
-    fails fast (honest «چند دقیقه بعد») instead of poking the API."""
-    cfg = load_config()
-    thinking = _cfg_bool(cfg, "thinking", LLM_THINKING)
-    retries = _cfg_int(cfg, "retries", LLM_RETRIES, 1, 5)
-    # UNIQUE file per call — the two LLM_POOL threads used to share a single
-    # .llm_<pid>.json, so overlapping calls could read each other's output
-    # (a reply built for one context delivered to another chat) or parse a
-    # half-written file (spurious llm_fail → FALLBACK text to a customer)
-    out_file = os.path.join(
-        HERE, f".llm_{os.getpid()}_{uuid.uuid4().hex[:8]}.json")
+    Uses glm-4-plus (the strongest model this endpoint serves) with
+    thinking mode enabled (LLM_THINKING) — strongest available config."""
+    out_file = os.path.join(HERE, f".llm_{os.getpid()}.json")
     cmd = [Z_AI, "chat", "-p", prompt, "-s", system, "-o", out_file]
-    if thinking:
+    if LLM_THINKING:
         cmd.append("-t")  # flag must come AFTER the chat subcommand
     last_err = ""
-    budget_end = time.time() + REPLY_BUDGET_S
-    try:
-        for attempt in range(1, retries + 1):
-            # cross-process cooldown → wait it out (while we still have budget)
-            wait_s = (_cooldown_until_ms() - time.time() * 1000.0) / 1000.0
-            if wait_s > 0:
-                if time.time() + wait_s > budget_end:
-                    WLOG.log("llm_rate_limited", attempt=attempt,
-                             note="cooldown outlives budget — fallback now",
-                             cooldown_s=int(wait_s))
-                    break
-                time.sleep(wait_s + 0.5)
-            try:
-                proc = subprocess.run(cmd, capture_output=True, text=True,
-                                      timeout=LLM_TIMEOUT_S)
-                if proc.returncode != 0:
-                    raise RuntimeError("z-ai exit %d: %s"
-                                       % (proc.returncode, proc.stderr[-200:]))
-                with open(out_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                text = (data.get("choices") or [{}])[0] \
-                    .get("message", {}).get("content", "").strip()
-                if not text:
-                    raise RuntimeError("empty LLM content")
-                _rl_clear_streak()
-                return text
-            except (subprocess.TimeoutExpired, RuntimeError,
-                    json.JSONDecodeError, OSError) as e:
-                last_err = str(e)
-                if _rl_is_rate_limit(last_err):
-                    until_ms = _rl_bump_cooldown()
-                    WLOG.log("llm_rate_limited", attempt=attempt,
-                             cooldown_s=max(0, int((until_ms / 1000.0)
-                                                  - time.time())))
-                    # loop → next iteration waits for the cooldown (budget-capped)
-                else:
-                    WLOG.log("llm_fail", attempt=attempt, err=last_err[:120])
-                    if attempt < retries:
-                        time.sleep(2)
-    finally:
+    for attempt in range(1, LLM_RETRIES + 1):
         try:
-            os.remove(out_file)
-        except OSError:
-            pass
+            proc = subprocess.run(cmd, capture_output=True, text=True,
+                                  timeout=LLM_TIMEOUT_S)
+            if proc.returncode != 0:
+                raise RuntimeError("z-ai exit %d: %s"
+                                   % (proc.returncode, proc.stderr[-200:]))
+            with open(out_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            text = (data.get("choices") or [{}])[0] \
+                .get("message", {}).get("content", "").strip()
+            if not text:
+                raise RuntimeError("empty LLM content")
+            return text
+        except (subprocess.TimeoutExpired, RuntimeError, json.JSONDecodeError,
+                OSError) as e:
+            last_err = str(e)
+            WLOG.log("llm_fail", attempt=attempt, err=last_err[:120])
+            time.sleep(2)
     raise RuntimeError(last_err or "llm failed")
-
-
-# ---- 429 circuit breaker state (shared with the agent core via a file) ----
-# File format: {"until": <epoch ms>, "reason": "429", "at": <epoch ms>}
-LLM_COOLDOWN_FILE = "/home/z/agent-files/llm-cooldown.json"
-COOLDOWN_STEPS_S = [30, 60, 120, 300, 600]  # escalating, cap 10 min
-REPLY_BUDGET_S = 170  # max wall-clock a reply waits out a lockout before fallback
-_RL_LOCK = threading.Lock()
-_RL = {"until_ms": 0.0, "streak": 0, "checked": 0.0}
-
-
-def _cooldown_until_ms() -> float:
-    """effective cooldown end (epoch ms) — file value mirrored in memory,
-    re-read at most every 3 s; never lower than what we already know."""
-    now = time.time()
-    if now - _RL["checked"] > 3:
-        try:
-            with open(LLM_COOLDOWN_FILE, "r", encoding="utf-8") as f:
-                until = float(json.load(f).get("until") or 0)
-            if until > _RL["until_ms"]:
-                _RL["until_ms"] = until
-        except (OSError, ValueError):
-            pass
-        _RL["checked"] = now
-    return _RL["until_ms"]
-
-
-def _rl_bump_cooldown() -> float:
-    """a 429 happened → escalate the shared cooldown, return its end (ms)"""
-    with _RL_LOCK:
-        step = COOLDOWN_STEPS_S[min(_RL["streak"], len(COOLDOWN_STEPS_S) - 1)]
-        _RL["streak"] += 1
-        until_ms = max(_cooldown_until_ms(), (time.time() + step) * 1000.0)
-        _RL["until_ms"] = until_ms
-        _RL["checked"] = time.time()
-        try:
-            os.makedirs(os.path.dirname(LLM_COOLDOWN_FILE), exist_ok=True)
-            tmp = LLM_COOLDOWN_FILE + ".tmp"
-            with open(tmp, "w", encoding="utf-8") as f:
-                json.dump({"until": until_ms, "reason": "429",
-                           "at": time.time() * 1000.0}, f)
-            os.replace(tmp, LLM_COOLDOWN_FILE)
-        except OSError:
-            pass  # best effort — the in-memory value still works here
-    return until_ms
-
-
-def _rl_clear_streak() -> None:
-    with _RL_LOCK:
-        _RL["streak"] = 0
-
-
-def _rl_is_rate_limit(err_text: str) -> bool:
-    return "429" in err_text or "Too many requests" in err_text
 
 
 async def llm_reply(prompt: str, system: str = None) -> str:
@@ -530,27 +317,24 @@ def llm_settings_dict() -> dict:
     """Single source of truth for the LLM settings snapshot.
 
     Used by the web panel (/api/panel/llm-settings) and by
-    render_llm_settings_txt() inside every backup zip. Reports the
-    EFFECTIVE values (watcher-config.json overrides over code fallbacks)."""
+    render_llm_settings_txt() inside every backup zip."""
     cfg = load_config()
-    keys = ("persona", "command_prompt", "footer", "thinking",
-            "retries", "rate_limits")
     return {
-        "persona": _cfg_str(cfg, "persona", SYSTEM_PROMPT),
-        "command_prompt": _cfg_str(cfg, "command_prompt",
-                                   COMMAND_SYSTEM_PROMPT),
+        "persona": SYSTEM_PROMPT,
+        "command_prompt": COMMAND_SYSTEM_PROMPT,
         "model": "glm-4-plus",
-        "thinking": _cfg_bool(cfg, "thinking", LLM_THINKING),
-        "retries": _cfg_int(cfg, "retries", LLM_RETRIES, 1, 5),
-        "rate_limits": _rate_limits(cfg),
-        "footer": effective_footer(cfg).strip(),
+        "thinking": LLM_THINKING,
+        "retries": LLM_RETRIES,
+        "rate_limits": {"per_chat_hour": PER_CHAT_H,
+                        "global_hour": GLOBAL_H,
+                        "debounce_s": DEBOUNCE_S},
+        "footer": FOOTER.strip(),
         "instructions": cfg.get("instructions") or [],
         "blacklist": [{"username": b.get("username", ""),
                        "name": b.get("name", "")}
                       for b in cfg.get("blacklist") or []],
         "prices": {"android_monthly": "۳۹۹ هزار تومن",
                    "per_gb": "۱۵ هزار تومن"},
-        "customized": {k: k in cfg for k in keys},
     }
 
 
@@ -611,27 +395,12 @@ def build_backup_zip() -> str:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M")
     path = f"/tmp/z_backup_{stamp}.zip"
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
-        for arcname, src in _backup_files():
+        for arcname, src in BACKUP_FILES:
             if os.path.exists(src):
                 z.write(src, arcname)
         z.writestr("RESTORE.md", RESTORE_GUIDE)
         z.writestr("Z-LLM-SETTINGS.txt", render_llm_settings_txt())
     return path
-
-
-def _backup_files() -> list:
-    """BACKUP_FILES for the current mode (main watcher vs instance)."""
-    if W_INSTANCE_DIR:
-        return [
-            ("watcher/watcher.py", os.path.join(HERE, "watcher.py")),
-            ("watcher/supervisor.sh", os.path.join(HERE, "supervisor.sh")),
-            ("tg-tools/instances_ctl.sh",
-             os.path.join(TG_TOOLS, "instances_ctl.sh")),
-            ("instance/config.json", CONFIG_PATH),
-            ("instance/state.json", STATE_PATH),
-            ("instance/env", INSTANCE_ENV),
-        ]
-    return BACKUP_FILES
 
 
 RESTORE_GUIDE = """# بازگردانی دستیار Z از فایل بکاپ
@@ -673,37 +442,6 @@ class Watcher:
         self.started_ts = time.time()
         self.today_incoming = 0
         self.today_replies = 0
-        # Part Q: rate-limit counters survive restarts (a restart used to
-        # zero the per-chat/global budget mid-hour) — hydrate from state.
-        _now = time.time()
-        try:
-            for _c, _ts in (self.state.get("rl_per_chat") or {}).items():
-                _keep = [t for t in _ts
-                         if isinstance(t, (int, float)) and _now - t < 3600]
-                if _keep:
-                    self.per_chat_sent[int(_c)] = _keep
-        except (TypeError, ValueError):
-            pass
-        self.global_sent = [
-            t for t in (self.state.get("rl_global") or [])
-            if isinstance(t, (int, float)) and _now - t < 3600]
-        # Part U: outbound message-id registry (pruned >48h on load)
-        try:
-            self.sent_ids = {
-                int(k): v for k, v in (self.state.get("sent_ids") or {}).items()
-                if isinstance(v, (int, float)) and _now - v < 48 * 3600}
-        except (TypeError, ValueError):
-            self.sent_ids = {}
-        # Part J: armed payment follow-ups + last incoming per chat
-        try:
-            self.followup_armed = {
-                int(k): v for k, v in (self.state.get("followups") or {}).items()
-                if isinstance(v, dict) and v.get("due", 0) > _now - 3600
-                and not v.get("fired")}
-        except (TypeError, ValueError, AttributeError):
-            self.followup_armed = {}
-        # chat_id -> (ts, was_media) — follow-up cancellation evidence
-        self.last_incoming: dict[int, tuple] = {}
 
     # ---------- state ----------
     def save_state(self):
@@ -736,97 +474,33 @@ class Watcher:
     # ---------- rate limits ----------
     def allow(self, chat_id: int) -> bool:
         now = time.time()
-        rl = _rate_limits(self.config)
         self.per_chat_sent[chat_id] = [
             t for t in self.per_chat_sent.get(chat_id, []) if now - t < 3600]
         self.global_sent[:] = [t for t in self.global_sent if now - t < 3600]
-        return (len(self.per_chat_sent[chat_id]) < rl["per_chat_hour"]
-                and len(self.global_sent) < rl["global_hour"])
+        return (len(self.per_chat_sent[chat_id]) < PER_CHAT_H
+                and len(self.global_sent) < GLOBAL_H)
 
     def record_send(self, chat_id: int):
         now = time.time()
         self.per_chat_sent.setdefault(chat_id, []).append(now)
         self.global_sent.append(now)
-        # Part Q: mirror the 1h-window counters into state.json so a
-        # restart keeps the rate-limit budget instead of resetting it.
-        self.state["rl_per_chat"] = {
-            str(c): [t for t in ts if now - t < 3600]
-            for c, ts in self.per_chat_sent.items()}
-        self.state["rl_global"] = [t for t in self.global_sent
-                                   if now - t < 3600]
         self.state["replies_total"] = int(
             self.state.get("replies_total", 0)) + 1
         self.today_replies += 1
 
     # ---------- helpers ----------
-    def is_bot_own_text(self, text: str) -> bool:
-        """Legacy footer-text discriminator (pre-registry messages).
-        Prefer is_ours() — the sent-id registry survives footer edits."""
+    @staticmethod
+    def is_bot_own_text(text: str) -> bool:
+        """Every watcher message ends with the footer — that's the marker.
+        Accepts both the current and the old footer (history)."""
         t = (text or "").rstrip()
-        return bool(t) and any(t.endswith(m) for m in footer_marks(self.config))
-
-    def register_sent(self, msg) -> None:
-        """Part U: record OUR outbound message id — the reliable
-        bot-vs-owner discriminator (footer match stays only as the legacy
-        fallback). Registry is pruned >48h and bounded."""
-        mid = getattr(msg, "id", None)
-        if not mid:
-            return
-        now = int(time.time())
-        self.sent_ids[int(mid)] = now
-        for k in [k for k, v in self.sent_ids.items() if now - v > 48 * 3600]:
-            del self.sent_ids[k]
-        if len(self.sent_ids) > 2000:
-            self.sent_ids = dict(
-                sorted(self.sent_ids.items(), key=lambda kv: kv[1])[-2000:])
-        self.state["sent_ids"] = {str(k): v for k, v in self.sent_ids.items()}
-
-    def is_ours(self, msg_id, text: str) -> bool:
-        """Is this outbound message OURS? id in the sent-id registry
-        (reliable, survives footer edits/restarts) OR legacy footer match
-        (messages sent before the registry existed)."""
-        try:
-            if msg_id is not None and int(msg_id) in self.sent_ids:
-                return True
-        except (TypeError, ValueError):
-            pass
-        return self.is_bot_own_text(text)
-
-    # ---------- Part J: single payment follow-up scheduler ----------
-    def followup_enabled(self) -> bool:
-        return _cfg_bool(self.config, "payment_followup", True)
-
-    def _persist_followups(self):
-        self.state["followups"] = {
-            str(c): f for c, f in self.followup_armed.items()}
-
-    def arm_followup(self, chat_id: int, answer: str) -> None:
-        """Card number sent = payment step entered -> ONE short follow-up
-        after 10 min. Cancelled by any later customer activity/owner reply.
-        Unique id per scheduled action (idempotent replace per chat)."""
-        if not self.followup_enabled() or not CARD_RE.search(answer or ""):
-            return
-        fu = {"id": uuid.uuid4().hex[:12],
-              "due": time.time() + FOLLOWUP_DELAY_S,
-              "armed_ts": time.time()}
-        self.followup_armed[chat_id] = fu
-        self._persist_followups()
-        WLOG.log("followup_armed", chat_id=chat_id, fid=fu["id"])
-
-    def cancel_followup(self, chat_id: int, reason: str) -> dict | None:
-        fu = self.followup_armed.pop(chat_id, None)
-        if fu:
-            self._persist_followups()
-            WLOG.log("followup_cancel", chat_id=chat_id,
-                     reason=reason, fid=fu.get("id"))
-        return fu
+        return bool(t) and any(t.endswith(m) for m in FOOTER_MARKS)
 
     def effective_system_prompt(self) -> str:
-        persona = _cfg_str(self.config, "persona", SYSTEM_PROMPT)
         ins = self.config.get("instructions") or []
         if not ins:
-            return persona
-        return persona + "\n\nقوانین دائمی که مالک بعدا گفته (حکمشون " \
+            return SYSTEM_PROMPT
+        return SYSTEM_PROMPT + "\n\nقوانین دائمی که مالک بعدا گفته (حکمشون " \
                "لازمه، مگه با قوانین ایمنی بالا تضاد داشته باشن):\n" + \
                "\n".join(f"- {i}" for i in ins)
 
@@ -843,11 +517,7 @@ class Watcher:
         except Exception as e:  # noqa: BLE001
             WLOG.log("history_fail", chat_id=chat_id, err=str(e)[:80])
         lines.append("")
-        # Part B: the buffer may hold several consecutive fragments —
-        # they are ONE logical turn, not separate requests.
-        lines.append("پیام جدید مشتری (اگه چند خطه، چند پیام پشت سر"
-                     " همش بوده و یک نیت واحد هست):")
-        lines.append(text)
+        lines.append(f"پیام جدید مشتری که باید همین الان جواب بدی: {text}")
         lines.append("")
         lines.append("حالا فقط متن جوابت رو بنویس، طبیعی و آدمیزادی:")
         return "\n".join(lines)
@@ -870,29 +540,21 @@ class Watcher:
                                          self.effective_system_prompt())
             except RuntimeError:
                 answer = FALLBACK_TEXT
-        answer = answer + effective_footer(self.config)  # MANDATORY — code
+        answer = answer + FOOTER  # MANDATORY — appended by code
         WLOG.log("reply_send", chat_id=chat_id, answer=answer[:120])
         async with self.send_lock:
             await asyncio.sleep(random.uniform(4, 6))
-            sent = False
-            sent_msg = None
             for attempt in range(2):
                 try:
-                    sent_msg = await self.client.send_message(chat_id, answer)
-                    sent = True
+                    await self.client.send_message(chat_id, answer)
                     break
                 except FloodWaitError as e:
                     WLOG.log("floodwait", chat_id=chat_id, wait=e.seconds)
                     if attempt == 1 or e.seconds > 1800:
                         break
                     await asyncio.sleep(e.seconds + 2)
-            # count ONLY confirmed deliveries — an abandoned floodwait retry
-            # used to inflate replies_total and eat rate-limit budget anyway
-            if sent:
-                self.record_send(chat_id)
-                self.register_sent(sent_msg)   # Part U: id registry
-                self.arm_followup(chat_id, answer)  # Part J: 10-min nudge
-                self.save_state()
+            self.record_send(chat_id)
+            self.save_state()
 
     async def debounce_loop(self):
         while not self.shutting_down:
@@ -905,42 +567,6 @@ class Watcher:
                         asyncio.create_task(self.reply_chat(chat_id, text))
             await asyncio.sleep(1)
 
-    # ---------- Part J: follow-up scheduler ----------
-    async def followup_loop(self):
-        """Fires the single payment follow-up unless the customer did
-        anything after arming (new message, receipt/media, owner took
-        over) — deterministic, cancel-safe, rate-limited, one shot."""
-        while not self.shutting_down:
-            now = time.time()
-            for chat_id, fu in list(self.followup_armed.items()):
-                if self.shutting_down or now < fu.get("due", 0):
-                    continue
-                last_ts, _media = self.last_incoming.get(chat_id, (0, False))
-                if chat_id in self.pending or chat_id in self.pending_texts:
-                    self.cancel_followup(chat_id, "new_message")
-                elif last_ts > fu.get("armed_ts", 0):
-                    self.cancel_followup(chat_id, "new_message_or_receipt")
-                elif self.owner_active.get(chat_id, 0) > fu.get("armed_ts", 0):
-                    self.cancel_followup(chat_id, "owner_active")
-                elif not self.allow(chat_id):
-                    self.cancel_followup(chat_id, "rate_limited")
-                else:
-                    fu = self.cancel_followup(chat_id, "fired") or {}
-                    try:
-                        async with self.send_lock:
-                            text = random.choice(FOLLOWUP_TEXTS) \
-                                + effective_footer(self.config)
-                            msg = await self.client.send_message(chat_id, text)
-                            self.record_send(chat_id)
-                            self.register_sent(msg)
-                            self.save_state()
-                            WLOG.log("followup_sent", chat_id=chat_id,
-                                     fid=fu.get("id"))
-                    except Exception as e:  # noqa: BLE001
-                        WLOG.log("followup_fail", chat_id=chat_id,
-                                 err=str(e)[:80])
-            await asyncio.sleep(30)
-
     # ---------- backup ----------
     async def send_backup(self, reason: str) -> str:
         try:
@@ -951,11 +577,9 @@ class Watcher:
                        f"\nحجم: {size_kb} KB"
                        "\n\n⚠️ داخلش سشن تلگرام و تنظیمات و کدهاست؛"
                        "هیچ‌وقت به کس دیگه نده. راهنمای بازگردانی داخل فایله."
-                       + effective_footer(self.config))
-            msg = await self.client.send_file(
-                OWNER_USER_ID, path, caption=caption,
-                supports_streaming=False)
-            self.register_sent(msg)
+                       + FOOTER)
+            await self.client.send_file(OWNER_USER_ID, path,
+                                        caption=caption, supports_streaming=False)
             os.remove(path)
             WLOG.log("backup_sent", reason=reason)
             return f"✅ بکاپ ساخته شد و همین الان تو همین سیو مسیج برات " \
@@ -1025,20 +649,18 @@ class Watcher:
         sent = fail = 0
         text = (pb["text"] or "").strip()
         if not self.is_bot_own_text(text):
-            text = text + effective_footer(self.config)
+            text = text + FOOTER
         for chat_id in pb["targets"]:
             try:
                 await asyncio.sleep(random.uniform(6, 10))
-                msg = await self.client.send_message(chat_id, text)
-                self.register_sent(msg)
+                await self.client.send_message(chat_id, text)
                 sent += 1
             except FloodWaitError as e:
                 WLOG.log("floodwait", chat_id=chat_id, wait=e.seconds)
                 if e.seconds <= 900:
                     await asyncio.sleep(e.seconds + 2)
                     try:
-                        msg = await self.client.send_message(chat_id, text)
-                        self.register_sent(msg)
+                        await self.client.send_message(chat_id, text)
                         sent += 1
                         continue
                     except Exception:  # noqa: BLE001
@@ -1050,7 +672,6 @@ class Watcher:
                 fail += 1
         atomic_write_json(CONFIG_PATH, self.config)
         WLOG.log("broadcast_done", sent=sent, fail=fail)
-        self.save_state()
         await self.ack(f"📢 برودکست رفت: {sent} تا موفق"
                        + (f"، {fail} تا خطا خورد" if fail else ""))
 
@@ -1071,9 +692,7 @@ class Watcher:
         up_h = (time.time() - self.started_ts) / 3600
         lines = [
             "📊 وضعیت Z:",
-            "⚡ مدل: glm-4-plus (تنها مدل سرویس) + حالت تفکر "
-            + ("فعال" if _cfg_bool(self.config, "thinking", LLM_THINKING)
-               else "غیرفعال"),
+            "⚡ مدل: glm-4-plus (قوی‌ترین) + حالت تفکر فعال",
             f"⏳ وضعیت: {window}",
             f"💬 از آخرین استارت: {self.today_incoming} پیام اومده، "
             f"{self.today_replies} جواب رفته",
@@ -1088,98 +707,9 @@ class Watcher:
 
     async def ack(self, text: str):
         try:
-            msg = await self.client.send_message(
-                OWNER_USER_ID, text + effective_footer(self.config))
-            self.register_sent(msg)
-            self.save_state()
+            await self.client.send_message(OWNER_USER_ID, text + FOOTER)
         except Exception as e:  # noqa: BLE001
             WLOG.log("ack_fail", err=str(e)[:80])
-
-    # ---------- v8: send queue (other services -> this client) ----------
-    async def _sendq_one(self, path: str) -> None:
-        """Send one queued item; delete on success, .failed on hard error.
-        FloodWait is honored inline once (long waits give up -> .failed)."""
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                q = json.load(f)
-        except (json.JSONDecodeError, OSError):
-            os.replace(path, path + ".bad")
-            return
-        try:
-            chat = q.get("chat") or OWNER_USER_ID
-            file_path = str(q.get("file") or "").strip()
-            caption = str(q.get("caption") or "").strip()
-            text = str(q.get("text") or "").strip()
-            if file_path:
-                msg = await self.client.send_file(
-                    chat, file_path, caption=caption or None,
-                    supports_streaming=False)
-                self.register_sent(msg)
-                self.save_state()   # persist the id registry (Part U)
-                WLOG.log("sendq_file", chat=str(chat)[:32],
-                         file=file_path[-70:])
-            elif text:
-                msg = await self.client.send_message(chat, text[:4000])
-                self.register_sent(msg)
-                self.save_state()   # persist the id registry (Part U)
-                WLOG.log("sendq_text", chat=str(chat)[:32])
-            else:
-                WLOG.log("sendq_skip", reason="empty")
-            os.remove(path)
-        except FloodWaitError as e:
-            if e.seconds > 900:
-                WLOG.log("sendq_fail", err=f"floodwait {e.seconds}s")
-                os.replace(path, path + ".failed")
-            else:  # long floodwait honored inline, one retry after it
-                WLOG.log("floodwait", chat=None, wait=e.seconds)
-                await asyncio.sleep(e.seconds + 2)
-                try:  # noqa: E722  — one inline retry after the wait
-                    chat = q.get("chat") or OWNER_USER_ID
-                    if str(q.get("file") or "").strip():
-                        msg = await self.client.send_file(
-                            chat, str(q["file"]),
-                            caption=str(q.get("caption") or "") or None,
-                            supports_streaming=False)
-                    else:
-                        msg = await self.client.send_message(
-                            chat, str(q.get("text") or "")[:4000])
-                    self.register_sent(msg)
-                    self.save_state()  # persist the id registry (Part U)
-                    os.remove(path)
-                    WLOG.log("sendq_file", chat=str(chat)[:32],
-                             file="retry-ok")
-                except Exception as e2:  # noqa: BLE001
-                    WLOG.log("sendq_fail", err=str(e2)[:80])
-                    os.replace(path, path + ".failed")
-        except Exception as e:  # noqa: BLE001
-            WLOG.log("sendq_fail", err=str(e)[:100])
-            os.replace(path, path + ".failed")
-
-    async def process_sendq(self):
-        """Watchdog step: drain the sendq dir (oldest first)."""
-        try:
-            names = sorted(n for n in os.listdir(SENDQ_DIR)
-                           if n.endswith(".json"))
-        except OSError:
-            return
-        for name in names:
-            if self.shutting_down:
-                return
-            await self._sendq_one(os.path.join(SENDQ_DIR, name))
-
-    # ---------- v8: image request queue (owner command -> agent core) -----
-    def queue_image_request(self, prompt: str):
-        os.makedirs(IMGREQ_DIR, exist_ok=True)
-        req = {"chat_id": OWNER_USER_ID, "prompt": prompt,
-               "ts": int(time.time()),
-               "src": os.path.basename(W_INSTANCE_DIR) or "main"}
-        p = os.path.join(IMGREQ_DIR,
-                         f"req-{int(time.time() * 1000)}.json")
-        tmp = p + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(req, f, ensure_ascii=False)
-        os.replace(tmp, p)
-        WLOG.log("imgreq_queued", prompt=prompt[:80])
 
     async def blacklist_add(self, usernames: list) -> list:
         added = []
@@ -1227,10 +757,8 @@ class Watcher:
             return f"نتونستم «{target}» رو پیدا کنم."
         try:
             if not self.is_bot_own_text(text):
-                text = text + effective_footer(self.config)
-            msg = await self.client.send_message(entity, text)
-            self.register_sent(msg)
-            self.save_state()
+                text = text + FOOTER
+            await self.client.send_message(entity, text)
             WLOG.log("owner_cmd_send", target=target, text=text[:80])
             return f"✅ به {target} پیام دادم."
         except Exception as e:  # noqa: BLE001
@@ -1305,15 +833,6 @@ class Watcher:
                 self.config["instructions"] = []
                 self.save_config(autobackup=True)
                 await self.ack(f"🗑 {n} تا قانون قبلی پاک شد.")
-            elif action == "image":
-                prompt = (a.get("prompt") or "").strip()
-                if prompt:
-                    self.queue_image_request(prompt)
-                    await self.ack("🎨 باشه، تو صف تولید تصویر ثبتش کردم؛ "
-                                   "تا یه دقیقه دیگه همین‌جا برات می‌فرستم.")
-                else:
-                    await self.ack("چی بسازم؟ یه توصیف از تصویری که می‌خوای "
-                                   "بگو تا بسازمش 🎨")
             elif action == "backup":
                 await self.ack(await self.send_backup("درخواست خود مالک"))
             elif action == "broadcast":
@@ -1354,7 +873,7 @@ class Watcher:
                 continue
             for m in msgs:
                 if m.out and m.date and m.date.timestamp() > since \
-                        and not self.is_ours(m.id, m.message or ""):
+                        and not self.is_bot_own_text(m.message or ""):
                     self.owner_active[d.id] = m.date.timestamp()
             last = msgs[0]
             if last.out or last.date is None:
@@ -1362,20 +881,14 @@ class Watcher:
             if last.date.timestamp() < since:
                 continue
             text = (last.message or "").strip() or MEDIA_PLACEHOLDER
-            if self.is_ours(last.id, text):
+            if self.is_bot_own_text(text):
                 continue
             WLOG.log("catchup_found", chat_id=d.id, text=text[:80])
             self.pending[d.id] = time.time() + 2
-            # Part B: aggregate with anything already buffered for this chat
-            prev = self.pending_texts.get(d.id, "")
-            self.pending_texts[d.id] = \
-                text if not prev else (prev + "\n" + text)[:TURN_MAX_CHARS]
+            self.pending_texts[d.id] = text
             await asyncio.sleep(0.5)
 
         # owner commands left in Saved Messages during downtime
-        # (main watcher only — instance commands arrive as live DMs)
-        if W_INSTANCE_DIR:
-            return
         try:
             last_sm = int(self.state.get("last_sm_id", 0))
             sm_msgs = await self.client.get_messages(OWNER_USER_ID, limit=5)
@@ -1385,7 +898,7 @@ class Watcher:
                 if m.date.timestamp() < since:
                     continue
                 text = (m.message or "").strip()
-                if not text or self.is_ours(m.id, text):
+                if not text or self.is_bot_own_text(text):
                     continue
                 WLOG.log("catchup_command", text=text[:80])
                 self.state["last_sm_id"] = m.id
@@ -1408,9 +921,6 @@ class Watcher:
                     pass
                 WLOG.log("backup_trigger")
                 asyncio.create_task(self.send_backup("دکمه بکاپ فوری پنل مالک"))
-            # v8: drain the send queue (other services -> this client)
-            if not self.shutting_down:
-                await self.process_sendq()
             if self.expired():
                 WLOG.log("expired",
                          replies_total=self.state.get("replies_total", 0))
@@ -1425,32 +935,22 @@ class Watcher:
 
     # ---------- main ----------
     async def run(self) -> int:
-        session_string = (_instance_env_value("TELEGRAM_SESSION_STRING")
-                          if W_INSTANCE_DIR else get_session_string())
+        session_string = get_session_string()
         if not session_string:
             WLOG.log("fatal", err="no session string — login required")
             return 3
         api_id = int(get_env("TELEGRAM_API_ID"))
         api_hash = get_env("TELEGRAM_API_HASH")
-        try:
-            self.client = TelegramClient(
-                StringSession(session_string), api_id, api_hash,
-                device_model="Z Watcher", system_version="linux")
-            await self.client.connect()
-            me = await self.client.get_me()
-        except Exception as e:  # noqa: BLE001
-            WLOG.log("fatal", err=f"auth failed — {str(e)[:100]}")
-            try:
-                await self.client.disconnect()
-            except Exception:  # noqa: BLE001
-                pass
-            return 3
+        self.client = TelegramClient(
+            StringSession(session_string), api_id, api_hash,
+            device_model="Z Watcher", system_version="linux")
+        await self.client.connect()
+        me = await self.client.get_me()
         if not me:
             WLOG.log("fatal", err="auth failed — session dead")
             await self.client.disconnect()
             return 3
         WLOG.log("start", me=f"@{me.username}", id=me.id,
-                 instance=os.path.basename(W_INSTANCE_DIR) or "main",
                  replies_total=self.state.get("replies_total", 0),
                  window_end=datetime.fromtimestamp(
                      self.state["window_end"], timezone.utc).isoformat())
@@ -1469,16 +969,6 @@ class Watcher:
             if getattr(chat, "bot", False):
                 return
             if chat.id == OWNER_USER_ID:
-                # instance mode: DMs FROM the owner are the command channel
-                if W_INSTANCE_DIR \
-                        and self.config.get("saved_messages_commands", True):
-                    cmd_text = (event.message.message or "").strip()
-                    if cmd_text and not self.is_ours(event.message.id,
-                                                     cmd_text):
-                        WLOG.log("owner_command", src="owner_dm",
-                                 text=cmd_text[:150])
-                        asyncio.create_task(
-                            self.handle_owner_command(cmd_text))
                 return
             if is_service_user(chat):
                 return
@@ -1488,29 +978,17 @@ class Watcher:
                 return
             text = (event.message.message or "").strip() or MEDIA_PLACEHOLDER
             self.today_incoming += 1
-            # Part J: remember the last incoming (for follow-up cancels)
-            self.last_incoming[event.chat_id] = (
-                time.time(), text == MEDIA_PLACEHOLDER)
-            # Part B: consecutive fragments aggregate into ONE logical
-            # turn (the old code REPLACED the buffer, so only the last
-            # message of a burst was ever answered).
-            self.pending[event.chat_id] = time.time() + \
-                _rate_limits(self.config)["debounce_s"]
-            prev = self.pending_texts.get(event.chat_id, "")
-            self.pending_texts[event.chat_id] = \
-                text if not prev else (prev + "\n" + text)[:TURN_MAX_CHARS]
+            self.pending[event.chat_id] = time.time() + DEBOUNCE_S
+            self.pending_texts[event.chat_id] = text
             WLOG.log("incoming", chat_id=event.chat_id, text=text[:80])
 
         @self.client.on(events.NewMessage(outgoing=True))
         async def on_outgoing(event):  # noqa: WPS430
             text = event.message.message or ""
-            if self.is_ours(event.message.id, text):
-                return  # our own send (sent-id registry / footer fallback)
-            # Saved Messages = owner command channel.
-            # main watcher: chat with OWNER_USER_ID is his own account's SM;
-            # instance: this account's own chat id = its Saved Messages.
-            sm_chat_id = me.id if W_INSTANCE_DIR else OWNER_USER_ID
-            if event.chat_id == sm_chat_id:
+            if self.is_bot_own_text(text):
+                return  # our own send (footer marker)
+            if event.chat_id == OWNER_USER_ID:
+                # Saved Messages = owner command channel
                 if self.config.get("saved_messages_commands", True) \
                         and text.strip() \
                         and event.message.id > \
@@ -1527,7 +1005,6 @@ class Watcher:
         tasks = [
             asyncio.create_task(self.debounce_loop()),
             asyncio.create_task(self.watchdog()),
-            asyncio.create_task(self.followup_loop()),
         ]
         try:
             await self.catchup()
@@ -1543,11 +1020,6 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--catchup-minutes", type=int,
                     default=CATCHUP_DEFAULT_MIN)
-    ap.add_argument("--instance", action="store_true",
-                    help="marker: per-account instance launched via "
-                         "instances_ctl.sh (W_INSTANCE_DIR env carries the "
-                         "instance dir); lets watcher_ctl.sh stop spare "
-                         "instance processes")
     args = ap.parse_args()
     if os.path.exists(LIVE_LOCK):
         try:

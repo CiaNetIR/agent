@@ -3,7 +3,7 @@
  * Shared by all /api/panel/* routes.
  */
 import { createHash, timingSafeEqual } from 'crypto'
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 import path from 'path'
 
 export const PANEL_ENV = '/home/z/my-project/.secrets/panel.env'
@@ -34,25 +34,16 @@ export function readPanelConfig(): PanelConfig {
   }
 }
 
-/** timing-safe sha256 hex comparison. Every failed attempt counts toward
- *  the global 5-fail lockout — previously ONLY /api/panel/auth counted, so
- *  online key-guessing against any other panel route (files, system, …) was
- *  unlimited. A success resets the counters. */
+/** timing-safe sha256 hex comparison */
 export function verifyKey(hashHex: unknown): boolean {
-  if (isLocked()) return false
   const want = readPanelConfig().sha256
   const got = String(hashHex || '').toLowerCase().trim()
-  let ok = false
-  if (want && /^[0-9a-f]{64}$/.test(got)) {
-    try {
-      ok = timingSafeEqual(Buffer.from(want, 'hex'), Buffer.from(got, 'hex'))
-    } catch {
-      ok = false
-    }
+  if (!want || !/^[0-9a-f]{64}$/.test(got)) return false
+  try {
+    return timingSafeEqual(Buffer.from(want, 'hex'), Buffer.from(got, 'hex'))
+  } catch {
+    return false
   }
-  if (ok) registerSuccess()
-  else registerFail()
-  return ok
 }
 
 /* ---------- auth rate limiting (global, in-memory) ---------- */
@@ -65,37 +56,11 @@ export function isLocked(): number {
   return Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000))
 }
 
-/* ---------------- TG intrusion alert (via watcher sendq → owner's Saved Messages) --- */
-const SENDQ_DIR = '/home/z/tg-tools/watcher/sendq'
-let lastLockAlertAt = 0
-function alertLockout(): void {
-  const now = Date.now()
-  if (now - lastLockAlertAt < 60 * 60 * 1000) return // max 1 alert/hour
-  lastLockAlertAt = now
-  try {
-    mkdirSync(SENDQ_DIR, { recursive: true })
-    const name = `sq-${now}-lockalert.json`
-    const tmp = path.join(SENDQ_DIR, `${name}.tmp`)
-    writeFileSync(
-      tmp,
-      JSON.stringify({
-        chat: 'me',
-        text: '🚨 تلاش ناموفق برای ورود به پنل: ۵ کلید اشتباه پشت‌سرهم — ورود ۵ دقیقه قفل شد.\nاگر خودت بودی جای نگرانی نیست؛ اگر نه، هرچه سریع‌تر رمز پنل را عوض کن.',
-      }),
-      'utf8',
-    )
-    renameSync(tmp, path.join(SENDQ_DIR, name))
-  } catch {
-    /* best effort */
-  }
-}
-
 export function registerFail(): number {
   failCount += 1
   if (failCount >= MAX_FAILS) {
     lockedUntil = Date.now() + LOCK_MS
     failCount = 0
-    alertLockout()
   }
   return Math.max(0, MAX_FAILS - failCount)
 }
@@ -103,11 +68,6 @@ export function registerFail(): number {
 export function registerSuccess() {
   failCount = 0
   lockedUntil = 0
-}
-
-/** guesses left before the temp lock kicks in (for the auth 401 message) */
-export function remainingFails(): number {
-  return Math.max(0, MAX_FAILS - failCount)
 }
 
 /* ---------- small fs helpers ---------- */

@@ -2,8 +2,6 @@
 
 | زمان (تهران) | نوع | نتیجه | کامیت | فایل‌ها | سلامت | مدت |
 |---|---|---|---|---|---|---|
-| 2026-10-10 05:14 | boot | ✗ git add: fatal: not a git repository (or any of the parent d | — | 0 | lint✓ tsc✗ build✓ | 43s |
-| 2026-10-10 05:30 | hourly | ✓ | 41757a7 | 352 | lint✓ tsc✗ build✓ | 39s |
-| 2026-10-10 06:00 | hourly | ✓ | f6a9ed4 | 4 | lint✓ tsc✗ build✓ | 38s |
-| 2026-10-10 06:30 | hourly | ✓ | 4ebc15f | 3 | lint✓ tsc✗ build✓ | 38s |
-| 2026-10-10 07:00 | hourly | ✓ | c3ad70a | 3 | lint✓ tsc✗ build✓ | 31s |
+| 2026-10-11 07:10 | boot | ✗ git add: fatal: not a git repository (or any of the parent d | — | 0 | lint✓ tsc✗ build✓ | 51s |
+| 2026-10-11 07:30 | hourly | ✗ git add: fatal: not a git repository (or any of the parent d | — | 0 | lint✗ tsc✗ build✓ | 42s |
+| 2026-10-11 08:00 | hourly | ✗ توکن گیت‌هاب موجود نیست (/home/z/.github-token) | — | 239 | lint✓ tsc✗ build✓ | 41s |

@@ -12,10 +12,9 @@
  *   - password gate: sha256(password) must match .secrets/panel.env
  *     PANEL_PASSWORD_SHA256 (timing-safe compare)
  *   - kill switch: PANEL_TERM=0 in panel.env disables the terminal
- *   - 5 wrong passwords -> 5 minute lockout (per IP)
- *   - UP TO 4 PARALLEL SESSIONS (each socket = its own PTY; the cap
- *     protects the small sandbox — plenty for parallel work)
- *   - 30-min idle timeout per session, full command audit log
+ *   - 5 wrong passwords -> 5 minute lockout
+ *   - ONE active session (new login kills the old one)
+ *   - 30-min idle timeout, full command audit log (inputs only)
  */
 import { createServer } from 'node:http'
 import { Server } from 'socket.io'
@@ -26,7 +25,6 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const PORT = 3001
-const MAX_SESSIONS = 4
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const PANEL_ENV = '/home/z/my-project/.secrets/panel.env'
 const AUDIT_LOG = path.join(HERE, 'term-audit.log')
@@ -88,8 +86,8 @@ const io = new Server(httpServer, {
   maxHttpBufferSize: 256 * 1024,
 })
 
-/** @type {Map<any, {socket: any, pty: any, idleTimer: any, lineBuf: string}>} */
-const sessions = new Map()
+/** @type {{socket: any, pty: any, idleTimer: any, lineBuf: string}} */
+let active = null
 const fails = new Map() // ip -> {n, until}
 
 const failState = (ip) => {
@@ -97,19 +95,15 @@ const failState = (ip) => {
   return st
 }
 
-function teardown(socket, reason) {
-  const a = sessions.get(socket.id)
-  if (!a) return
-  sessions.delete(socket.id)
+function teardown(reason) {
+  if (!active) return
+  const a = active
+  active = null
   clearInterval(a.idleTimer)
   try { a.socket.emit('closed', { reason }) } catch { /* noop */ }
   try { a.socket.disconnect(true) } catch { /* noop */ }
   try { a.pty.kill() } catch { /* noop */ }
-  audit('session_end', `sid=${socket.id} reason=${reason} left=${sessions.size}`)
-}
-
-function teardownAll(reason) {
-  for (const s of [...sessions.keys()]) teardown(s, reason)
+  audit('session_end', `reason=${reason}`)
 }
 
 io.on('connection', (socket) => {
@@ -149,16 +143,8 @@ io.on('connection', (socket) => {
     authed = true
     audit('auth_ok', `ip=${ip}`)
 
-    // defensive: a re-auth on the SAME socket must not leak the old pty
-    if (sessions.has(socket.id)) teardown(socket, 're-auth')
-
-    // parallel sessions — but capped, to protect the small sandbox
-    if (sessions.size >= MAX_SESSIONS) {
-      audit('session_limit', `ip=${ip}`)
-      socket.emit('auth-fail', { limit: true, max: MAX_SESSIONS })
-      socket.disconnect(true)
-      return
-    }
+    // one session at a time — the newest wins
+    if (active) teardown('new-session')
 
     const cols = Math.min(Math.max(20, Number(data.cols) || 90), 400)
     const rows = Math.min(Math.max(6, Number(data.rows) || 28), 200)
@@ -180,8 +166,7 @@ io.on('connection', (socket) => {
     })
 
     const a = { socket, pty, idleTimer: null, lineBuf: '' }
-    sessions.set(socket.id, a)
-    audit('session_start', `sid=${socket.id} live=${sessions.size}`)
+    active = a
 
     socket.emit('auth-ok', { mode: 'pty', cols, rows })
     socket.emit(
@@ -190,7 +175,6 @@ io.on('connection', (socket) => {
         '(کاربر z — بدون روت و بدون sudo)\r\n' +
         '\x1b[90mاین شل متصل به محیط ابری دستیاره، نه سرور/VPS شخصی شما.\x1b[0m\r\n' +
         '\x1b[90mپنل‌های سرور مثل aaPanel باید روی VPS خودت با روت نصب بشن.\x1b[0m\r\n' +
-        '\x1b[90mترمینال‌های موازی: تا ۴ عدد همزمان — از دکمه «+» در پنل.\x1b[0m\r\n' +
         '\r\n' +
         '\x1b[90mوضعیت دستیار:  ~/tg-tools/watcher/watcher_ctl.sh status\x1b[0m' +
         '\r\n\x1b[90mمستندات کامل:  tg-tools-backup/Z-OWNER-MANUAL.md\x1b[0m\r\n\r\n'
@@ -200,28 +184,28 @@ io.on('connection', (socket) => {
       try { socket.emit('output', d) } catch { /* noop */ }
     })
     pty.onExit(({ exitCode }) => {
-      if (sessions.get(socket.id) === a) {
-        sessions.delete(socket.id)
-        clearInterval(a.idleTimer)
+      if (active === a) {
         try { socket.emit('closed', { exitCode }) } catch { /* noop */ }
+        active = null
+        clearInterval(a.idleTimer)
       }
-      audit('shell_exit', `sid=${socket.id} code=${exitCode} left=${sessions.size}`)
+      audit('shell_exit', `code=${exitCode}`)
     })
 
     socket.on('input', (d) => {
-      if (sessions.get(socket.id) !== a || typeof d !== 'string' || !d.length || d.length > 4096) return
+      if (active !== a || typeof d !== 'string' || !d.length || d.length > 4096) return
       a.lineBuf = (a.lineBuf + d).slice(-512)
       const nl = a.lineBuf.indexOf('\r')
       if (nl !== -1) {
         const cmd = a.lineBuf.slice(0, nl).replace(/\x1b\[[0-9;?]*[A-Za-z]/g, '')
-        if (cmd.trim()) audit('cmd', `sid=${socket.id} ${JSON.stringify(cmd.trim().slice(0, 300))}`)
+        if (cmd.trim()) audit('cmd', JSON.stringify(cmd.trim().slice(0, 300)))
         a.lineBuf = ''
       }
       try { pty.write(d) } catch { /* noop */ }
     })
 
     socket.on('resize', (d) => {
-      if (sessions.get(socket.id) !== a) return
+      if (active !== a) return
       const c = Math.min(Math.max(20, Number(d?.cols) || 90), 400)
       const r = Math.min(Math.max(6, Number(d?.rows) || 28), 200)
       try { pty.resize(c, r) } catch { /* noop */ }
@@ -230,22 +214,22 @@ io.on('connection', (socket) => {
     let lastSeen = Date.now()
     socket.on('input', () => { lastSeen = Date.now() })
     a.idleTimer = setInterval(() => {
-      if (sessions.get(socket.id) !== a) { clearInterval(a.idleTimer); return }
+      if (active !== a) { clearInterval(a.idleTimer); return }
       if (Date.now() - lastSeen > IDLE_TIMEOUT_MS) {
-        teardown(socket, 'idle-timeout')
+        teardown('idle-timeout')
       }
     }, 30_000)
   })
 
   socket.on('disconnect', () => {
-    if (authed && sessions.has(socket.id)) teardown(socket, 'disconnect')
+    if (authed && active && active.socket === socket) teardown('disconnect')
   })
 })
 
-httpServer.listen(PORT, '127.0.0.1', () => {
-  console.log(`[terminal] listening on 127.0.0.1:${PORT} (socket.io path "/") — up to ${MAX_SESSIONS} parallel sessions`)
-  audit('service_start', `pid=${process.pid} max_sessions=${MAX_SESSIONS}`)
+httpServer.listen(PORT, () => {
+  console.log(`[terminal] listening on :${PORT} (socket.io path "/")`)
+  audit('service_start', `pid=${process.pid}`)
 })
 
-process.on('SIGTERM', () => { teardownAll('sigterm'); process.exit(0) })
-process.on('SIGINT', () => { teardownAll('sigint'); process.exit(0) })
+process.on('SIGTERM', () => { teardown('sigterm'); process.exit(0) })
+process.on('SIGINT', () => { teardown('sigint'); process.exit(0) })

@@ -127,6 +127,11 @@ const PROJECT_EXCLUDES = [
   'tool-results/', 'tmp/', 'upload/', 'download/', '*.pid', 'service.log',
   'term-audit.log', '*.db-wal', '*.db-shm', 'tsconfig.tsbuildinfo',
   'next-env.d.ts',
+  // the live my-project is itself a platform git repo — syncing its .git
+  // into the mirror creates a nested repo (gitlink) that makes `git add -A`
+  // treat ALL my-project files as one opaque commit and strips them from
+  // GitHub. Never sync nested .git directories.
+  '.git/',
   // anchored to the transfer root (my-project/) — watcher state.json must stay tracked
   '/mini-services/backups/backup.log',
   '/mini-services/backups/run-child.out',

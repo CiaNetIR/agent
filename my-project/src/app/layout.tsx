@@ -1,48 +1,37 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Vazirmatn } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from "next"
+import { Vazirmatn } from "next/font/google"
+import "./globals.css"
+import { Toaster } from "@/components/ui/toaster"
+import { Providers } from "@/components/providers"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// Persian-first font: the panel is fa/RTL — Vazirmatn renders both Persian
-// and Latin with proper metrics (line-height/kerning) instead of falling
-// back to a system font. Self-hosted by next/font (no runtime CDN).
-const vazirmatn = Vazirmatn({
+const vazir = Vazirmatn({
   variable: "--font-vazir",
   subsets: ["arabic", "latin"],
   display: "swap",
-});
+})
 
 export const metadata: Metadata = {
-  title: "پنل مدیریت Z — VPN STAR",
-  description: "مرکز فرمان مالک فروشگاه VPN STAR: وضعیت دستیار، تنظیمات هوش مصنوعی، بکاپ و شل سرور.",
+  title: "پنل پایش سرور | Server Monitor",
+  description:
+    "داشبورد زنده پایش وضعیت سرور — منابع، سرویس‌ها، پورت‌ها، پروسه‌ها و لاگ‌ها به‌صورت لحظه‌ای",
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <body
-        className={`${vazirmatn.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${vazir.variable} min-h-screen bg-background font-sans text-foreground antialiased`}
       >
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>
-  );
+  )
 }

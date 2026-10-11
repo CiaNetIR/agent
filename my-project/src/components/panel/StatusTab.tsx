@@ -16,89 +16,39 @@ import {
   Package,
   RefreshCw,
   Send,
-  Server,
   ShieldAlert,
   Zap,
 } from 'lucide-react'
 import {
-  clearStoredKey,
   EVENT_LABELS,
+  formatUptime,
   panelFetch,
   tehranTime,
-  type LlmSettings,
   type StatusData,
 } from '@/lib/panel'
 
-function fa(n: number): string {
-  try {
-    return n.toLocaleString('fa-IR', { maximumFractionDigits: 1 })
-  } catch {
-    return String(n)
-  }
-}
-
-/** آپتایم با ارقام فارسی — معادل formatUptime ولی با toLocaleString('fa-IR') */
-function faUptime(sec: number | null): string {
-  if (sec == null) return '—'
-  const h = Math.floor(sec / 3600)
-  const m = Math.floor((sec % 3600) / 60)
-  if (h > 0) return `${fa(h)} ساعت و ${fa(m)} دقیقه`
-  return `${fa(m)} دقیقه`
-}
-
-/** one resource bar (RAM / disk) — turns amber when nearly full */
-function resBar(label: string, used: number, total: number, pct: number) {
-  const danger = pct >= 85
-  return (
-    <div key={label}>
-      <div className="mb-1 flex items-center justify-between text-[11px]">
-        <span className="text-zinc-400">{label}</span>
-        <span className={danger ? 'font-bold text-amber-400' : 'text-zinc-500'}>
-          {fa(used)} از {fa(total)} گیگ ({fa(pct)}٪)
-        </span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
-        <div
-          className={`h-full rounded-full ${danger ? 'bg-amber-500' : 'bg-emerald-500'}`}
-          style={{ width: `${Math.min(100, Math.max(2, pct))}%` }}
-        />
-      </div>
-    </div>
-  )
-}
-
-export default function StatusTab() {
+export default function StatusTab({ onRefreshLog }: { onRefreshLog?: () => void }) {
   const [data, setData] = useState<StatusData | null>(null)
   const [loading, setLoading] = useState(true)
   const [backingUp, setBackingUp] = useState(false)
-  const [llm, setLlm] = useState<LlmSettings['settings'] | null>(null)
   const { toast } = useToast()
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const stoppedRef = useRef(false)
 
-  const load = useCallback(async (): Promise<boolean> => {
-    if (stoppedRef.current) return false
+  const load = useCallback(async () => {
     try {
       const res = await panelFetch('/api/panel/status')
       if (res.status === 401) {
-        /* نشست منقضی — بدون توست تکراری: توقف پولینگ + پاک‌کردن کلید + برگشت به قفل */
-        if (stoppedRef.current) return false
-        stoppedRef.current = true
-        if (timerRef.current) clearInterval(timerRef.current)
-        clearStoredKey()
-        window.location.reload()
-        return false
+        toast({ title: 'نشست منقضی شده', description: 'دوباره وارد شو', variant: 'destructive' })
+        return
       }
       const json: StatusData = await res.json()
       setData(json)
-      return json.ok
     } catch {
       /* keep old data */
-      return false
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [toast])
 
   useEffect(() => {
     load()
@@ -107,30 +57,6 @@ export default function StatusTab() {
       if (timerRef.current) clearInterval(timerRef.current)
     }
   }, [load])
-
-  /* تنظیمات واقعی مغز دستیار — یکبار موقع mount؛ روی شکست بج «پیش‌فرض» می‌مونه */
-  useEffect(() => {
-    let alive = true
-    ;(async () => {
-      try {
-        const res = await panelFetch('/api/panel/llm-settings')
-        const json = (await res.json()) as LlmSettings
-        if (alive && res.ok && json.ok && json.settings) setLlm(json.settings)
-      } catch {
-        /* keep null → badge «پیش‌فرض» */
-      }
-    })()
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  /* رفرش دستی: اسپینر روی دکمه + توست کوتاه در صورت شکست */
-  async function manualRefresh() {
-    setLoading(true)
-    const ok = await load()
-    if (!ok) toast({ title: 'ارتباط برقرار نشد', variant: 'destructive' })
-  }
 
   async function requestBackup() {
     if (backingUp) return
@@ -168,25 +94,15 @@ export default function StatusTab() {
   if (!data?.ok) {
     return (
       <Card className="border-red-900 bg-red-950/30">
-        <CardContent className="flex flex-wrap items-center justify-between gap-2 p-4 text-red-300">
-          <div className="flex items-center gap-3">
-            <ShieldAlert className="h-5 w-5" />
-            وضعیت خوانده نشد — یکبار رفرش کن.
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void manualRefresh()}
-            className="h-8 border-red-800/60 bg-red-950/40 text-red-200 hover:bg-red-950/60"
-          >
-            <RefreshCw className="h-3.5 w-3.5" /> تلاش دوباره
-          </Button>
+        <CardContent className="flex items-center gap-3 p-4 text-red-300">
+          <ShieldAlert className="h-5 w-5" />
+          وضعیت خوانده نشد — یکبار رفرش کن.
         </CardContent>
       </Card>
     )
   }
 
-  const { watcher, state, today, blacklist, events, system: sys } = data
+  const { watcher, state, today, blacklist, events } = data
   const statusBadge = !watcher.running
     ? { label: 'خاموش', cls: 'bg-red-500/15 text-red-400 ring-red-500/40' }
     : watcher.paused
@@ -203,7 +119,7 @@ export default function StatusTab() {
               <p className="text-xs text-zinc-400">وضعیت دستیار</p>
               <p className="mt-1 text-lg font-bold text-zinc-100">واتچر Z</p>
               <p className="mt-0.5 text-[11px] text-zinc-500">
-                {faUptime(watcher.uptimeSec)} بالاست
+                {formatUptime(watcher.uptimeSec)} بالاست
               </p>
             </div>
             <Badge className={`ring-1 ${statusBadge.cls}`}>{statusBadge.label}</Badge>
@@ -213,9 +129,7 @@ export default function StatusTab() {
           <CardContent className="flex items-center justify-between p-4">
             <div>
               <p className="text-xs text-zinc-400">کل جواب‌های ارسالی</p>
-              <p className="mt-1 text-2xl font-black text-emerald-400">
-                {fa(state.replies_total)}
-              </p>
+              <p className="mt-1 text-2xl font-black text-emerald-400">{state.replies_total}</p>
             </div>
             <Send className="h-8 w-8 text-emerald-500/40" />
           </CardContent>
@@ -225,9 +139,9 @@ export default function StatusTab() {
             <div>
               <p className="text-xs text-zinc-400">امروز (به وقت تهران)</p>
               <p className="mt-1 text-sm text-zinc-200">
-                {fa(today.incoming)} پیام اومده
+                {today.incoming} پیام اومده
               </p>
-              <p className="text-[11px] text-zinc-500">{fa(today.replies)} جواب رفته</p>
+              <p className="text-[11px] text-zinc-500">{today.replies} جواب رفته</p>
             </div>
             <MessageCircle className="h-8 w-8 text-amber-500/40" />
           </CardContent>
@@ -240,40 +154,13 @@ export default function StatusTab() {
                 {state.permanent ? 'همیشه فعال' : 'محدود'}
               </p>
               <p className="mt-0.5 text-[11px] text-zinc-500">
-                استارت‌ها: {fa(state.started_count)}
+                استارت‌ها: {state.started_count}
               </p>
             </div>
             <Clock className="h-8 w-8 text-zinc-500/40" />
           </CardContent>
         </Card>
       </div>
-
-      {/* منابع سرور (CPU / RAM / دیسک) */}
-      {sys ? (
-        <Card className="border-zinc-800 bg-zinc-900/70">
-          <CardContent className="space-y-3 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-sm font-bold text-zinc-200">
-                <Server className="h-4 w-4 text-emerald-400" /> منابع سرور
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                <Badge className="bg-zinc-800 text-zinc-300">{fa(sys.cpuCores)} هسته CPU</Badge>
-                <Badge className={sys.load1 >= sys.cpuCores ? 'bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/40' : 'bg-zinc-800 text-zinc-300'}>
-                  بار: {fa(sys.load1)}
-                </Badge>
-                <Badge className="bg-zinc-800 text-zinc-300">آپتایم: {fa(sys.uptimeH)} ساعت</Badge>
-              </div>
-            </div>
-            <p className="truncate text-[11px] text-zinc-500" dir="ltr">
-              {sys.cpuModel}
-            </p>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
-              {resBar('حافظه (RAM)', sys.memUsedGb, sys.memTotalGb, sys.memPct)}
-              {resBar('دیسک', +(sys.disk.totalGb - sys.disk.freeGb).toFixed(1), sys.disk.totalGb, sys.disk.usedPct)}
-            </div>
-          </CardContent>
-        </Card>
-      ) : null}
 
       {/* actions + meta */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
@@ -301,23 +188,10 @@ export default function StatusTab() {
               <Bot className="h-4 w-4 text-amber-400" /> مغز دستیار
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {llm ? (
-                <>
-                  <Badge className="bg-zinc-800 text-zinc-300">{llm.model}</Badge>
-                  <Badge className="bg-zinc-800 text-zinc-300">
-                    {llm.thinking ? 'حالت تفکر فعال' : 'حالت تفکر خاموش'}
-                  </Badge>
-                  <Badge className="bg-zinc-800 text-zinc-300">{fa(llm.retries)} تلاش</Badge>
-                  <Badge
-                    className="max-w-full truncate bg-zinc-800 text-zinc-300"
-                    title={llm.footer}
-                  >
-                    {llm.footer}
-                  </Badge>
-                </>
-              ) : (
-                <Badge className="bg-zinc-800 text-zinc-300">پیش‌فرض</Badge>
-              )}
+              <Badge className="bg-zinc-800 text-zinc-300">glm-4-plus</Badge>
+              <Badge className="bg-zinc-800 text-zinc-300">حالت تفکر فعال</Badge>
+              <Badge className="bg-zinc-800 text-zinc-300">۳ تلاش</Badge>
+              <Badge className="bg-zinc-800 text-zinc-300">فوتر اجباری</Badge>
             </div>
             <p className="text-xs text-zinc-500">جزئیات کامل توی تب «تنظیمات Z»</p>
           </CardContent>
@@ -325,18 +199,14 @@ export default function StatusTab() {
         <Card className="border-zinc-800 bg-zinc-900/70">
           <CardContent className="space-y-3 p-4">
             <div className="flex items-center gap-2 text-sm font-bold text-zinc-200">
-              <Ban className="h-4 w-4 text-red-400" /> بلاک‌لیست ({fa(blacklist.length)})
+              <Ban className="h-4 w-4 text-red-400" /> بلاک‌لیست ({blacklist.length})
             </div>
             {blacklist.length === 0 ? (
               <p className="text-xs text-zinc-500">خالی</p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {blacklist.map((b) => (
-                  <Badge
-                    key={b.username}
-                    dir="ltr"
-                    className="bg-red-500/10 text-red-400 ring-1 ring-red-500/30"
-                  >
+                  <Badge key={b.username} className="bg-red-500/10 text-red-400 ring-1 ring-red-500/30">
                     @{b.username}
                   </Badge>
                 ))}
@@ -352,17 +222,18 @@ export default function StatusTab() {
           <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
             <Activity className="h-4 w-4 text-emerald-400" /> رویدادهای اخیر
           </CardTitle>
-          <div data-slot="card-action" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="hidden text-[10px] text-zinc-500 sm:inline">هر ۳۰ ثانیه رفرش میشه</span>
             <Button
               variant="outline"
               size="sm"
-              aria-label="رفرش"
-              title="رفرش"
-              onClick={() => void manualRefresh()}
-              className="h-8 min-h-9 min-w-9 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
+              onClick={() => {
+                load()
+                onRefreshLog?.()
+              }}
+              className="h-8 border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className="h-3.5 w-3.5" />
             </Button>
           </div>
         </CardHeader>

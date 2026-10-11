@@ -144,6 +144,29 @@ export interface PanelChatMsg {
   content: string
 }
 
+/** direct Z.ai sandbox-SDK chat — shared by the legacy path and the
+ *  multi-provider manager (kind === 'zai') */
+export async function zaiChat(
+  system: string,
+  messages: PanelChatMsg[],
+  opts: { thinking?: boolean; timeoutMs?: number } = {}
+): Promise<{ content: string; model: string }> {
+  const ms = opts.timeoutMs ?? 90_000
+  const client = await zai()
+  const completion = await Promise.race([
+    client.chat.completions.create({
+      model: 'glm-4-plus',
+      // per SDK skill: system prompts ride as the first 'assistant' message
+      messages: [{ role: 'assistant', content: system }, ...messages],
+      thinking: { type: opts.thinking !== false ? 'enabled' : 'disabled' },
+    }),
+    new Promise<never>((_, rej) => setTimeout(() => rej(new Error('مهلت پاسخ مدل تمام شد')), ms)),
+  ])
+  const content = String(completion.choices?.[0]?.message?.content || '').trim()
+  if (!content) throw new Error('پاسخ مدل خالی بود')
+  return { content, model: completion.model || 'glm-4-plus' }
+}
+
 export async function panelLlmChat(
   system: string,
   messages: PanelChatMsg[],
@@ -185,19 +208,7 @@ export async function panelLlmChat(
   }
 
   if (kind === 'zai') {
-    const client = await zai()
-    const completion = await Promise.race([
-      client.chat.completions.create({
-        model: 'glm-4-plus',
-        // per SDK skill: system prompts ride as the first 'assistant' message
-        messages: [{ role: 'assistant', content: system }, ...messages],
-        thinking: { type: opts.thinking !== false ? 'enabled' : 'disabled' },
-      }),
-      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('مهلت پاسخ مدل تمام شد')), ms)),
-    ])
-    const content = String(completion.choices?.[0]?.message?.content || '').trim()
-    if (!content) throw new Error('پاسخ مدل خالی بود')
-    return { content, model: completion.model || 'glm-4-plus' }
+    return zaiChat(system, messages, opts)
   }
 
   throw new Error(

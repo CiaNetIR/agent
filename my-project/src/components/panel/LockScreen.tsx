@@ -77,7 +77,6 @@ export default function LockScreen({ onUnlock }: { onUnlock: (key: string) => vo
                 dir="ltr"
                 type="password"
                 autoFocus
-                aria-label="رمز پنل"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submit()}

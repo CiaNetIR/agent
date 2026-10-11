@@ -18,20 +18,16 @@ export const dynamic = 'force-dynamic'
 
 /**
  * Services + system stats for the owner panel.
- * GET  → statuses of watcher / terminal service / vnc desktop / system (disk, mem, uptime…)
- * POST → safe service actions (watcher pause/resume/restart, terminal / backups / vnc restart)
+ * GET  → statuses of watcher / terminal service / system (disk, mem, uptime…)
+ * POST → safe service actions (watcher pause/resume/restart, terminal restart)
  *        — all actions are fixed scripts, no user input reaches a shell.
  */
 
 const PANEL_DIR = '/home/z/my-project/.panel'
 const AUDIT_LOG = path.join(PANEL_DIR, 'audit.log')
 const TERM_DIR = '/home/z/my-project/mini-services/terminal'
-const BACKUPS_DIR = '/home/z/my-project/mini-services/backups'
-const VNC_DIR = '/home/z/my-project/mini-services/vnc'
 const WATCHER_CTL = path.join(WATCHER_DIR, 'watcher_ctl.sh')
 const TERM_CTL = path.join(TERM_DIR, 'term_ctl.sh')
-const BACKUPS_CTL = path.join(BACKUPS_DIR, 'backups_ctl.sh')
-const VNC_CTL = path.join(VNC_DIR, 'vnc_ctl.sh')
 
 function audit(event: string, extra = '') {
   try {
@@ -96,73 +92,6 @@ async function terminalAlive(): Promise<{ alive: boolean; pid: number | null; po
   return { alive: sup.alive || portOk, pid: sup.pid, portOk }
 }
 
-async function backupsStatus(): Promise<{
-  alive: boolean
-  pid: number | null
-  running: boolean
-  lastRunAt: string | null
-  lastOkAt: string | null
-  lastCommit: string | null
-  lastError: string | null
-  nextRunAt: string | null
-}> {
-  const sup = pidAlive(path.join(BACKUPS_DIR, 'supervisor.pid'))
-  let alive = sup.alive
-  if (!alive) {
-    try {
-      const res = await fetch('http://127.0.0.1:3010/healthz', { signal: AbortSignal.timeout(2500) })
-      alive = res.ok
-    } catch {
-      alive = false
-    }
-  }
-  const st = readJsonSafe<Record<string, unknown>>(path.join(BACKUPS_DIR, 'state.json'), {})
-  // 30-minute cycle — next slot is :00 or :30
-  const hr = (Date.now() % 1_800_000)
-  return {
-    alive,
-    pid: sup.pid,
-    running: st.running === true,
-    lastRunAt: (st.lastRunAt as string) || null,
-    lastOkAt: (st.lastOkAt as string) || null,
-    lastCommit: (st.lastCommit as string) || null,
-    lastError: (st.lastError as string) || null,
-    nextRunAt: new Date(Date.now() + (1_800_000 - hr)).toISOString(),
-  }
-}
-
-/** x11vnc process up? (the actual desktop stream behind websockify) */
-function vncDesktopUp(): Promise<boolean> {
-  return new Promise((resolve) => {
-    execFile(
-      'bash',
-      ['-c', 'pgrep -x x11vnc >/dev/null && echo up || echo down'],
-      { timeout: 3000 },
-      (err, stdout) => {
-        resolve(!err && String(stdout).trim() === 'up')
-      }
-    )
-  })
-}
-
-async function vncStatus(): Promise<{
-  alive: boolean
-  pid: number | null
-  webOk: boolean
-  desktopUp: boolean
-}> {
-  const sup = pidAlive(path.join(VNC_DIR, 'supervisor.pid'))
-  let webOk = false
-  try {
-    const res = await fetch('http://127.0.0.1:6080/', { signal: AbortSignal.timeout(2000) })
-    webOk = res.ok
-  } catch {
-    webOk = false
-  }
-  const desktopUp = await vncDesktopUp()
-  return { alive: sup.alive || webOk, pid: sup.pid, webOk, desktopUp }
-}
-
 /* ---------------------------------------------------------------- GET */
 
 export async function GET(req: NextRequest) {
@@ -176,8 +105,6 @@ export async function GET(req: NextRequest) {
   const paused = fileExists(path.join(WATCHER_DIR, 'PAUSE'))
   const state = readJsonSafe<Record<string, unknown>>(path.join(WATCHER_DIR, 'state.json'), {})
   const terminal = await terminalAlive()
-  const backups = await backupsStatus()
-  const vnc = await vncStatus()
   const disk = await diskUsage()
 
   const totalMem = os.totalmem()
@@ -200,13 +127,6 @@ export async function GET(req: NextRequest) {
       pid: terminal.pid,
       portOk: terminal.portOk,
     },
-    backups,
-    vnc: {
-      alive: vnc.alive,
-      pid: vnc.pid,
-      webOk: vnc.webOk,
-      desktopUp: vnc.desktopUp,
-    },
     system: {
       os: prettyOs(),
       kernel: os.release(),
@@ -226,16 +146,7 @@ export async function GET(req: NextRequest) {
 
 /* ---------------------------------------------------------------- POST */
 
-const ACTIONS = new Set([
-  'watcher-pause',
-  'watcher-resume',
-  'watcher-restart',
-  'watcher-start',
-  'terminal-restart',
-  'backups-restart',
-  'backup-now',
-  'vnc-restart',
-])
+const ACTIONS = new Set(['watcher-pause', 'watcher-resume', 'watcher-restart', 'watcher-start', 'terminal-restart'])
 
 export async function POST(req: NextRequest) {
   if (!verifyKey(req.headers.get('x-panel-key'))) {
@@ -273,28 +184,6 @@ export async function POST(req: NextRequest) {
     case 'terminal-restart':
       result = await run(TERM_CTL, ['restart'], 30_000)
       break
-    case 'backups-restart':
-      result = await run(BACKUPS_CTL, ['restart'], 30_000)
-      break
-    case 'vnc-restart':
-      result = await run(VNC_CTL, ['restart'], 60_000)
-      break
-    case 'backup-now': {
-      // trigger an immediate hourly-style backup on :3010 — forward the
-      // owner's panel key (the service re-validates it, same convention)
-      try {
-        const res = await fetch('http://127.0.0.1:3010/run', {
-          method: 'POST',
-          headers: { 'x-panel-key': req.headers.get('x-panel-key') || '' },
-          signal: AbortSignal.timeout(5000),
-        })
-        const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; started?: boolean }
-        result = { ok: res.ok && data.ok !== false, out: data.started ? 'بکاپ همین الان شروع شد — چند دقیقه طول می‌کشه (سینک + بیلد + پوش).' : data.error || 'شروع نشد' }
-      } catch {
-        result = { ok: false, out: 'سرویس بکاپ (:3010) در دسترس نیست — از ری‌استارت استفاده کن' }
-      }
-      break
-    }
     default:
       return NextResponse.json({ ok: false, error: 'unreachable' }, { status: 400 })
   }

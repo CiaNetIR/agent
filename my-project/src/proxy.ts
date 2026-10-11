@@ -46,7 +46,7 @@ function looksLikePreview(raw: string | null): boolean {
 }
 
 function shouldServe(host: string, forwardedRaw: string | null): boolean {
-  if (looksLikePreview(forwardedRaw) || looksLikePreview(host)) return false;
+  if (looksLikePreview(forwardedRaw) || looksLikePreview(host)) return true;
   if (!host) return true;
   if (ALLOWED_HOSTS.has(host)) return true;
   if (isIpLiteral(host)) return true;

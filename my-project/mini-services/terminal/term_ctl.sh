@@ -2,7 +2,6 @@
 # term_ctl.sh — control the VPN STAR terminal web service (:3001)
 #   start | stop | restart | status | log [N]
 set -u
-SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 cd "$(dirname "$0")"
 
 sup_pid() { [ -f supervisor.pid ] && cat supervisor.pid 2>/dev/null; }
@@ -27,7 +26,7 @@ case "${1:-help}" in
     echo "stopped"
     ;;
   restart)
-    "$SELF" stop; sleep 1; "$SELF" start
+    "$0" stop; sleep 1; "$0" start
     ;;
   status)
     p="$(sup_pid)"

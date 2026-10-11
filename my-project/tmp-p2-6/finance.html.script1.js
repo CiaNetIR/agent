@@ -1,0 +1,61 @@
+
+    (async () => {
+      const user = await checkAuth();
+      if (!user) { location.href = "login.html"; return; }
+
+      async function load(filter = "") {
+        const params = new URLSearchParams({ status_filter: filter, page: "1", page_size: "100" });
+        const r = await api(`/api/finance/payments?${params}`);
+        const rows = (r.items || []).map(p => `
+          <tr>
+            <td class="font-mono text-sm">${escapeHtml(p.id)}</td>
+            <td class="font-mono text-sm">${escapeHtml(p.user_id)}</td>
+            <td>${fmt(p.amount)}</td>
+            <td class="text-sm">${escapeHtml(p.plan_id || "—")}</td>
+            <td><span class="badge ${p.status === "approved" ? "badge-green" : p.status === "rejected" ? "badge-red" : "badge-yellow"}">${escapeHtml(p.status)}</span></td>
+            <td class="text-sm">${escapeHtml(p.approved_at || p.created_at || "—")}</td>
+            <td>${p.status === "pending" ? `
+              <button class="btn" onclick="approvePay(${p.id})">✓</button>
+              <button class="btn btn-danger" onclick="rejectPay(${p.id})">✗</button>
+            ` : ""}</td>
+          </tr>
+        `).join("");
+        document.getElementById("app").innerHTML = layout(`
+          <div class="header"><h1>امور مالی</h1></div>
+          <div class="flex gap-2 mb-4">
+            ${["", "pending", "approved", "rejected"].map(f => `
+              <button class="btn ${filter === f ? "btn-primary" : ""}" onclick="load('${f}')">${f || "همه"}</button>
+            `).join("")}
+          </div>
+          <div class="card">
+            <table>
+              <thead><tr>
+                <th>ID</th><th>user_id</th><th>مبلغ</th><th>plan_id</th><th>وضعیت</th><th>تاریخ</th><th>عملیات</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `);
+      }
+
+      window.load = load; // دکمه‌های فیلتر از onclick صدا می‌زنند (BUG-7)
+      window.approvePay = async (id) => {
+        try {
+          await api(`/api/finance/payments/${id}/approve`, { method: "POST" });
+          showToast("تایید شد ✓"); load();
+        } catch (e) { showToast(e.message, true); }
+      };
+      window.rejectPay = async (id) => {
+        try {
+          await api(`/api/finance/payments/${id}/reject`, { method: "POST" });
+          showToast("رد شد ✓"); load();
+        } catch (e) { showToast(e.message, true); }
+      };
+
+      try {
+        await load();
+      } catch (e) {
+        renderError(e);
+      }
+    })();
+  

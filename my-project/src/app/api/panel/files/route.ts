@@ -99,10 +99,7 @@ function isProtectedDelete(p: string): boolean {
 }
 
 function isProtectedRename(p: string): boolean {
-  if (PROTECTED_EXACT.has(p)) return true
-  // renaming a file OUT of a protected subtree (.secrets/, tg-tools/, …) used
-  // to bypass the delete guard — the renamed copy could then be deleted freely
-  return PROTECTED_SUBTREES.some((s) => p === s || p.startsWith(s + '/'))
+  return PROTECTED_EXACT.has(p)
 }
 
 function jsonError(error: string, status = 400) {
