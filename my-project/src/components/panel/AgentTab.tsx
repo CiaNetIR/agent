@@ -1035,10 +1035,10 @@ export default function AgentTab() {
 
   async function saveScraperSettings() {
     const script = scScript.trim()
-    if (!script.startsWith('/home/z/')) {
+    if (!script.startsWith('/') || script.includes('..')) {
       toast({
         title: 'مسیر اسکریپت نامعتبر',
-        description: 'باید با /home/z/ شروع بشه — مسیرهای بیرون از محیط رد می‌شن.',
+        description: 'باید مسیر مطلق داخل home باشه — مسیرهای بیرون رد می‌شن.',
         variant: 'destructive',
       })
       return
@@ -1766,11 +1766,11 @@ export default function AgentTab() {
                         dir="ltr"
                         value={scScript}
                         onChange={(e) => setScScript(e.target.value)}
-                        placeholder="/home/z/agent/scraper/scraper.py"
+                        placeholder="/root/agent/scraper/scraper.py"
                         className="h-8 border-[#3A3F47] bg-[#202329] font-mono text-xs text-zinc-100 placeholder:text-zinc-600"
                       />
                       <p className="text-[10px] leading-5 text-zinc-600">
-                        باید با <span className="font-mono text-zinc-400" dir="ltr">/home/z/</span> شروع بشه.
+                        باید مسیر مطلق داخل <span className="font-mono text-zinc-400" dir="ltr">home</span> باشه.
                       </p>
                     </div>
                     <div className="space-y-1.5">
@@ -1885,7 +1885,7 @@ export default function AgentTab() {
                       </li>
                     </ul>
                     <p>
-                      مسیر فعلی: <code dir="ltr">{scScript || '/home/z/agent/scraper/scraper.py'}</code>{' '}
+                      مسیر فعلی: <code dir="ltr">{scScript || 'scraper/scraper.py'}</code>{' '}
                       — نمونهٔ واقعیِ قیمت ارزهاست؛ فایل خودت رو از تب «فایل‌ها» جایگزین کن.
                     </p>
                   </InfoNote>

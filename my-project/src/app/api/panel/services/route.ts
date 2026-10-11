@@ -23,11 +23,13 @@ export const dynamic = 'force-dynamic'
  *        — all actions are fixed scripts, no user input reaches a shell.
  */
 
-const PANEL_DIR = '/home/z/my-project/.panel'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const PANEL_DIR = path.join(PROJECT_DIR, '.panel')
 const AUDIT_LOG = path.join(PANEL_DIR, 'audit.log')
-const TERM_DIR = '/home/z/my-project/mini-services/terminal'
-const BACKUPS_DIR = '/home/z/my-project/mini-services/backups'
-const VNC_DIR = '/home/z/my-project/mini-services/vnc'
+const TERM_DIR = path.join(PROJECT_DIR, 'mini-services', 'terminal')
+const BACKUPS_DIR = path.join(PROJECT_DIR, 'mini-services', 'backups')
+const VNC_DIR = path.join(PROJECT_DIR, 'mini-services', 'vnc')
 const WATCHER_CTL = path.join(WATCHER_DIR, 'watcher_ctl.sh')
 const TERM_CTL = path.join(TERM_DIR, 'term_ctl.sh')
 const BACKUPS_CTL = path.join(BACKUPS_DIR, 'backups_ctl.sh')
@@ -58,7 +60,7 @@ function run(
 /** `df -k <path>` → { totalB, usedB, availB, pct } */
 function diskUsage(): Promise<{ total: number; used: number; avail: number; pct: number } | null> {
   return new Promise((resolve) => {
-    execFile('df', ['-k', '/home/z'], { timeout: 5000 }, (err, stdout) => {
+    execFile('df', ['-k', HOME], { timeout: 5000 }, (err, stdout) => {
       if (err) return resolve(null)
       const lines = String(stdout).trim().split('\n')
       const parts = (lines[1] || '').trim().split(/\s+/)

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { existsSync, readFileSync, statSync, writeFileSync } from 'fs'
-import { BACKUP_TRIGGER, pidAlive, verifyKey } from '@/lib/panel-server'
+import { BACKUP_TRIGGER, pidAlive, verifyKey, WATCHER_DIR } from '@/lib/panel-server'
 import path from 'path'
 
 export const runtime = 'nodejs'
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   if (!verifyKey(req.headers.get('x-panel-key'))) {
     return NextResponse.json({ ok: false }, { status: 401 })
   }
-  const watcher = pidAlive(path.join('/home/z/tg-tools/watcher', 'watcher.lock'))
+  const watcher = pidAlive(path.join(WATCHER_DIR, 'watcher.lock'))
   if (!watcher.alive) {
     return NextResponse.json(
       { ok: false, reason: 'watcher-down', error: 'دستیار فعال نیست؛ اول روشنش کن' },

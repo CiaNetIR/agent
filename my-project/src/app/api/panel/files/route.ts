@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { appendFileSync, existsSync, mkdirSync, realpathSync } from 'fs'
 import fsp from 'fs/promises'
+import os from 'os'
 import path from 'path'
 import { verifyKey, isLocked } from '@/lib/panel-server'
 
@@ -8,12 +9,14 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 /**
- * Owner file-manager API — everything strictly inside /home/z (the cloud
+ * Owner file-manager API — everything strictly inside $HOME (the cloud
  * sandbox home). No root, no system paths. All mutations audited.
  */
 
-const ROOT = '/home/z'
-const PANEL_DIR = '/home/z/my-project/.panel'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const ROOT = HOME
+const PANEL_DIR = path.join(PROJECT_DIR, '.panel')
 const AUDIT_LOG = path.join(PANEL_DIR, 'audit.log')
 const MAX_TEXT = 512 * 1024 // 512KB text read/write
 const MAX_EMBED = 2 * 1024 * 1024 // 2MB inline base64 (image preview)
@@ -21,14 +24,14 @@ const MAX_UPLOAD = 8 * 1024 * 1024 // 8MB upload
 
 /** dirs whose whole SUBTREE is protected from delete (disaster safety) */
 const PROTECTED_SUBTREES = [
-  '/home/z/my-project/.secrets',
-  '/home/z/my-project/tg-tools-backup',
-  '/home/z/tg-tools',
+  path.join(PROJECT_DIR, '.secrets'),
+  path.join(PROJECT_DIR, 'tg-tools-backup'),
+  path.join(HOME, 'tg-tools'),
 ]
 /** exact paths protected from delete AND rename (the infra itself) */
 const PROTECTED_EXACT = new Set([
   ROOT,
-  '/home/z/my-project',
+  PROJECT_DIR,
   ...PROTECTED_SUBTREES,
 ])
 

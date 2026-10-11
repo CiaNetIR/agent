@@ -7,6 +7,7 @@ import {
   readJsonSafe,
   verifyKey,
 } from '@/lib/panel-server'
+import { WATCHER_CONFIG } from '@/lib/panel-ops'
 import { existsSync, readFileSync, statfsSync } from 'fs'
 import os from 'os'
 import path from 'path'
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest) {
     {}
   )
   const config = readJsonSafe<Record<string, unknown>>(
-    '/home/z/my-project/.secrets/watcher-config.json',
+    WATCHER_CONFIG,
     {}
   )
 

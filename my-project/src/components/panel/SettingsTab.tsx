@@ -5,9 +5,366 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Contrast, Eye, EyeOff, KeyRound, Loader2, Palette, Pipette, RotateCcw, Type } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
+  CheckCircle2, Contrast, Eye, EyeOff, GitBranch, Github, KeyRound, Loader2,
+  Palette, Pipette, RotateCcw, Type, XCircle, Zap,
+} from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { DEFAULT_THEME, panelFetch, setStoredKey, sha256Hex, type PanelTheme } from '@/lib/panel'
+
+/* ---------- auto-update (UPDATE-FEATURE-1) ---------- */
+
+interface UpdateCommit {
+  sha: string
+  message: string
+  date: string
+  author?: string
+}
+
+interface UpdateCheck {
+  ok: boolean
+  repoMissing?: boolean
+  repoDir?: string
+  current: UpdateCommit | null
+  latest: UpdateCommit | null
+  updateAvailable: boolean
+  commits: UpdateCommit[]
+}
+
+interface UpdateStepResult {
+  name: string
+  status: 'ok' | 'fail'
+  log?: string
+}
+
+interface UpdateResponse {
+  ok: boolean
+  steps?: UpdateStepResult[]
+  note?: string
+  error?: string
+}
+
+const STEP_LABELS: Record<string, string> = {
+  'fetch origin main': 'گرفتن کد جدید از گیتهاب',
+  'reset --hard FETCH_HEAD': 'بروزرسانی مخزن محلی',
+  'rsync code to project dir': 'کپی کد به مسیر پروژه',
+  'bun install (root)': 'نصب وابستگی‌های اصلی',
+  'bun install (agent)': 'نصب وابستگی‌های ایجنت',
+  'bun install (terminal)': 'نصب وابستگی‌های ترمینال',
+  'prisma generate': 'تولید کلاینت Prisma',
+  'prisma db push': 'همگام‌سازی دیتابیس',
+  'apply auto-login patches': 'اعمال پچ ورود خودکار',
+  'restart services': 'راه‌اندازی مجدد سرویس‌ها',
+}
+
+function faDate(iso: string): string {
+  if (!iso) return '—'
+  try {
+    return new Intl.DateTimeFormat('fa-IR', {
+      timeZone: 'Asia/Tehran',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(iso))
+  } catch {
+    return iso
+  }
+}
+
+function shortSha(sha: string | undefined): string {
+  if (!sha) return '—'
+  return sha.slice(0, 7)
+}
+
+function UpdateCard() {
+  const { toast } = useToast()
+  const [check, setCheck] = useState<UpdateCheck | null>(null)
+  const [checking, setChecking] = useState(false)
+  const [updating, setUpdating] = useState(false)
+  const [result, setResult] = useState<UpdateResponse | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmText, setConfirmText] = useState('')
+
+  async function checkForUpdates() {
+    setChecking(true)
+    setResult(null)
+    try {
+      const res = await panelFetch('/api/panel/update')
+      const json = (await res.json().catch(() => ({}))) as UpdateCheck
+      if (!res.ok || !json.ok) {
+        toast({ title: 'بررسی بروزرسانی نشد', variant: 'destructive' })
+      } else {
+        setCheck(json)
+        if (json.updateAvailable) {
+          toast({
+            title: `بروزرسانی جدید موجود است (${json.commits.length} کامیت)`,
+            description: json.latest?.message,
+          })
+        } else if (!json.repoMissing) {
+          toast({ title: 'روی آخرین نسخه‌ای ✓', description: 'بروزرسانی‌ای موجود نیست.' })
+        }
+      }
+    } catch {
+      toast({ title: 'ارتباط برقرار نشد', variant: 'destructive' })
+    } finally {
+      setChecking(false)
+    }
+  }
+
+  async function performUpdate() {
+    setUpdating(true)
+    setResult(null)
+    try {
+      const res = await panelFetch('/api/panel/update', {
+        method: 'POST',
+        body: JSON.stringify({ confirm: 'بروزرسانی' }),
+      })
+      const json = (await res.json().catch(() => ({}))) as UpdateResponse
+      setResult(json)
+      if (json.ok) {
+        toast({
+          title: 'بروزرسانی کامل شد ✓',
+          description: 'پنل در حال راه‌اندازی مجدده — چند ثانیه دیگه صفحه رفرش میشه.',
+        })
+        // give the dev server time to come back up, then reload
+        setTimeout(() => window.location.reload(), 12_000)
+      } else {
+        toast({
+          title: 'بروزرسانی ناقص موند',
+          description: json.error || 'یک مرحله شکست خورد.',
+          variant: 'destructive',
+        })
+      }
+    } catch {
+      toast({ title: 'ارتباط برقرار نشد', variant: 'destructive' })
+    } finally {
+      setUpdating(false)
+      setConfirmOpen(false)
+      setConfirmText('')
+    }
+  }
+
+  const confirmValid = confirmText.trim() === 'بروزرسانی'
+
+  return (
+    <Card className="border-[#2D3139] bg-[#181A1F]/70">
+      <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
+        <CardTitle className="flex items-center gap-2 text-sm font-bold text-zinc-200">
+          <GitBranch className="h-4 w-4 text-emerald-400" /> بروزرسانی پنل
+        </CardTitle>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void checkForUpdates()}
+          disabled={checking || updating}
+          className="h-8 border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]"
+        >
+          {checking ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Github className="h-3.5 w-3.5" />
+          )}
+          بررسی بروزرسانی
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* current + latest version row */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+            <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-zinc-500" /> نسخه فعلی
+            </p>
+            {check?.current ? (
+              <div className="mt-1.5 space-y-1">
+                <p className="font-mono text-xs text-emerald-400" dir="ltr">{shortSha(check.current.sha)}</p>
+                <p className="truncate text-xs text-zinc-200" title={check.current.message}>
+                  {check.current.message || '—'}
+                </p>
+                <p className="text-[10px] text-zinc-600" dir="ltr">{faDate(check.current.date)}</p>
+              </div>
+            ) : (
+              <p className="mt-2 text-xs text-zinc-600">
+                {check?.repoMissing ? 'مخزن گیتهاب پیدا نشد' : 'هنوز بررسی نشده'}
+              </p>
+            )}
+          </div>
+
+          <div className="rounded-lg border border-[#2D3139] bg-[#202329] p-3">
+            <p className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+              <Github className="h-3 w-3" /> آخرین نسخه گیتهاب
+            </p>
+            {check?.latest ? (
+              <div className="mt-1.5 space-y-1">
+                <p className="font-mono text-xs text-amber-400" dir="ltr">{shortSha(check.latest.sha)}</p>
+                <p className="truncate text-xs text-zinc-200" title={check.latest.message}>
+                  {check.latest.message || '—'}
+                </p>
+                <p className="text-[10px] text-zinc-600" dir="ltr">
+                  {check.latest.author ? `${check.latest.author} · ` : ''}{faDate(check.latest.date)}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-2 text-xs text-zinc-600">هنوز بررسی نشده</p>
+            )}
+          </div>
+        </div>
+
+        {/* repo missing warning */}
+        {check?.repoMissing ? (
+          <div className="rounded-lg border border-amber-800/40 bg-amber-950/20 p-3 text-xs text-amber-300">
+            <p className="font-bold">مخزن گیتهاب روی سرور پیدا نشد.</p>
+            <p className="mt-1 leading-5 text-amber-300/80">
+              برای فعال شدن بروزرسانی خودکار، روی سرور اجرا کن:
+            </p>
+            <pre className="mt-1.5 overflow-x-auto rounded-md bg-black/40 p-2 text-[10px] text-amber-200" dir="ltr">
+{`git clone https://github.com/CiaNetIR/agent.git ~/agent-repo`}
+            </pre>
+            <p className="mt-1 text-[10px] text-amber-300/60" dir="ltr">{check.repoDir}</p>
+          </div>
+        ) : null}
+
+        {/* update-available list */}
+        {check?.updateAvailable && check.commits.length > 0 ? (
+          <div className="rounded-lg border border-emerald-800/40 bg-[#0A2E1E]/20 p-3">
+            <p className="flex items-center justify-between text-[11px] text-emerald-300">
+              <span className="font-bold">تغییرات جدید ({check.commits.length} کامیت)</span>
+              <Badge className="ci-badge-ok ring-1">آماده نصب</Badge>
+            </p>
+            <ul className="mt-2 max-h-44 space-y-1.5 overflow-y-auto pr-1">
+              {check.commits.map((c) => (
+                <li key={c.sha} className="flex items-start gap-2 rounded-md bg-black/20 px-2 py-1.5 text-xs">
+                  <span className="shrink-0 font-mono text-[10px] text-emerald-400" dir="ltr">{shortSha(c.sha)}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-zinc-200" title={c.message}>{c.message || '—'}</p>
+                    <p className="text-[10px] text-zinc-600" dir="ltr">
+                      {c.author ? `${c.author} · ` : ''}{faDate(c.date)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {/* update button — only show when an update is available */}
+        {check?.updateAvailable && !result ? (
+          <Button
+            onClick={() => setConfirmOpen(true)}
+            disabled={updating}
+            className="w-full bg-[#10B981] font-bold text-white hover:bg-[#34D399]"
+          >
+            {updating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+            بروزرسانی کن
+          </Button>
+        ) : null}
+
+        {/* in-progress: render the steps live from the last result */}
+        {updating && !result ? (
+          <div className="space-y-2">
+            <p className="flex items-center gap-2 text-xs text-emerald-300">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> در حال بروزرسانی… لطفاً صبر کن.
+            </p>
+            <p className="text-[10px] leading-5 text-zinc-500">
+              چند دقیقه طول می‌کشه. پنل در حین بروزرسانی ممکنه چند ثانیه قطع بشه.
+            </p>
+          </div>
+        ) : null}
+
+        {/* result step list */}
+        {result?.steps ? (
+          <div className="space-y-1.5 rounded-lg border border-[#2D3139] bg-[#202329]/60 p-3">
+            <p className="text-[11px] font-bold text-zinc-300">مراحل اجرا:</p>
+            <ul className="space-y-1">
+              {result.steps.map((s, i) => (
+                <li key={`${s.name}-${i}`} className="flex items-start gap-2 text-xs">
+                  {s.status === 'ok' ? (
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                  ) : (
+                    <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className={s.status === 'ok' ? 'text-zinc-200' : 'text-red-300'}>
+                      {STEP_LABELS[s.name] || s.name}
+                    </p>
+                    {s.log ? (
+                      <p className="truncate font-mono text-[10px] text-zinc-600" dir="ltr" title={s.log}>
+                        {s.log}
+                      </p>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {result.ok ? (
+              <p className="mt-2 flex items-center gap-1.5 rounded-md bg-emerald-950/30 px-2 py-1.5 text-xs text-emerald-300">
+                <CheckCircle2 className="h-3.5 w-3.5" /> {result.note || 'بروزرسانی کامل شد.'}
+              </p>
+            ) : (
+              <p className="mt-2 flex items-center gap-1.5 rounded-md bg-red-950/30 px-2 py-1.5 text-xs text-red-300">
+                <XCircle className="h-3.5 w-3.5" /> {result.error || 'یک مرحله شکست خورد.'}
+              </p>
+            )}
+          </div>
+        ) : null}
+
+        {!check ? (
+          <p className="text-[10px] leading-5 text-zinc-600">
+            کد پنل از مخزن <span className="font-mono text-zinc-400" dir="ltr">github.com/CiaNetIR/agent</span> میاد.
+            با زدن «بررسی بروزرسانی» آخرین کامیت‌های برنچ main با نسخه فعلی سرورت مقایسه میشه.
+            اگه نسخه جدیدی باشه، با یک کلیک کد کشیده، نصب و سرویس‌ها ری‌استارت میشن.
+          </p>
+        ) : null}
+
+        {/* confirm dialog */}
+        <AlertDialog open={confirmOpen} onOpenChange={(o) => { setConfirmOpen(o); if (!o) setConfirmText('') }}>
+          <AlertDialogContent className="border-[#2D3139] bg-[#181A1F]">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-zinc-100">شروع بروزرسانی؟</AlertDialogTitle>
+              <AlertDialogDescription className="text-zinc-400">
+                کد جدید از گیتهاب روی سرور اعمال میشه — fetch, reset, rsync, نصب وابستگی‌ها،
+                Prisma و در نهایت ری‌استارت همه سرویس‌ها. پنل چند ثانیه قطع میشه.
+                برای تأیید، عیناً بنویس: <span className="font-bold text-amber-400">بروزرسانی</span>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <Input
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="بروزرسانی"
+              dir="rtl"
+              className="border-[#3A3F47] bg-[#202329] text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-[#34D399]/50"
+            />
+            <AlertDialogFooter>
+              <AlertDialogCancel className="border-[#3A3F47] bg-[#202329] text-zinc-300 hover:bg-[#202329]">
+                انصراف
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => void performUpdate()}
+                disabled={!confirmValid || updating}
+                className="bg-[#10B981] font-bold text-white hover:bg-[#34D399] disabled:opacity-50"
+              >
+                {updating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                بروزرسانی کن
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardContent>
+    </Card>
+  )
+}
 
 interface SettingsTabProps {
   theme?: PanelTheme
@@ -134,6 +491,9 @@ export default function SettingsTab({ theme, onThemeChange }: SettingsTabProps) 
 
   return (
     <div className="space-y-4">
+      {/* ---------------- github auto-update (UPDATE-FEATURE-1) ---------------- */}
+      <UpdateCard />
+
       {/* ---------------- appearance / readability ---------------- */}
       <Card className="border-[#2D3139] bg-[#181A1F]/70">
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">

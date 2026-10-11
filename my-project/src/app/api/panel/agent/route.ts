@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyKey } from '@/lib/panel-server'
-import { audit } from '@/lib/panel-ops'
+import { audit, PROJECT_DIR } from '@/lib/panel-ops'
 import { readFileSync } from 'fs'
+import path from 'path'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -13,10 +14,11 @@ export const dynamic = 'force-dynamic'
  */
 
 const AGENT = 'http://127.0.0.1:3004'
+const PANEL_ENV = path.join(PROJECT_DIR, '.secrets', 'panel.env')
 
 function internalToken(): string {
   try {
-    for (const line of readFileSync('/home/z/my-project/.secrets/panel.env', 'utf8').split('\n')) {
+    for (const line of readFileSync(PANEL_ENV, 'utf8').split('\n')) {
       const m = line.match(/^INTERNAL_TOKEN=(.+)$/)
       if (m) return m[1].trim()
     }

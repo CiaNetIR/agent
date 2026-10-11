@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { execFile } from 'child_process'
 import path from 'path'
+import os from 'os'
 import { mkdirSync } from 'fs'
 import { db } from '@/lib/db'
 import { verifyKey } from '@/lib/panel-server'
@@ -17,8 +18,9 @@ export const dynamic = 'force-dynamic'
  * server-side; the session string is NEVER sent to the browser.
  */
 
-const PY = '/home/z/.venv/bin/python'
-const SCRIPT = '/home/z/tg-tools/login_new.py'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PY = path.join(HOME, '.venv', 'bin', 'python')
+const SCRIPT = path.join(HOME, 'tg-tools', 'login_new.py')
 
 function runLogin(args: string[], timeoutMs = 30_000): Promise<Record<string, unknown>> {
   return new Promise((resolve) => {

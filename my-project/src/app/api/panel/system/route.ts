@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { spawn } from 'child_process'
 import { existsSync, rmSync, statSync } from 'fs'
+import os from 'os'
 import path from 'path'
 import { db } from '@/lib/db'
 import { verifyKey, pidAlive } from '@/lib/panel-server'
@@ -10,6 +11,7 @@ import {
   PANEL_DIR,
   PROJECT_DIR,
   TERM_CTL,
+  TERM_DIR,
   WATCHER_CTL,
   WATCHER_DIR,
   audit,
@@ -27,7 +29,7 @@ export const dynamic = 'force-dynamic'
  *   delete-project                   tar-backup then wipe the project tree
  *   power-off-server                 kill the dev web server itself
  * Destructive actions require a typed Persian confirm word and are logged
- * to /home/z/system-actions.log (which survives project deletion).
+ * to ~/system-actions.log (which survives project deletion).
  *
  * delete-project NOTE (learned the hard way, 2026-10-07): the project dir
  * contains mount points (upload/) so `mv` of the whole dir FAILS mid-way
@@ -35,6 +37,9 @@ export const dynamic = 'force-dynamic'
  * real backup (code+db+secrets — NOT node_modules/.next) into ~/.trash,
  * then delete everything except the upload mount.
  */
+
+const HOME = process.env.HOME || os.homedir() || '/root'
+const TRASH_DIR = path.join(HOME, '.trash')
 
 const CONFIRM_WORDS: Record<string, string> = {
   'factory-reset': 'ریست',
@@ -86,12 +91,12 @@ export async function GET(req: NextRequest) {
 
   const accounts = await db.tgAccount.count()
   const watcher = pidAlive(path.join(WATCHER_DIR, 'watcher.lock'))
-  const terminal = pidAlive(path.join('/home/z/my-project/mini-services/terminal', 'supervisor.pid'))
+  const terminal = pidAlive(path.join(TERM_DIR, 'supervisor.pid'))
 
   let dbSize = 0
   let auditSize = 0
   try {
-    dbSize = statSync('/home/z/my-project/db/custom.db').size
+    dbSize = statSync(path.join(PROJECT_DIR, 'db', 'custom.db')).size
   } catch {
     /* noop */
   }
@@ -105,7 +110,7 @@ export async function GET(req: NextRequest) {
     ok: true,
     info: {
       projectDir: PROJECT_DIR,
-      trashDir: '/home/z/.trash',
+      trashDir: TRASH_DIR,
       dbAccounts: accounts,
       instanceCount: (await instances()).length,
       watcherRunning: watcher.alive,
@@ -189,14 +194,14 @@ export async function POST(req: NextRequest) {
       await stopAllServices()
       // respond first, then backup+wipe (detached) so this response gets out
       spawn('bash', ['-c',
-        'sleep 3; mkdir -p /home/z/.trash; ' +
+        `sleep 3; mkdir -p ${TRASH_DIR}; ` +
         'ts=$(date +%Y%m%d-%H%M%S); ' +
-        'tar czf "/home/z/.trash/my-project-src-$ts.tar.gz" -C /home/z/my-project ' +
+        `tar czf "${TRASH_DIR}/my-project-src-$ts.tar.gz" -C ${PROJECT_DIR} ` +
         'src prisma db mini-services package.json bun.lock next.config.ts tsconfig.json ' +
         'tailwind.config.ts postcss.config.mjs components.json eslint.config.mjs ' +
         'Caddyfile .env .secrets worklog.md 2>/dev/null; ' +
-        'find /home/z/my-project -mindepth 1 -maxdepth 1 ! -name upload -exec rm -rf {} +; ' +
-        'echo "deleted via panel $(date)" > /home/z/my-project/DELETED.txt',
+        `find ${PROJECT_DIR} -mindepth 1 -maxdepth 1 ! -name upload -exec rm -rf {} +; ` +
+        `echo "deleted via panel $(date)" > ${PROJECT_DIR}/DELETED.txt`,
       ], { detached: true, stdio: 'ignore' }).unref()
       return NextResponse.json({
         ok: true,

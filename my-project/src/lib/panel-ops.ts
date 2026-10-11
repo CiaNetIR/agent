@@ -5,22 +5,24 @@
  */
 import { appendFileSync, mkdirSync, rmSync, writeFileSync, renameSync } from 'fs'
 import { execFile } from 'child_process'
+import os from 'os'
 import path from 'path'
 
-export const PANEL_DIR = '/home/z/my-project/.panel'
+const HOME = process.env.HOME || os.homedir() || '/root'
+export const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+export const PANEL_DIR = path.join(PROJECT_DIR, '.panel')
 export const AUDIT_LOG = path.join(PANEL_DIR, 'audit.log')
 /** survives project deletion — destructive actions are logged here too */
-export const SYSTEM_LOG = '/home/z/system-actions.log'
+export const SYSTEM_LOG = path.join(HOME, 'system-actions.log')
 
-export const TG_TOOLS = '/home/z/tg-tools'
+export const TG_TOOLS = path.join(HOME, 'tg-tools')
 export const WATCHER_DIR = path.join(TG_TOOLS, 'watcher')
 export const INSTANCES_DIR = path.join(TG_TOOLS, 'instances')
 export const INSTANCES_CTL = path.join(TG_TOOLS, 'instances_ctl.sh')
 export const WATCHER_CTL = path.join(WATCHER_DIR, 'watcher_ctl.sh')
-export const TERM_DIR = '/home/z/my-project/mini-services/terminal'
+export const TERM_DIR = path.join(PROJECT_DIR, 'mini-services', 'terminal')
 export const TERM_CTL = path.join(TERM_DIR, 'term_ctl.sh')
-export const WATCHER_CONFIG = '/home/z/my-project/.secrets/watcher-config.json'
-export const PROJECT_DIR = '/home/z/my-project'
+export const WATCHER_CONFIG = path.join(PROJECT_DIR, '.secrets', 'watcher-config.json')
 
 export function audit(event: string, extra = '') {
   try {

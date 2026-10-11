@@ -42,7 +42,7 @@ import {
 import { panelFetch } from '@/lib/panel'
 import { useToast } from '@/hooks/use-toast'
 
-const ROOT = '/home/z'
+const ROOT = ''  // empty = server resolves to user HOME
 
 interface FileEntry {
   name: string
@@ -342,11 +342,12 @@ export default function FilesTab() {
 
   /* ---------------- breadcrumb ---------------- */
 
-  const crumbs: { label: string; path: string }[] = [{ label: 'خانه z', path: ROOT }]
+  const crumbs: { label: string; path: string }[] = [{ label: 'خانه', path: ROOT }]
   if (cwd !== ROOT) {
-    const parts = cwd.slice(ROOT.length).split('/').filter(Boolean)
+    const parts = cwd.split('/').filter(Boolean)
     parts.forEach((part, i) => {
-      crumbs.push({ label: part, path: `${ROOT}/${parts.slice(0, i + 1).join('/')}` })
+      const p = '/' + parts.slice(0, i + 1).join('/')
+      crumbs.push({ label: part, path: p })
     })
   }
 

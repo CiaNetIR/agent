@@ -515,7 +515,7 @@ export default function SystemTab() {
       <p className="pt-1 text-center text-[10px] leading-6 text-zinc-600">
         همه عملیات‌های خطرناک با تایید تایپی اجرا می‌شن و در لاگ سیستمی{' '}
         <span dir="ltr" className="font-mono text-zinc-500">
-          /home/z/system-actions.log
+          ~/system-actions.log
         </span>{' '}
         ثبت می‌شن که حتی بعد از حذف پروژه هم می‌مونه.
       </p>

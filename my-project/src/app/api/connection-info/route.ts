@@ -8,10 +8,13 @@
  */
 import { readJsonSafe, verifyKey } from '@/lib/panel-server'
 import { PROXY_MODELS, getProxyKey, readZaiConfig, rotateProxyKey } from '@/lib/openai-proxy'
+import os from 'os'
+import path from 'path'
 
 export const dynamic = 'force-dynamic'
 
-const MONITOR_STATE = '/home/z/agent-files/api-monitor-state.json'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const MONITOR_STATE = path.join(HOME, 'agent-files', 'api-monitor-state.json')
 
 function monitorStatus() {
   const st = readJsonSafe<Record<string, unknown>>(MONITOR_STATE, {})

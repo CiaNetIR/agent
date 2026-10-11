@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFileSync } from 'fs'
+import { PANEL_ENV } from '@/lib/panel-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -21,7 +22,7 @@ const CORS = {
 
 function internalToken(): string {
   try {
-    for (const line of readFileSync('/home/z/my-project/.secrets/panel.env', 'utf8').split('\n')) {
+    for (const line of readFileSync(PANEL_ENV, 'utf8').split('\n')) {
       const m = line.match(/^INTERNAL_TOKEN=(.+)$/)
       if (m) return m[1].trim()
     }

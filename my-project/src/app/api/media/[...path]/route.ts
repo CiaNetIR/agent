@@ -10,15 +10,18 @@
  */
 import { createReadStream, statSync } from 'fs'
 import { timingSafeEqual } from 'crypto'
+import os from 'os'
 import path from 'path'
 import { Readable } from 'stream'
 import { readPanelConfig } from '@/lib/panel-server'
 
 export const dynamic = 'force-dynamic'
 
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
 const ROOTS: Record<string, string> = {
-  'agent-videos': '/home/z/my-project/public/agent-videos',
-  'agent-images': '/home/z/my-project/public/agent-images',
+  'agent-videos': path.join(PROJECT_DIR, 'public', 'agent-videos'),
+  'agent-images': path.join(PROJECT_DIR, 'public', 'agent-images'),
 }
 
 const MIME: Record<string, string> = {
