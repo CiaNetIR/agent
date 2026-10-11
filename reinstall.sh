@@ -275,6 +275,14 @@ if [ -n "$PROXY_FOUND" ]; then
   if ! grep -q "TELEGRAM_PROXY" "$PROJECT/.secrets/tg.env" 2>/dev/null; then
     echo "TELEGRAM_PROXY=$PROXY_FOUND" >> "$PROJECT/.secrets/tg.env" 2>/dev/null || true
   fi
+  # Also set LLM_PROXY in llm.env (so Node.js fetch uses proxy for Groq/OpenRouter)
+  if [ -f "$PROJECT/.secrets/llm.env" ]; then
+    if ! grep -q "^LLM_PROXY=" "$PROJECT/.secrets/llm.env" 2>/dev/null; then
+      echo "LLM_PROXY=$PROXY_FOUND" >> "$PROJECT/.secrets/llm.env"
+    else
+      sed -i "s|^LLM_PROXY=.*|LLM_PROXY=$PROXY_FOUND|" "$PROJECT/.secrets/llm.env"
+    fi
+  fi
 else
   say "  ℹ پروکسی پیدا نشد"
 fi
@@ -377,6 +385,93 @@ chmod +x "$ROOT/keepalive.sh"
 pkill -9 -f "keepalive.sh" 2>/dev/null || true
 setsid --fork bash "$ROOT/keepalive.sh" </dev/null >/dev/null 2>&1
 say "  ✓ keepalive فعال شد"
+
+# ────────────────────────────────────────────────────────────────────
+# 14. Install/Refresh systemd services (auto-start after reboot)
+# ────────────────────────────────────────────────────────────────────
+say "14 — نصب systemd services (auto-start بعد reboot)"
+cat > /etc/systemd/system/cianet-panel.service <<EOF
+[Unit]
+Description=CiaNet Panel (Next.js)
+After=network.target
+[Service]
+Type=simple
+User=root
+Environment=PATH=$ROOT/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+WorkingDirectory=$PROJECT
+ExecStart=$ROOT/.bun/bin/bun run dev
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-agent.service <<EOF
+[Unit]
+Description=CiaNet Agent (:3004)
+After=network.target cianet-panel.service
+[Service]
+Type=simple
+User=root
+Environment=PATH=$ROOT/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+WorkingDirectory=$PROJECT/mini-services/agent
+ExecStart=$ROOT/.bun/bin/bun run index.ts
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-terminal.service <<EOF
+[Unit]
+Description=CiaNet Terminal (:3001)
+After=network.target
+[Service]
+Type=simple
+User=root
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+WorkingDirectory=$PROJECT/mini-services/terminal
+ExecStart=/usr/bin/node index.mjs
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-watcher.service <<EOF
+[Unit]
+Description=CiaNet Telegram Watcher (@VpnStarZ)
+After=network.target
+[Service]
+Type=simple
+User=root
+Environment=HOME=$ROOT
+Environment=TELEGRAM_PROXY=${PROXY_FOUND:-socks5://127.0.0.1:10808}
+WorkingDirectory=$TG_TOOLS/watcher
+ExecStart=$ROOT/.venv/bin/python watcher.py
+Restart=always
+RestartSec=15
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-keepalive.service <<EOF
+[Unit]
+Description=CiaNet Keepalive Daemon
+After=network.target cianet-panel.service cianet-agent.service cianet-terminal.service cianet-watcher.service
+[Service]
+Type=simple
+User=root
+Environment=PATH=$ROOT/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+ExecStart=$ROOT/keepalive.sh
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable cianet-panel cianet-agent cianet-terminal cianet-watcher cianet-keepalive 2>&1 | tail -5
+say "  ✓ systemd services نصب شد"
 
 # ────────────────────────────────────────────────────────────────────
 # FINAL REPORT

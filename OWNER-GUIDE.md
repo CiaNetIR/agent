@@ -146,33 +146,47 @@ cd ~/tg-tools/watcher && bash watcher_ctl.sh start 15
 ```bash
 cat > ~/my-project/.secrets/llm.env <<'EOF'
 LLM_PROVIDER=openai
-LLM_BASE_URL=https://openrouter.ai/api/v1
-LLM_API_KEY=sk-or-v1-your-key-here
-LLM_MODEL=deepseek/deepseek-chat
+LLM_BASE_URL=https://api.groq.com/openai/v1
+LLM_API_KEY=gsk_YOUR_GROQ_KEY_HERE
+LLM_MODEL=openai/gpt-oss-120b
 LLM_TIMEOUT_MS=90000
+LLM_PROXY=socks5://127.0.0.1:10808
 EOF
 
-# ری‌استارت ایجنت
-bash ~/my-project/mini-services/agent/agent_ctl.sh restart
+# ری‌استارت سرویس‌ها
+systemctl restart cianet-panel
+systemctl restart cianet-agent
 ```
+
+> **نکته مهم:** `LLM_PROXY` الزامیه اگه Groq/OpenRouter از ایران فیلتره. این باعث می‌شه چت پنل و ایجنت هم از پروکسی استفاده کنن (نه فقط واتچر).
 
 ### Providerهای رایگان پیشنهادی
 
-| Provider | Base URL | مدل رایگان |
-|---|---|---|
-| OpenRouter | `https://openrouter.ai/api/v1` | `deepseek/deepseek-chat` (ارزون، ~$0.002/7k token), `meta-llama/llama-3.3-70b-instruct:free` (رایگان نامحدود), `deepseek/deepseek-r1:free` (رایگان با تفکر) |
-| Groq | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` (سریع‌ترین، رایگان) |
-| Ollama (محلی) | `http://127.0.0.1:11434/v1` | `llama3.1:8b` (بعد از `ollama pull`) |
+| Provider | Base URL | مدل | محدودیت |
+|---|---|---|---|
+| **Groq** ⭐ | `https://api.groq.com/openai/v1` | `openai/gpt-oss-120b` (۱۲۰B), `qwen/qwen3.8-27b` | رایگان نامحدود، ۳۰ req/min |
+| OpenRouter | `https://openrouter.ai/api/v1` | `deepseek/deepseek-chat` (پولی، ~$0.002/7k) | ۱۰۰۰ req/min |
+| Groq (قدیمی) | `https://api.groq.com/openai/v1` | `llama-3.3-70b-versatile` (deprec) | — |
+| Ollama (محلی) | `http://127.0.0.1:11434/v1` | `llama3.1:8b` | رایگان نامحدود، بدون اینترنت |
 
-### محدودیت‌های OpenRouter رایگان
+> **پیشنهاد:** Groq بهترین گزینه‌ست — رایگان، سریع، و مدل `gpt-oss-120b` کیفیت عالی داره.
 
-| پلن | درخواست/دقیقه | درخواست/روز |
-|---|---|---|
-| Free models (`:free`) | 20 | 50 |
-| Paid models (مثل `deepseek-chat`) | 1000 | بدون محدودیت |
+### محدودیت‌های Groq رایگان
 
-> 💡 **پیشنهاد:** اگه حجم چت زیاده، از مدل‌های `:free` استفاده کن (رایگان نامحدود).
-> اگه کیفیت مهمه، `deepseek/deepseek-chat` خیلی ارزونه (~$0.002 هر ۷k توکن).
+| محدودیت | مقدار |
+|---|---|
+| requests per minute | ۳۰ |
+| tokens per minute | ۶۰۰۰ |
+| daily limit | نامحدود |
+
+### نکته مهم برای ایران
+
+Groq و OpenRouter از ایران فیلترن. باید `LLM_PROXY` در `llm.env` تنظیم بشه:
+```bash
+LLM_PROXY=socks5://127.0.0.1:10808
+```
+
+این باعث می‌شه چت پنل و ایجنت هم از پروکسی استفاده کنن.
 
 ---
 

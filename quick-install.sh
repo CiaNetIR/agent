@@ -265,9 +265,29 @@ else
 fi
 
 # ────────────────────────────────────────────────────────────────────
-# STEP 9.6: Auto-detect Telegram proxy (for Iran/filtered networks)
+# STEP 9.7: Set up LLM_PROVIDER with Groq (free, fast, no daily limit)
 # ────────────────────────────────────────────────────────────────────
-say "9.6/12 — تشخیص پروکسی تلگرام"
+say "9.7/12 — تنظیم پیش‌فرض LLM (Groq رایگان)"
+if [ ! -f "$PROJECT/.secrets/llm.env" ] || ! grep -q "^LLM_API_KEY=" "$PROJECT/.secrets/llm.env" 2>/dev/null; then
+  # Write template — user must add their own API key from https://console.groq.com/keys
+  cat > "$PROJECT/.secrets/llm.env" <<'LLENV'
+# LLM config — get free API key from https://console.groq.com/keys
+LLM_PROVIDER=openai
+LLM_BASE_URL=https://api.groq.com/openai/v1
+LLM_API_KEY=gsk_YOUR_GROQ_KEY_HERE
+LLM_MODEL=openai/gpt-oss-120b
+LLM_TIMEOUT_MS=90000
+LLENV
+  say "  ✓ llm.env تمپلیت ساخته شد — کلید Groq رو از https://console.groq.com/keys بگیر و جایگزین کن"
+else
+  say "  ✓ llm.env موجود است"
+fi
+# Also set LLM_PROXY = TELEGRAM_PROXY (so Node.js fetch uses proxy too)
+if [ -n "${PROXY_FOUND:-}" ]; then
+  if ! grep -q "^LLM_PROXY=" "$PROJECT/.secrets/llm.env" 2>/dev/null; then
+    echo "LLM_PROXY=$PROXY_FOUND" >> "$PROJECT/.secrets/llm.env"
+  fi
+fi
 PROXY_FOUND=""
 for port in 10808 10809 7890 1080 2080 8080; do
   if curl -s -m 1 --socks5 127.0.0.1:$port http://example.com >/dev/null 2>&1; then
@@ -409,6 +429,93 @@ chmod +x "$ROOT/keepalive.sh"
 pkill -9 -f "keepalive.sh" 2>/dev/null || true
 setsid --fork bash "$ROOT/keepalive.sh" </dev/null >/dev/null 2>&1
 say "  ✓ keepalive فعال شد"
+
+# ────────────────────────────────────────────────────────────────────
+# STEP 13: Install systemd services (auto-start after reboot)
+# ────────────────────────────────────────────────────────────────────
+say "13 — نصب systemd services (auto-start بعد reboot)"
+cat > /etc/systemd/system/cianet-panel.service <<EOF
+[Unit]
+Description=CiaNet Panel (Next.js)
+After=network.target
+[Service]
+Type=simple
+User=root
+Environment=PATH=$ROOT/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+WorkingDirectory=$PROJECT
+ExecStart=$ROOT/.bun/bin/bun run dev
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-agent.service <<EOF
+[Unit]
+Description=CiaNet Agent (:3004)
+After=network.target cianet-panel.service
+[Service]
+Type=simple
+User=root
+Environment=PATH=$ROOT/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+WorkingDirectory=$PROJECT/mini-services/agent
+ExecStart=$ROOT/.bun/bin/bun run index.ts
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-terminal.service <<EOF
+[Unit]
+Description=CiaNet Terminal (:3001)
+After=network.target
+[Service]
+Type=simple
+User=root
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+WorkingDirectory=$PROJECT/mini-services/terminal
+ExecStart=/usr/bin/node index.mjs
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-watcher.service <<EOF
+[Unit]
+Description=CiaNet Telegram Watcher (@VpnStarZ)
+After=network.target
+[Service]
+Type=simple
+User=root
+Environment=HOME=$ROOT
+Environment=TELEGRAM_PROXY=${PROXY_FOUND:-socks5://127.0.0.1:10808}
+WorkingDirectory=$TG_TOOLS/watcher
+ExecStart=$ROOT/.venv/bin/python watcher.py
+Restart=always
+RestartSec=15
+[Install]
+WantedBy=multi-user.target
+EOF
+cat > /etc/systemd/system/cianet-keepalive.service <<EOF
+[Unit]
+Description=CiaNet Keepalive Daemon
+After=network.target cianet-panel.service cianet-agent.service cianet-terminal.service cianet-watcher.service
+[Service]
+Type=simple
+User=root
+Environment=PATH=$ROOT/.bun/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=$ROOT
+ExecStart=$ROOT/keepalive.sh
+Restart=always
+RestartSec=10
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable cianet-panel cianet-agent cianet-terminal cianet-watcher cianet-keepalive 2>&1 | tail -5
+say "  ✓ systemd services نصب شد — بعد از reboot خودکار روشن می‌شن"
 
 # ────────────────────────────────────────────────────────────────────
 # FINAL REPORT
