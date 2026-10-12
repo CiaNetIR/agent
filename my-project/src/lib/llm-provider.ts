@@ -158,19 +158,81 @@ export async function panelLlmChat(
     const apiKey = env.LLM_API_KEY || ''
     const model = env.LLM_MODEL || ''
     if (!model) throw new Error('LLM_MODEL تنظیم نشده — .secrets/llm.env را کامل کنید (LLM-SETUP.md)')
+    
+    // Auto-detect proxy from env (needed for Iran/filtered networks)
+    const proxyUrl = env.LLM_PROXY || env.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+    
+    // Use https module with SocksProxyAgent for SOCKS5 proxies (undici doesn't support SOCKS5)
+    if (proxyUrl && proxyUrl.startsWith('socks')) {
+      try {
+        const { SocksProxyAgent } = await import('socks-proxy-agent')
+        const https = await import('https')
+        const agent = new SocksProxyAgent(proxyUrl)
+        const urlObj = new URL(`${baseUrl}/chat/completions`)
+        const postData = JSON.stringify({
+          model,
+          messages: [{ role: 'system', content: system }, ...messages],
+        })
+        const headers: Record<string, string> = {
+          'content-type': 'application/json',
+          'user-agent': 'curl/8.5.0',
+          'content-length': Buffer.byteLength(postData).toString(),
+        }
+        if (apiKey) headers.authorization = `Bearer ${apiKey}`
+        const content = await new Promise<string>((resolve, reject) => {
+          const req = https.request(urlObj, {
+            method: 'POST',
+            headers,
+            agent,
+            timeout: ms,
+          }, (res) => {
+            let data = ''
+            res.on('data', c => data += c)
+            res.on('end', () => {
+              if (res.statusCode && res.statusCode >= 400) {
+                reject(new Error(`سرویس مدل خطای HTTP ${res.statusCode} داد: ${data.slice(0, 300) || 'بدون متن خطا'}`))
+                return
+              }
+              resolve(data)
+            })
+          })
+          req.on('error', reject)
+          req.on('timeout', () => { req.destroy(); reject(new Error('مهلت پاسخ مدل تمام شد')) })
+          req.write(postData)
+          req.end()
+        })
+        const data = JSON.parse(content) as { choices?: Array<{ message?: { content?: unknown } }>; model?: string }
+        const text = String(data.choices?.[0]?.message?.content || '').trim()
+        if (!text) throw new Error('پاسخ مدل خالی بود')
+        return { content: text, model: data.model || model }
+      } catch (e) {
+        if (e instanceof Error && e.message.includes('سرویس مدل')) throw e
+        throw new Error(`اتصال به سرویس مدل برقرار نشد (SOCKS proxy): ${e instanceof Error ? e.message.slice(0, 160) : 'خطا'}`)
+      }
+    }
+    
+    // HTTP proxy or direct — use fetch with undici ProxyAgent (for HTTP proxies)
     let res: Response
     try {
-      res = await fetch(`${baseUrl}/chat/completions`, {
+      const fetchOpts: RequestInit & { dispatcher?: unknown } = {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
           ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
           'http-referer': 'https://cianet.local',
           'x-title': 'CiaNet Panel',
+          'user-agent': 'curl/8.5.0',
         },
         body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, ...messages] }),
         signal: AbortSignal.timeout(ms),
-      })
+      }
+      if (proxyUrl && proxyUrl.startsWith('http')) {
+        try {
+          const { ProxyAgent } = await import('undici')
+          ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
+        } catch { /* undici not available — direct fetch */ }
+      }
+      res = await fetch(`${baseUrl}/chat/completions`, fetchOpts)
     } catch (e) {
       throw new Error(`اتصال به سرویس مدل برقرار نشد: ${e instanceof Error ? e.message.slice(0, 160) : 'خطا'}`)
     }
