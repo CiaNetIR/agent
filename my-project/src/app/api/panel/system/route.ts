@@ -97,14 +97,10 @@ export async function GET(req: NextRequest) {
   let auditSize = 0
   try {
     dbSize = statSync(DB_PATH).size
-  } catch {
-    /* noop */
-  }
+  } catch (e) { console.error("[system] silent error:", e instanceof Error ? e.message : String(e)) }
   try {
     auditSize = statSync(path.join(PANEL_DIR, 'audit.log')).size
-  } catch {
-    /* noop */
-  }
+  } catch (e) { console.error("[system] silent error:", e instanceof Error ? e.message : String(e)) }
 
   return NextResponse.json({
     ok: true,
@@ -172,9 +168,7 @@ export async function POST(req: NextRequest) {
         try {
           rmSync(path.join(INSTANCES_DIR, id), { recursive: true, force: true })
           log.push(`instance ${id} removed`)
-        } catch {
-          /* noop */
-        }
+        } catch (e) { console.error("[system] silent error:", e instanceof Error ? e.message : String(e)) }
       }
       // wipe db rows
       await db.tgAccount.deleteMany()
@@ -183,9 +177,7 @@ export async function POST(req: NextRequest) {
       try {
         rmSync(path.join(PANEL_DIR, 'audit.log'), { force: true })
         log.push('panel logs cleared')
-      } catch {
-        /* noop */
-      }
+      } catch (e) { console.error("[system] silent error:", e instanceof Error ? e.message : String(e)) }
       return NextResponse.json({ ok: true, action, log })
     }
 

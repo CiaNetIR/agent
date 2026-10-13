@@ -2,37 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyKey } from '@/lib/panel-server'
 import { db } from '@/lib/db'
 import { testProviderConnection, discoverModels } from '@/lib/llm-provider'
-import * as fs from 'fs'
-import * as path from 'path'
-import * as os from 'os'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
-
-/** Sync default provider to llm.env so watcher (and other services that read
- * llm.env directly) use the same model as the panel chat. */
-function syncToLlmEnv(provider: { kind: string; baseUrl: string; apiKey: string; model: string }) {
-  try {
-    const HOME = process.env.HOME || os.homedir() || '/root'
-    const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
-    const llmEnvPath = path.join(PROJECT_DIR, '.secrets', 'llm.env')
-    const lines = [
-      '# Auto-synced from panel (tab «هوش مصنوعی»)',
-      `LLM_PROVIDER=openai`,
-      `LLM_BASE_URL=${provider.baseUrl}`,
-      `LLM_API_KEY=${provider.apiKey}`,
-      `LLM_MODEL=${provider.model}`,
-      `LLM_TIMEOUT_MS=90000`,
-      '',
-    ]
-    fs.mkdirSync(path.dirname(llmEnvPath), { recursive: true })
-    fs.writeFileSync(llmEnvPath, lines.join('\n'), 'utf8')
-    return true
-  } catch (e) {
-    console.error('syncToLlmEnv failed:', e)
-    return false
-  }
-}
 
 export async function GET(req: NextRequest) {
   if (!verifyKey(req.headers.get('x-panel-key'))) return NextResponse.json({ ok: false }, { status: 401 })
@@ -73,17 +45,9 @@ export async function POST(req: NextRequest) {
     if (body.id) {
       const updateData = { ...data }; if (!body.apiKey) delete (updateData as Record<string, unknown>).apiKey
       const provider = await db.llmProvider.update({ where: { id: body.id }, data: updateData })
-      // Sync to llm.env if this provider is default (so watcher uses same model)
-      if (provider.isDefault && provider.apiKey && provider.baseUrl && provider.model) {
-        syncToLlmEnv({ kind: provider.kind, baseUrl: provider.baseUrl, apiKey: provider.apiKey, model: provider.model })
-      }
       return NextResponse.json({ ok: true, provider: { ...provider, apiKey: '••••••••', hasKey: !!provider.apiKey } })
     } else {
       const provider = await db.llmProvider.create({ data })
-      // Sync to llm.env if this provider is default
-      if (provider.isDefault && provider.apiKey && provider.baseUrl && provider.model) {
-        syncToLlmEnv({ kind: provider.kind, baseUrl: provider.baseUrl, apiKey: provider.apiKey, model: provider.model })
-      }
       return NextResponse.json({ ok: true, provider: { ...provider, apiKey: '••••••••', hasKey: !!provider.apiKey } })
     }
   } catch { return NextResponse.json({ ok: false, error: 'ذخیره Provider ناموفق بود' }, { status: 500 }) }

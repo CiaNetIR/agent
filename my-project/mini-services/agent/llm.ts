@@ -20,13 +20,15 @@
  * the git backup). Full Persian guide: LLM-SETUP.md.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import os from 'os'
 import path from 'path'
 
 /* ================================ config ================================ */
 
 export type ProviderKind = 'zai' | 'openai' | 'none'
 
-const PROJECT_DIR = '/home/z/my-project'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
 const DEFAULT_OPENAI_BASE = 'https://api.openai.com/v1'
 const TAVILY_URL = 'https://api.tavily.com/search'
 
@@ -81,7 +83,7 @@ function openaiCfg(env: Record<string, string>): { baseUrl: string; apiKey: stri
  * and every caller backs off until it clears. Escalating schedule:
  *   30s → 60s → 120s → 300s → 600s (cap), reset after one clean call. */
 
-const COOLDOWN_FILE = '/home/z/agent-files/llm-cooldown.json'
+const COOLDOWN_FILE = path.join(HOME, 'agent-files', 'llm-cooldown.json')
 const COOLDOWN_STEPS_MS = [30_000, 60_000, 120_000, 300_000, 600_000]
 
 let cdUntil = 0        // in-memory mirror of the file (epoch ms)
@@ -356,78 +358,19 @@ async function oaiPost(
   body: unknown,
   ms: number
 ): Promise<Record<string, unknown>> {
-  const envProxy = llmEnv()
-  const proxyUrl = envProxy.LLM_PROXY || envProxy.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
-  
-  // SOCKS5 proxy: use socks-proxy-agent with https module (undici doesn't support SOCKS5)
-  if (proxyUrl && proxyUrl.startsWith('socks')) {
-    try {
-      const { SocksProxyAgent } = await import('socks-proxy-agent')
-      const https = await import('https')
-      const agent = new SocksProxyAgent(proxyUrl)
-      const urlObj = new URL(`${cfg.baseUrl}${apiPath}`)
-      const postData = JSON.stringify(body)
-      const headers: Record<string, string> = {
-        'content-type': 'application/json',
-        'user-agent': 'curl/8.5.0',
-        'content-length': Buffer.byteLength(postData).toString(),
-      }
-      if (cfg.apiKey) headers.authorization = `Bearer ${cfg.apiKey}`
-      const content = await new Promise<string>((resolve, reject) => {
-        const req = https.request(urlObj, {
-          method: 'POST',
-          headers,
-          agent,
-          timeout: ms,
-        }, (res) => {
-          let data = ''
-          res.on('data', c => data += c)
-          res.on('end', () => {
-            if (res.statusCode && res.statusCode >= 400) {
-              reject(new Error(`سرویس مدل خطای HTTP ${res.statusCode} داد: ${data.slice(0, 300) || 'بدون متن خطا'}`))
-              return
-            }
-            resolve(data)
-          })
-        })
-        req.on('error', reject)
-        req.on('timeout', () => { req.destroy(); reject(new Error('مهلت پاسخ مدل تمام شد')) })
-        req.write(postData)
-        req.end()
-      })
-      try {
-        return JSON.parse(content) as Record<string, unknown>
-      } catch {
-        throw new Error('پاسخ سرویس مدل JSON معتبر نبود')
-      }
-    } catch (e) {
-      if (e instanceof Error && e.message.includes('سرویس مدل')) throw e
-      throw new Error(`اتصال به سرویس مدل برقرار نشد (SOCKS): ${e instanceof Error ? e.message.slice(0, 160) : 'خطا'}`)
-    }
-  }
-  
-  // HTTP proxy or direct — use fetch
   let res: Response
   try {
-    const fetchOpts: RequestInit & { dispatcher?: unknown } = {
+    res = await fetch(`${cfg.baseUrl}${apiPath}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         ...(cfg.apiKey ? { authorization: `Bearer ${cfg.apiKey}` } : {}),
         'http-referer': 'https://cianet.local',
         'x-title': 'CiaNet Agent',
-        'user-agent': 'curl/8.5.0',
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(ms),
-    }
-    if (proxyUrl && proxyUrl.startsWith('http')) {
-      try {
-        const { ProxyAgent } = await import('undici')
-        ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
-      } catch { /* undici not available */ }
-    }
-    res = await fetch(`${cfg.baseUrl}${apiPath}`, fetchOpts)
+    })
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
     throw new Error(`اتصال به سرویس مدل برقرار نشد (${cfg.baseUrl}): ${msg.slice(0, 160)}`)

@@ -5,24 +5,29 @@
  */
 import { createHash, timingSafeEqual } from 'crypto'
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync, renameSync } from 'fs'
+import os from 'os'
 import path from 'path'
 import { PrismaClient } from '@prisma/client'
 
+const HOME = process.env.HOME || os.homedir() || '/root'
+const _PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const _TG_TOOLS = process.env.TG_TOOLS || path.join(HOME, 'tg-tools')
+
 export const AGENT_VERSION = '1.0.0'
 export const PORT = 3004
-export const SECRETS_ENV = '/home/z/my-project/.secrets/panel.env'
-export const PROJECT_DIR = '/home/z/my-project'
-export const WATCHER_DIR = '/home/z/tg-tools/watcher'
-export const INSTANCES_ROOT = '/home/z/tg-tools/instances'
+export const SECRETS_ENV = path.join(_PROJECT_DIR, '.secrets', 'panel.env')
+export const PROJECT_DIR = _PROJECT_DIR
+export const WATCHER_DIR = path.join(_TG_TOOLS, 'watcher')
+export const INSTANCES_ROOT = path.join(_TG_TOOLS, 'instances')
 export const SENDQ_DIR = path.join(WATCHER_DIR, 'sendq')
-export const AGENT_FILES = '/home/z/agent-files'
+export const AGENT_FILES = path.join(HOME, 'agent-files')
 export const INVOICE_DIR = path.join(AGENT_FILES, 'invoices')
 export const CHAT_FILES_DIR = path.join(AGENT_FILES, 'chat')
 export const IMAGES_PUBLIC_DIR = path.join(PROJECT_DIR, 'public', 'agent-images')
-export const SCRAPER_HOME = '/home/z/agent/scraper'
+export const SCRAPER_HOME = path.join(HOME, 'agent', 'scraper')
 
 export const db = new PrismaClient({
-  datasources: { db: { url: 'file:/home/z/my-project/db/custom.db' } },
+  datasources: { db: { url: `file:${path.join(PROJECT_DIR, 'db', 'custom.db')}` } },
 })
 
 /* ---------------- secrets ---------------- */
@@ -77,7 +82,45 @@ export { safeEq }
  * like panel-server.ts verifyKey does. */
 let authFails: number[] = []
 export function checkPanelAuth(key: string | undefined): boolean {
-  return true
+  const expected = panelEnvFresh().PANEL_PASSWORD_SHA256 || ''
+
+  // Auto-login mode: no password configured → always allow
+  if (!expected) {
+    authFails = []
+    return true
+  }
+
+  // Rate limit: 5 fails → 5 min lock
+  const now = Date.now()
+  authFails = authFails.filter(t => now - t < 5 * 60 * 1000)
+  if (authFails.length >= 5) {
+    return false
+  }
+
+  // Validate input format
+  if (!key || !/^[0-9a-f]{64}$/i.test(key)) {
+    authFails.push(now)
+    return false
+  }
+
+  // Timing-safe comparison
+  try {
+    const a = Buffer.from(key.toLowerCase(), 'hex')
+    const b = Buffer.from(expected.toLowerCase(), 'hex')
+    if (a.length !== b.length || a.length !== 32) {
+      authFails.push(now)
+      return false
+    }
+    if (timingSafeEqual(a, b)) {
+      authFails = []
+      return true
+    }
+    authFails.push(now)
+    return false
+  } catch {
+    authFails.push(now)
+    return false
+  }
 }
 
 export function checkInternal(token: string | undefined): boolean {
@@ -331,34 +374,6 @@ export function pidFromFileAlive(p: string): boolean {
   }
 }
 
-/** Check if any watcher.py process is running via /proc scan (fallback) */
-function isWatcherRunning(): { running: boolean; pid: number | null } {
-  // First try watcher.lock file
-  try {
-    const lockPath = path.join(WATCHER_DIR, 'watcher.lock')
-    if (pidFromFileAlive(lockPath)) {
-      const pid = parseInt(readFileSync(lockPath, 'utf8').trim(), 10)
-      return { running: true, pid }
-    }
-  } catch { /* */ }
-  // Fallback: scan /proc for watcher.py processes (not instances)
-  try {
-    for (const name of readdirSync('/proc')) {
-      if (!/^\d+$/.test(name)) continue
-      try {
-        const cmdline = readFileSync(`/proc/${name}/cmdline`, 'utf8')
-        if (cmdline.includes('watcher.py') && !cmdline.includes('instances/')) {
-          const pid = parseInt(name, 10)
-          // Update watcher.lock so future checks are fast
-          try { writeFileSync(path.join(WATCHER_DIR, 'watcher.lock'), String(pid)) } catch { /* */ }
-          return { running: true, pid }
-        }
-      } catch { /* process gone or no access */ }
-    }
-  } catch { /* /proc not available */ }
-  return { running: false, pid: null }
-}
-
 /** how many account instances exist / are running + is the main watcher up */
 export function tgLiveness(): { mainRunning: boolean; instancesTotal: number; instancesRunning: number } {
   let instancesTotal = 0
@@ -377,9 +392,8 @@ export function tgLiveness(): { mainRunning: boolean; instancesTotal: number; in
   } catch {
     /* no instances dir yet */
   }
-  const mainCheck = isWatcherRunning()
   return {
-    mainRunning: mainCheck.running,
+    mainRunning: pidFromFileAlive(path.join(WATCHER_DIR, 'watcher.lock')),
     instancesTotal,
     instancesRunning,
   }

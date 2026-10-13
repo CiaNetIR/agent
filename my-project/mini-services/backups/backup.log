@@ -1,0 +1,620 @@
+2026-10-11T17:48:35.411Z [backups] service on :3010 — 30-minute GitHub backup of the whole server (child-process mode)
+2026-10-11T17:48:35.430Z [boot] backup child spawned (pid 1064)
+2026-10-11T17:48:35.620Z [boot] backup started
+2026-10-11T17:48:35.620Z [z-ai-config] refreshed .secrets backup copy
+2026-10-11T17:48:35.838Z [zip] z_backup_20261011-2118.zip (94 KB) — daily anti-delete snapshot
+2026-10-11T17:48:40.557Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T17:48:40.797Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T17:48:41.017Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T17:48:41.237Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T17:49:12.493Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 14.3s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__2bdd8630._.js:3:1183)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/accounts
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T17:49:12.504Z [lint] failed:
+$ eslint .
+/usr/bin/bash: line 1: eslint: command not found
+error: script "lint" exited with code 127
+
+2026-10-11T17:49:12.504Z [tsc] failed:
+l may only specify known properties, and 'transports' does not exist in type 'Partial<ManagerOptions & SocketOptions>'.
+src/components/ui/tooltip.tsx(55,33): error TS2322: Type '{ className: string; }' is not assignable to type 'IntrinsicAttributes & TooltipArrowProps & RefAttributes<SVGSVGElement>'.
+  Property 'className' does not exist on type 'IntrinsicAttributes & TooltipArrowProps & RefAttributes<SVGSVGElement>'.
+src/lib/db.ts(1,10): error TS2305: Module '"@prisma/client"' has no exported member 'PrismaClient'.
+Resolving dependencies
+Resolved, downloaded and extracted [45]
+Saved lockfile
+
+2026-10-11T17:49:12.570Z [boot] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T17:49:12.571Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T18:00:00.016Z [hourly] backup child spawned (pid 3217)
+2026-10-11T18:00:00.038Z [hourly] backup started
+2026-10-11T18:00:00.038Z [z-ai-config] refreshed .secrets backup copy
+2026-10-11T18:00:00.406Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:00:00.552Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:00:00.697Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:00:00.842Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:00:31.157Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.6s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__ea2aab70._.js:3:1183)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__ea2aab70._.js:3:1553)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/system
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T18:00:31.165Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T18:00:31.211Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T18:00:31.212Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T18:30:00.030Z [hourly] backup child spawned (pid 7485)
+2026-10-11T18:30:00.053Z [hourly] backup started
+2026-10-11T18:30:00.402Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:30:00.547Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:30:00.693Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:30:00.838Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T18:30:26.321Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.8s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__2bdd8630._.js:3:1183)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/accounts
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T18:30:26.330Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T18:30:26.380Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T18:30:26.381Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T19:00:00.002Z [hourly] backup child spawned (pid 11814)
+2026-10-11T19:00:00.027Z [hourly] backup started
+2026-10-11T19:00:01.102Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:00:01.248Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:00:01.394Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:00:01.540Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:00:27.117Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.8s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__ea2aab70._.js:3:1183)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__ea2aab70._.js:3:1553)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/system
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T19:00:27.125Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T19:00:27.173Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T19:00:27.173Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T19:30:00.026Z [hourly] backup child spawned (pid 16032)
+2026-10-11T19:30:00.048Z [hourly] backup started
+2026-10-11T19:30:00.336Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:30:00.481Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:30:00.627Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:30:00.773Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T19:30:25.735Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.2s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__2bdd8630._.js:3:1183)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/accounts
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T19:30:25.743Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T19:30:25.796Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T19:30:25.796Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T20:00:00.024Z [hourly] backup child spawned (pid 20688)
+2026-10-11T20:00:00.045Z [hourly] backup started
+2026-10-11T20:00:00.383Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:00:00.529Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:00:00.674Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:00:00.819Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:00:26.079Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.7s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__ea2aab70._.js:3:1183)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__ea2aab70._.js:3:1553)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/system
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T20:00:26.088Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T20:00:26.135Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T20:00:26.135Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T20:30:00.015Z [hourly] backup child spawned (pid 26667)
+2026-10-11T20:30:00.038Z [hourly] backup started
+2026-10-11T20:30:00.054Z [zip] z_backup_20261012-0000.zip (95 KB) — daily anti-delete snapshot
+2026-10-11T20:30:00.335Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:30:00.480Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:30:00.625Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:30:00.770Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T20:30:25.659Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.3s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__2bdd8630._.js:3:1183)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/accounts
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T20:30:25.670Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T20:30:25.720Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T20:30:25.720Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T21:00:00.002Z [hourly] backup child spawned (pid 32600)
+2026-10-11T21:00:00.025Z [hourly] backup started
+2026-10-11T21:00:00.317Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:00:00.463Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:00:00.609Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:00:00.755Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:00:29.063Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 14.0s
+  Skipping validation of types
+  Collecting page data using 1 worker ...
+Error: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
+    at module evaluation (.next-ci/server/chunks/[root-of-the-server]__4798c92f._.js:3:4539)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at getOrInstantiateModuleFromParent (.next-ci/server/chunks/[turbopack]_runtime.js:763:12)
+    at Context.esmImport [as i] (.next-ci/server/chunks/[turbopack]_runtime.js:228:20)
+    at instantiateModule (.next-ci/server/chunks/[turbopack]_runtime.js:740:9)
+    at instantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:768:12)
+    at getOrInstantiateRuntimeModule (.next-ci/server/chunks/[turbopack]_runtime.js:781:12)
+    at Object.m (.next-ci/server/chunks/[turbopack]_runtime.js:790:18)
+
+> Build error occurred
+Error: Failed to collect page data for /api/panel/accounts
+    at ignore-listed frames {
+  type: 'Error'
+}
+
+2026-10-11T21:00:29.072Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T21:00:29.116Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T21:00:29.117Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T21:30:00.018Z [hourly] backup child spawned (pid 5608)
+2026-10-11T21:30:00.043Z [hourly] backup started
+2026-10-11T21:30:00.481Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:30:00.627Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:30:00.773Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:30:00.919Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-11T21:30:33.551Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-11T21:30:33.601Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-11T21:30:33.602Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T03:36:52.463Z [backups] service on :3010 — 30-minute GitHub backup of the whole server (child-process mode)
+2026-10-12T03:36:52.477Z [boot] backup child spawned (pid 1072)
+2026-10-12T03:36:52.700Z [boot] backup started
+2026-10-12T03:36:52.700Z [z-ai-config] refreshed .secrets backup copy
+2026-10-12T03:36:52.902Z [zip] z_backup_20261012-0706.zip (103 KB) — daily anti-delete snapshot
+2026-10-12T03:36:58.010Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T03:36:58.210Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T03:36:58.410Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T03:36:58.610Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T03:37:19.360Z [build] failed:
+0failed%0A-%20Execution%20of%20EntrypointsOperation%3A%3Anew%20failed%0A-%20Execution%20of%20all_entrypoints_write_to_disk_operation%20failed%0A-%20Execution%20of%20output_assets_operation%20failed%0A-%20Execution%20of%20%3CMiddlewareEndpoint%20as%20Endpoint%3E%3A%3Aoutput%20failed%0A-%20Execution%20of%20MiddlewareEndpoint%3A%3Aoutput_assets%20failed%0A-%20Execution%20of%20MiddlewareEndpoint%3A%3Anode_chunk%20failed%0A-%20Execution%20of%20get_middleware_module%20failed%0A-%20Invariant%3A%20Expected%20to%20inject%20all%20imports%2C%20missing%20incrementalCacheHandler%20in%20template%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+
+> Build error occurred
+Error [TurbopackInternalError]: Invariant: Expected to inject all imports, missing incrementalCacheHandler in template
+
+Debug info:
+- Execution of get_all_written_entrypoints_with_issues_operation failed
+- Execution of EntrypointsOperation::new failed
+- Execution of all_entrypoints_write_to_disk_operation failed
+- Execution of output_assets_operation failed
+- Execution of <MiddlewareEndpoint as Endpoint>::output failed
+- Execution of MiddlewareEndpoint::output_assets failed
+- Execution of MiddlewareEndpoint::node_chunk failed
+- Execution of get_middleware_module failed
+- Invariant: Expected to inject all imports, missing incrementalCacheHandler in template
+    at <unknown> (TurbopackInternalError: Invariant: Expected to inject all imports, missing incrementalCacheHandler in template) {
+  location: undefined
+}
+
+2026-10-12T03:37:19.361Z [lint] failed:
+$ eslint .
+/usr/bin/bash: line 1: eslint: command not found
+error: script "lint" exited with code 127
+
+2026-10-12T03:37:19.361Z [tsc] failed:
+e? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+src/lib/panel-server.ts(111,5): error TS2591: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node` and then add 'node' to the types field in your tsconfig.
+src/lib/utils.ts(1,39): error TS2307: Cannot find module 'clsx' or its corresponding type declarations.
+src/proxy.ts(1,43): error TS2307: Cannot find module 'next/server' or its corresponding type declarations.
+Resolving dependencies
+Resolved, downloaded and extracted [45]
+Saved lockfile
+
+2026-10-12T03:37:22.463Z [boot] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T03:37:22.464Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T04:00:00.007Z [hourly] backup child spawned (pid 4902)
+2026-10-12T04:00:00.031Z [hourly] backup started
+2026-10-12T04:00:00.031Z [z-ai-config] refreshed .secrets backup copy
+2026-10-12T04:00:00.577Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:00:00.723Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:00:00.869Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:00:01.014Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:00:37.735Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-12T04:00:38.410Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T04:00:38.410Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T04:30:00.024Z [hourly] backup child spawned (pid 9216)
+2026-10-12T04:30:00.048Z [hourly] backup started
+2026-10-12T04:30:00.437Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:30:00.582Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:30:00.727Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:30:00.872Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T04:30:31.056Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-12T04:30:31.219Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T04:30:31.220Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T05:00:00.024Z [hourly] backup child spawned (pid 14886)
+2026-10-12T05:00:00.046Z [hourly] backup started
+2026-10-12T05:00:01.015Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T05:00:01.161Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T05:00:01.306Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T05:00:01.453Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-12T05:00:31.184Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-12T05:00:31.342Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-12T05:00:31.343Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-13T02:57:33.367Z [backups] service on :3010 — 30-minute GitHub backup of the whole server (child-process mode)
+2026-10-13T02:57:33.371Z [boot] backup child spawned (pid 6567)
+2026-10-13T02:57:33.397Z [boot] backup started
+2026-10-13T02:57:36.042Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T02:57:36.187Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T02:57:36.333Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T02:57:36.479Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T02:57:39.508Z [backups] service on :3010 — 30-minute GitHub backup of the whole server (child-process mode)
+2026-10-13T02:58:13.512Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 15.8s
+  Running TypeScript ...
+Failed to compile.
+
+./skills/image-edit/scripts/image-edit.ts:10:4
+Type error: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+
+[0m [90m  8 |[39m 		[36mconst[39m response [33m=[39m [36mawait[39m zai[33m.[39mimages[33m.[39mgenerations[33m.[39medit({
+ [90m  9 |[39m 			prompt[33m,[39m
+[31m[1m>[22m[39m[90m 10 |[39m 			images[33m:[39m [{ url[33m:[39m imageSource }][33m,[39m  [90m// Array of objects with url property[39m
+ [90m    |[39m 			[31m[1m^[22m[39m
+ [90m 11 |[39m 			size
+ [90m 12 |[39m 		})[33m;[39m
+ [90m 13 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+
+2026-10-13T02:58:13.522Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-13T02:58:13.590Z [boot] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-13T02:58:13.591Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-13T03:00:00.009Z [hourly] backup child spawned (pid 7684)
+2026-10-13T03:00:00.032Z [hourly] backup started
+2026-10-13T03:00:00.324Z [rsync] /home/z/agent/ → rc=23: rsync: [sender] change_dir "/home/z/agent" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T03:00:00.471Z [rsync] /home/z/e2e/ → rc=23: rsync: [sender] change_dir "/home/z/e2e" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T03:00:00.617Z [rsync] /home/z/self/ → rc=23: rsync: [sender] change_dir "/home/z/self" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T03:00:00.763Z [rsync] /home/z/agent-files/ → rc=23: sync: [sender] change_dir "/home/z/agent-files" failed: No such file or directory (2)
+rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1394) [sender=3.5.0]
+
+2026-10-13T03:00:52.479Z [build] failed:
+▲ Next.js 16.1.3 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 23.1s
+  Running TypeScript ...
+Failed to compile.
+
+./skills/image-edit/scripts/image-edit.ts:10:4
+Type error: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+
+[0m [90m  8 |[39m 		[36mconst[39m response [33m=[39m [36mawait[39m zai[33m.[39mimages[33m.[39mgenerations[33m.[39medit({
+ [90m  9 |[39m 			prompt[33m,[39m
+[31m[1m>[22m[39m[90m 10 |[39m 			images[33m:[39m [{ url[33m:[39m imageSource }][33m,[39m  [90m// Array of objects with url property[39m
+ [90m    |[39m 			[31m[1m^[22m[39m
+ [90m 11 |[39m 			size
+ [90m 12 |[39m 		})[33m;[39m
+ [90m 13 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+
+2026-10-13T03:00:52.490Z [tsc] failed:
+skills/image-edit/scripts/image-edit.ts(10,4): error TS2561: Object literal may only specify known properties, but 'images' does not exist in type 'CreateImageEditBody'. Did you mean to write 'image'?
+skills/stock-analysis-skill/src/analyzer.ts(253,11): error TS2322: Type '({ type: string; image: { type: "base64"; data: string; mediaType: "image/png"; url?: undefined; } | { type: "url"; url: string; data?: undefined; mediaType?: undefined; }; } | { type: string; text: string; })[]' is not assignable to type 'string'.
+
+2026-10-13T03:00:52.541Z [hourly] FAILED — git add: fatal: not a git repository (or any of the parent directories): .git
+
+2026-10-13T03:00:52.542Z [cli] result: ok=false err=git add: fatal: not a git repository (or any of the parent directories): .git
+

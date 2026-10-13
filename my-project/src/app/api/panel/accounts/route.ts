@@ -58,13 +58,9 @@ function instanceStatus(id: string): InstanceStatus {
         if (rec.event === 'fatal' || rec.event === 'llm_fail') {
           lastError = String(rec.err || rec.event).slice(0, 140)
         }
-      } catch {
-        /* skip bad line */
-      }
+      } catch (e) { console.error("[accounts] silent error:", e instanceof Error ? e.message : String(e)) }
     }
-  } catch {
-    /* no log yet */
-  }
+  } catch (e) { console.error("[accounts] silent error:", e instanceof Error ? e.message : String(e)) }
   return {
     supervisorAlive: sup.alive,
     running: wat.alive,

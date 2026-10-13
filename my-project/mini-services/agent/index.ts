@@ -252,7 +252,7 @@ async function route(req: IncomingMessage, res: ServerResponse): Promise<void> {
         if (k === 'image_enabled' || k === 'invoice_auto') v = v === '0' || v === 'false' ? '0' : '1'
         if (k === 'report_time' && !/^\d{1,2}:\d{2}$/.test(v)) continue
         if (k === 'image_size' && !IMAGE_SIZES.includes(v)) continue
-        if (k === 'scraper_script' && !v.startsWith('/home/z/')) continue
+        if (k === 'scraper_script' && (!v.startsWith('/') || v.includes('..'))) continue
         if (v.length > 16_000) v = v.slice(0, 16_000)
         await setSetting(k, v)
         n++

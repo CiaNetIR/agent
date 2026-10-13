@@ -3,7 +3,7 @@
  * Shared by all /api/panel/* routes.
  */
 import os from 'os'
-import { createHash, timingSafeEqual } from 'crypto'
+import { timingSafeEqual } from 'crypto'
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs'
 import path from 'path'
 
@@ -42,10 +42,48 @@ export function readPanelConfig(): PanelConfig {
 /** timing-safe sha256 hex comparison. Every failed attempt counts toward
  *  the global 5-fail lockout — previously ONLY /api/panel/auth counted, so
  *  online key-guessing against any other panel route (files, system, …) was
- *  unlimited. A success resets the counters. */
+ *  unlimited. A success resets the counters.
+ *
+ *  CONDITIONAL AUTH: if PANEL_PASSWORD_SHA256 is empty (or not set), the
+ *  panel runs in auto-login mode (returns true without checking). This is
+ *  for local/home servers where the owner doesn't want to type a password.
+ *  When a sha256 hash IS set, the input must match it. */
 export function verifyKey(hashHex: unknown): boolean {
-  registerSuccess()
-  return true
+  // Check lockout first
+  if (isLocked() > 0) return false
+
+  const expected = readPanelConfig().sha256
+
+  // Auto-login mode: no password configured → always allow
+  if (!expected) {
+    registerSuccess()
+    return true
+  }
+
+  // Validate input format (must be 64 hex chars)
+  if (typeof hashHex !== 'string' || !/^[0-9a-f]{64}$/i.test(hashHex)) {
+    registerFail()
+    return false
+  }
+
+  // Timing-safe comparison
+  try {
+    const a = Buffer.from(hashHex.toLowerCase(), 'hex')
+    const b = Buffer.from(expected, 'hex')
+    if (a.length !== b.length || a.length !== 32) {
+      registerFail()
+      return false
+    }
+    if (timingSafeEqual(a, b)) {
+      registerSuccess()
+      return true
+    }
+    registerFail()
+    return false
+  } catch {
+    registerFail()
+    return false
+  }
 }
 
 /* ---------- auth rate limiting (global, in-memory) ---------- */

@@ -15,9 +15,7 @@ export async function POST(req: NextRequest) {
   let body: { key?: string } = {}
   try {
     body = await req.json()
-  } catch {
-    /* ignore */
-  }
+  } catch (e) { console.error("[auth] silent error:", e instanceof Error ? e.message : String(e)) }
   // verifyKey itself counts the attempt (fail → lockout counter, success → reset)
   if (verifyKey(body.key)) {
     const cfg = readPanelConfig()

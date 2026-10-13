@@ -22,10 +22,14 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'http'
 import { spawn } from 'child_process'
 import { closeSync, openSync, readFileSync, writeFileSync, writeSync } from 'fs'
 import { timingSafeEqual } from 'crypto'
+import os from 'os'
+import path from 'path'
 
 const PORT = 3010
 const HERE: string = (import.meta as ImportMeta & { dir?: string }).dir || process.cwd()
-const PANEL_ENV = '/home/z/my-project/.secrets/panel.env'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const PANEL_ENV = path.join(PROJECT_DIR, '.secrets', 'panel.env')
 const STATE_FILE = `${HERE}/state.json`
 const LOG_FILE = `${HERE}/backup.log`
 const RUN_PID = `${HERE}/run.pid`

@@ -24,11 +24,14 @@ import { createHash, timingSafeEqual } from 'node:crypto'
 import { appendFileSync, existsSync, readFileSync, renameSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import os from 'node:os'
 
 const PORT = 3001
 const MAX_SESSIONS = 4
 const HERE = path.dirname(fileURLToPath(import.meta.url))
-const PANEL_ENV = '/home/z/my-project/.secrets/panel.env'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const PROJECT_DIR = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
+const PANEL_ENV = path.join(PROJECT_DIR, '.secrets', 'panel.env')
 const AUDIT_LOG = path.join(HERE, 'term-audit.log')
 const AUDIT_MAX_BYTES = 1024 * 1024
 const IDLE_TIMEOUT_MS = 30 * 60 * 1000
@@ -167,11 +170,11 @@ io.on('connection', (socket) => {
       name: 'xterm-256color',
       cols,
       rows,
-      cwd: '/home/z',
+      cwd: HOME,
       env: {
         ...process.env,
         TERM: 'xterm-256color',
-        HOME: '/home/z',
+        HOME: HOME,
         SHELL: '/bin/bash',
         // NOTE: keep the trailing "$" (not "#") — a "#" made the owner think
         // this shell is root. It is user "z" in the cloud sandbox, never root.

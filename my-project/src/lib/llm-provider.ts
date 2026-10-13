@@ -158,81 +158,19 @@ export async function panelLlmChat(
     const apiKey = env.LLM_API_KEY || ''
     const model = env.LLM_MODEL || ''
     if (!model) throw new Error('LLM_MODEL تنظیم نشده — .secrets/llm.env را کامل کنید (LLM-SETUP.md)')
-    
-    // Auto-detect proxy from env (needed for Iran/filtered networks)
-    const proxyUrl = env.LLM_PROXY || env.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
-    
-    // Use https module with SocksProxyAgent for SOCKS5 proxies (undici doesn't support SOCKS5)
-    if (proxyUrl && proxyUrl.startsWith('socks')) {
-      try {
-        const { SocksProxyAgent } = await import('socks-proxy-agent')
-        const https = await import('https')
-        const agent = new SocksProxyAgent(proxyUrl)
-        const urlObj = new URL(`${baseUrl}/chat/completions`)
-        const postData = JSON.stringify({
-          model,
-          messages: [{ role: 'system', content: system }, ...messages],
-        })
-        const headers: Record<string, string> = {
-          'content-type': 'application/json',
-          'user-agent': 'curl/8.5.0',
-          'content-length': Buffer.byteLength(postData).toString(),
-        }
-        if (apiKey) headers.authorization = `Bearer ${apiKey}`
-        const content = await new Promise<string>((resolve, reject) => {
-          const req = https.request(urlObj, {
-            method: 'POST',
-            headers,
-            agent,
-            timeout: ms,
-          }, (res) => {
-            let data = ''
-            res.on('data', c => data += c)
-            res.on('end', () => {
-              if (res.statusCode && res.statusCode >= 400) {
-                reject(new Error(`سرویس مدل خطای HTTP ${res.statusCode} داد: ${data.slice(0, 300) || 'بدون متن خطا'}`))
-                return
-              }
-              resolve(data)
-            })
-          })
-          req.on('error', reject)
-          req.on('timeout', () => { req.destroy(); reject(new Error('مهلت پاسخ مدل تمام شد')) })
-          req.write(postData)
-          req.end()
-        })
-        const data = JSON.parse(content) as { choices?: Array<{ message?: { content?: unknown } }>; model?: string }
-        const text = String(data.choices?.[0]?.message?.content || '').trim()
-        if (!text) throw new Error('پاسخ مدل خالی بود')
-        return { content: text, model: data.model || model }
-      } catch (e) {
-        if (e instanceof Error && e.message.includes('سرویس مدل')) throw e
-        throw new Error(`اتصال به سرویس مدل برقرار نشد (SOCKS proxy): ${e instanceof Error ? e.message.slice(0, 160) : 'خطا'}`)
-      }
-    }
-    
-    // HTTP proxy or direct — use fetch with undici ProxyAgent (for HTTP proxies)
     let res: Response
     try {
-      const fetchOpts: RequestInit & { dispatcher?: unknown } = {
+      res = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
           ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
           'http-referer': 'https://cianet.local',
           'x-title': 'CiaNet Panel',
-          'user-agent': 'curl/8.5.0',
         },
         body: JSON.stringify({ model, messages: [{ role: 'system', content: system }, ...messages] }),
         signal: AbortSignal.timeout(ms),
-      }
-      if (proxyUrl && proxyUrl.startsWith('http')) {
-        try {
-          const { ProxyAgent } = await import('undici')
-          ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
-        } catch { /* undici not available — direct fetch */ }
-      }
-      res = await fetch(`${baseUrl}/chat/completions`, fetchOpts)
+      })
     } catch (e) {
       throw new Error(`اتصال به سرویس مدل برقرار نشد: ${e instanceof Error ? e.message.slice(0, 160) : 'خطا'}`)
     }
@@ -265,4 +203,144 @@ export async function panelLlmChat(
   throw new Error(
     'هیچ مدلی تنظیم نشده. فایل .secrets/llm.env را طبق راهنمای LLM-SETUP.md کامل کنید (سرویس ابری OpenAI-سازگار یا Ollama محلی).'
   )
+}
+
+// ===================== Provider testing / discovery =====================
+
+export interface ProviderTestInput {
+  baseUrl: string
+  apiKey: string
+  model: string
+  kind: string
+  timeoutMs?: number
+}
+
+export async function testProviderConnection(input: ProviderTestInput): Promise<{ ok: boolean; latencyMs: number; model: string; error?: string }> {
+  const start = Date.now()
+  try {
+    const baseUrl = input.baseUrl.replace(/\/+$/, '')
+    const body: Record<string, unknown> = {
+      model: input.model || 'test',
+      messages: [{ role: 'user', content: 'ping' }],
+      max_tokens: 5,
+    }
+    const headers: Record<string, string> = {
+      'content-type': 'application/json',
+      'user-agent': 'curl/8.5.0',
+    }
+    if (input.apiKey) headers.authorization = `Bearer ${input.apiKey}`
+
+    const env = llmEnv()
+    const proxyUrl = env.LLM_PROXY || env.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+
+    // SOCKS5 proxy
+    if (proxyUrl && proxyUrl.startsWith('socks')) {
+      try {
+        const { SocksProxyAgent } = await import('socks-proxy-agent')
+        const https = await import('https')
+        const agent = new SocksProxyAgent(proxyUrl)
+        const urlObj = new URL(`${baseUrl}/chat/completions`)
+        const postData = JSON.stringify(body)
+        headers['content-length'] = Buffer.byteLength(postData).toString()
+        const content = await new Promise<string>((resolve, reject) => {
+          const req = https.request(urlObj, { method: 'POST', headers, agent, timeout: input.timeoutMs || 30000 }, (res) => {
+            let data = ''
+            res.on('data', c => data += c)
+            res.on('end', () => {
+              if (res.statusCode && res.statusCode >= 400) {
+                reject(new Error(`HTTP ${res.statusCode}: ${data.slice(0, 200)}`))
+                return
+              }
+              resolve(data)
+            })
+          })
+          req.on('error', reject)
+          req.on('timeout', () => { req.destroy(); reject(new Error('timeout')) })
+          req.write(postData)
+          req.end()
+        })
+        const data = JSON.parse(content)
+        return { ok: true, latencyMs: Date.now() - start, model: data.model || input.model }
+      } catch (e) {
+        return { ok: false, latencyMs: Date.now() - start, model: input.model, error: e instanceof Error ? e.message : String(e) }
+      }
+    }
+
+    // HTTP proxy or direct
+    const fetchOpts: RequestInit & { dispatcher?: unknown } = {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(input.timeoutMs || 30000),
+    }
+    if (proxyUrl && proxyUrl.startsWith('http')) {
+      try {
+        const { ProxyAgent } = await import('undici')
+        ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
+      } catch { /* */ }
+    }
+    const res = await fetch(`${baseUrl}/chat/completions`, fetchOpts)
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '')
+      return { ok: false, latencyMs: Date.now() - start, model: input.model, error: `HTTP ${res.status}: ${txt.slice(0, 200)}` }
+    }
+    const data = await res.json() as { model?: string }
+    return { ok: true, latencyMs: Date.now() - start, model: data.model || input.model }
+  } catch (e) {
+    return { ok: false, latencyMs: Date.now() - start, model: input.model, error: e instanceof Error ? e.message : String(e) }
+  }
+}
+
+export async function discoverModels(baseUrl: string, apiKey: string, kind: string): Promise<string[]> {
+  try {
+    const url = baseUrl.replace(/\/+$/, '') + '/models'
+    const headers: Record<string, string> = {
+      'user-agent': 'curl/8.5.0',
+    }
+    if (apiKey) headers.authorization = `Bearer ${apiKey}`
+
+    const env = llmEnv()
+    const proxyUrl = env.LLM_PROXY || env.TELEGRAM_PROXY || process.env.HTTPS_PROXY || process.env.HTTP_PROXY || ''
+
+    // SOCKS5 proxy
+    if (proxyUrl && proxyUrl.startsWith('socks')) {
+      const { SocksProxyAgent } = await import('socks-proxy-agent')
+      const https = await import('https')
+      const agent = new SocksProxyAgent(proxyUrl)
+      const urlObj = new URL(url)
+      const content = await new Promise<string>((resolve, reject) => {
+        const req = https.request(urlObj, { method: 'GET', headers, agent, timeout: 30000 }, (res) => {
+          let data = ''
+          res.on('data', c => data += c)
+          res.on('end', () => {
+            if (res.statusCode && res.statusCode >= 400) {
+              reject(new Error(`HTTP ${res.statusCode}`))
+              return
+            }
+            resolve(data)
+          })
+        })
+        req.on('error', reject)
+        req.on('timeout', () => { req.destroy(); reject(new Error('timeout')) })
+        req.end()
+      })
+      const data = JSON.parse(content) as { data?: Array<{ id: string }> }
+      return (data.data || []).map(m => m.id).filter(Boolean)
+    }
+
+    // HTTP proxy or direct
+    const fetchOpts: RequestInit & { dispatcher?: unknown } = { headers }
+    if (proxyUrl && proxyUrl.startsWith('http')) {
+      try {
+        const { ProxyAgent } = await import('undici')
+        ;(fetchOpts as Record<string, unknown>).dispatcher = new ProxyAgent(proxyUrl)
+      } catch { /* */ }
+    }
+    const res = await fetch(url, fetchOpts)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.json() as { data?: Array<{ id: string }> }
+    return (data.data || []).map(m => m.id).filter(Boolean)
+  } catch (e) {
+    throw new Error(e instanceof Error ? e.message : String(e))
+  }
 }

@@ -23,11 +23,11 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { readdirSync } from 'fs'
 import path from 'path'
 import { randomBytes } from 'crypto'
-import { db, PROJECT_DIR } from './lib'
+import { db, PROJECT_DIR, AGENT_FILES } from './lib'
 import { llmVideoCreate, llmVideoQuery, promptBridge, llmCooldownActive, type VideoGenOpts } from './llm'
 
 export const VIDEOS_PUBLIC_DIR = path.join(PROJECT_DIR, 'public', 'agent-videos')
-const VIDEO_TMP_ROOT = '/home/z/agent-files/video-tmp'
+const VIDEO_TMP_ROOT = path.join(AGENT_FILES, 'video-tmp')
 
 /** max 2 videos generating at once — the owner can queue the rest later */
 const MAX_CONCURRENT = 2

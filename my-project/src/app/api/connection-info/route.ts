@@ -64,9 +64,7 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json()) as { action?: string }
     action = String(body.action ?? '')
-  } catch {
-    /* empty body */
-  }
+  } catch (e) { console.error("[connection-info] silent error:", e instanceof Error ? e.message : String(e)) }
   if (action !== 'rotate') {
     return new Response(JSON.stringify({ ok: false, error: 'unknown action' }), {
       status: 400,

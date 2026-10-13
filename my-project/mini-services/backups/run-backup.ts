@@ -12,19 +12,21 @@
  *   4. housekeeping: rotate >10 MB logs (in-place, append-safe), prune stale
  *      watcher .llm_* temp files
  *   5. git add -A → commit (Persian message, Tehran timestamp) → push with the
- *      PAT from /home/z/.github-token (one-off URL — token NEVER written to
+ *      PAT from ${HOME}/.github-token (one-off URL — token NEVER written to
  *      any repo file) → verify ls-remote == local HEAD
  *
  * Also usable standalone:  bun run-backup.ts --once
  */
 import { spawnSync } from 'child_process'
 import { appendFileSync, closeSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync, openSync, readSync, fstatSync } from 'fs'
+import os from 'os'
 import path from 'path'
 
 export const PORT = 3010
-const TOKEN_FILE = '/home/z/.github-token'
-const MIRROR = '/home/z/agent-repo'
-const PROJECT = '/home/z/my-project'
+const HOME = process.env.HOME || os.homedir() || '/root'
+const TOKEN_FILE = path.join(HOME, '.github-token')
+const MIRROR = path.join(HOME, 'agent-repo')
+const PROJECT = process.env.PROJECT_DIR || path.join(HOME, 'my-project')
 const HERE: string = (import.meta as ImportMeta & { dir?: string }).dir || process.cwd()
 const STATE_FILE = path.join(HERE, 'state.json')
 const LOG_FILE = path.join(HERE, 'backup.log')
@@ -175,7 +177,7 @@ const ZIP_TARGETS = [
 
 function dailyRecoveryZip(): void {
   try {
-    const dir = '/home/z/recovery'
+    const dir = path.join(HOME, 'recovery')
     mkdirSync(dir, { recursive: true })
     const digits = tehranStamp().replace(/[^0-9]/g, '') // YYYYMMDDHHMM
     const day = digits.slice(0, 8)
@@ -240,17 +242,17 @@ function syncAll(): void {
   mkdirSync(path.join(MIRROR, 'server'), { recursive: true })
 
   rsync(`${PROJECT}/`, `${MIRROR}/my-project/`, PROJECT_EXCLUDES)
-  rsync('/home/z/tg-tools/', `${MIRROR}/tg-tools/`, TG_EXCLUDES)
-  rsync('/home/z/agent/', `${MIRROR}/agent/`, ['__pycache__/', '*.pyc'])
-  rsync('/home/z/e2e/', `${MIRROR}/e2e/`, ['chrome-profile*/'])
-  rsync('/home/z/self/', `${MIRROR}/self/`, [])
-  rsync('/home/z/agent-files/', `${MIRROR}/agent-files/`, [], ['--max-size=10M'])
-  rsync('/home/z/recovery/', `${MIRROR}/recovery/`, [])
+  rsync(path.join(HOME, 'tg-tools/'), `${MIRROR}/tg-tools/`, TG_EXCLUDES)
+  rsync(path.join(HOME, 'agent/'), `${MIRROR}/agent/`, ['__pycache__/', '*.pyc'])
+  rsync(path.join(HOME, 'e2e/'), `${MIRROR}/e2e/`, ['chrome-profile*/'])
+  rsync(path.join(HOME, 'self/'), `${MIRROR}/self/`, [])
+  rsync(path.join(HOME, 'agent-files/'), `${MIRROR}/agent-files/`, [], ['--max-size=10M'])
+  rsync(path.join(HOME, 'recovery/'), `${MIRROR}/recovery/`, [])
   // shell scripts from the server root (push-to-github.sh, …)
-  sh('bash', ['-c', `rsync -a /home/z/*.sh ${MIRROR}/scripts/ 2>/dev/null || true`])
+  sh('bash', ['-c', `rsync -a ${HOME}/*.sh ${MIRROR}/scripts/ 2>/dev/null || true`])
   // server root misc files
   for (const f of ['pyproject.toml', 'uv.lock', 'TODO', 'mock-woo-test.mjs']) {
-    sh('bash', ['-c', `cp /home/z/${f} ${MIRROR}/server/ 2>/dev/null || true`])
+    sh('bash', ['-c', `cp ${HOME}/${f} ${MIRROR}/server/ 2>/dev/null || true`])
   }
   // generated images are small and part of the product — keep the .gitkeep
   // placeholder around even when the live dir is momentarily empty
@@ -268,7 +270,7 @@ function serverStateDoc(build: { lint: boolean; tsc: boolean; build: boolean }):
   const ports = sh('bash', ['-c', '(ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | awk "NR>1 {print \\$4}" | sort -u | tr "\\n" " "']).out.trim()
   const versions = sh('bash', ['-c', 'bun -v; node -v; python3 -V 2>&1; git --version']).out.trim().split('\n').join(' · ')
   const head = sh('git', ['log', '-1', '--oneline'], { cwd: MIRROR }).out.trim()
-  const watcherPid = (() => { try { return readFileSync('/home/z/tg-tools/watcher/watcher.lock', 'utf8').trim() } catch { return '?' } })()
+  const watcherPid = (() => { try { return readFileSync(path.join(HOME, 'tg-tools/watcher/watcher.lock'), 'utf8').trim() } catch { return '?' } })()
   const agentHealth = sh('bash', ['-c', 'curl -s -m 3 http://127.0.0.1:3004/healthz || echo down']).out.trim()
   const termOk = sh('bash', ['-c', 'curl -s -m 3 -o /dev/null -w "%{http_code}" http://127.0.0.1:3001/ || echo down']).out.trim()
   const nextOk = sh('bash', ['-c', 'curl -s -m 3 -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/']).out.trim()
@@ -298,11 +300,11 @@ function serverStateDoc(build: { lint: boolean; tsc: boolean; build: boolean }):
 /* ---------------- 3. health checks (بیلد) ---------------- */
 
 function healthChecks(): { lint: boolean; tsc: boolean; build: boolean } {
-  const lint = sh('bash', ['-c', 'cd /home/z/my-project && bun run lint'], { timeoutMs: 180_000 })
-  const tsc = sh('bash', ['-c', 'cd /home/z/my-project && bunx tsc --noEmit'], { timeoutMs: 240_000 })
+  const lint = sh('bash', ['-c', 'cd ${HOME}/my-project && bun run lint'], { timeoutMs: 180_000 })
+  const tsc = sh('bash', ['-c', 'cd ${HOME}/my-project && bunx tsc --noEmit'], { timeoutMs: 240_000 })
   let buildOk = false
   try {
-    const b = sh('bash', ['-c', 'cd /home/z/my-project && NEXT_DIST_DIR=.next-ci NEXT_TELEMETRY_DISABLED=1 nice -n 10 timeout 420 bunx next build'], { timeoutMs: 480_000 })
+    const b = sh('bash', ['-c', 'cd ${HOME}/my-project && NEXT_DIST_DIR=.next-ci NEXT_TELEMETRY_DISABLED=1 nice -n 10 timeout 420 bunx next build'], { timeoutMs: 480_000 })
     buildOk = b.code === 0
     if (!buildOk) log(`[build] failed:\n${b.out.slice(-1500)}`)
   } finally {
@@ -316,11 +318,11 @@ function healthChecks(): { lint: boolean; tsc: boolean; build: boolean } {
 /* ---------------- 4. housekeeping ---------------- */
 
 const ROTATE_LOGS = [
-  '/home/z/my-project/mini-services/agent/service.log',
-  '/home/z/my-project/mini-services/terminal/service.log',
-  '/home/z/tg-tools/watcher/wstdout.log',
-  '/home/z/my-project/mini-services/terminal/term-audit.log',
-  '/home/z/my-project/.panel/audit.log',
+  path.join(PROJECT, 'mini-services/agent/service.log'),
+  path.join(PROJECT, 'mini-services/terminal/service.log'),
+  path.join(HOME, 'tg-tools/watcher/wstdout.log'),
+  path.join(PROJECT, 'mini-services/terminal/term-audit.log'),
+  path.join(PROJECT, '.panel/audit.log'),
 ]
 const ROTATE_BYTES = 10 * 1024 * 1024
 const KEEP_BYTES = 2 * 1024 * 1024
@@ -354,7 +356,7 @@ function housekeeping(): void {
       if (statSync(p).size > ROTATE_BYTES) tailFileInPlace(p)
     } catch { /* missing */ }
   }
-  sh('bash', ['-c', 'rm -f /home/z/tg-tools/watcher/.llm_*.json 2>/dev/null || true'])
+  sh('bash', ['-c', 'rm -f ${HOME}/tg-tools/watcher/.llm_*.json 2>/dev/null || true'])
 }
 
 /* ---------------- 5. git commit + push ---------------- */
@@ -368,7 +370,7 @@ function gitPush(): { ok: boolean; commit?: string; files: number; error?: strin
   try {
     token = readFileSync(TOKEN_FILE, 'utf8').trim()
   } catch {
-    return { ok: false, files, error: 'توکن گیت‌هاب موجود نیست (/home/z/.github-token)' }
+    return { ok: false, files, error: 'توکن گیت‌هاب موجود نیست (${HOME}/.github-token)' }
   }
   if (!token) return { ok: false, files, error: 'توکن گیت‌هاب خالی است' }
   const msg = `بکاپ ۳۰ دقیقه‌ای ${tehranStamp()} تهران — ${files} فایل تغییر کرد`

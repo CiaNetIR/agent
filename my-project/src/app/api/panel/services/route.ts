@@ -39,9 +39,7 @@ function audit(event: string, extra = '') {
   try {
     mkdirSync(PANEL_DIR, { recursive: true })
     appendFileSync(AUDIT_LOG, `${new Date().toISOString()} ${event} ${extra}\n`, 'utf8')
-  } catch {
-    /* noop */
-  }
+  } catch (e) { console.error("[services] silent error:", e instanceof Error ? e.message : String(e)) }
 }
 
 function run(
@@ -80,9 +78,7 @@ function prettyOs(): string {
     const raw = readFileSync('/etc/os-release', 'utf8')
     const m = raw.match(/^PRETTY_NAME="?([^"\n]+)"?/m)
     if (m) return m[1]
-  } catch {
-    /* noop */
-  }
+  } catch (e) { console.error("[services] silent error:", e instanceof Error ? e.message : String(e)) }
   return `${os.type()} ${os.release()}`
 }
 

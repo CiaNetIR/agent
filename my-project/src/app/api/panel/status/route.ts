@@ -40,9 +40,7 @@ function tailEvents(n = 3000): WLogEvent[] {
     for (const line of lines.slice(-n)) {
       try {
         out.push(JSON.parse(line))
-      } catch {
-        /* skip malformed */
-      }
+      } catch (e) { console.error("[status] silent error:", e instanceof Error ? e.message : String(e)) }
     }
     return out
   } catch {
@@ -111,9 +109,7 @@ export async function GET(req: NextRequest) {
       freeGb: +(free / 1024 ** 3).toFixed(1),
       usedPct: total ? Math.round(((total - free) / total) * 100) : 0,
     }
-  } catch {
-    /* keep zeros */
-  }
+  } catch (e) { console.error("[status] silent error:", e instanceof Error ? e.message : String(e)) }
 
   return NextResponse.json({
     ok: true,
